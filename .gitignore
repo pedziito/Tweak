@@ -1,0 +1,26 @@
+# Build output
+build/
+dist/
+cmake-build-*/
+
+# IDE
+.vscode/
+.idea/
+*.user
+
+# Qt generated
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*_autogen/
+
+# OS
+.DS_Store
+Thumbs.db
+*.exe
+*.obj
+*.o
+*.a
+*.lib
+*.dll
+*.pdb
