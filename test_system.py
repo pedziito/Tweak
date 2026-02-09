@@ -85,7 +85,7 @@ def main():
         print(f"  RAM: {hardware_info['ram'].get('total', 'Unknown')}")
         print(f"  OS: {hardware_info['os'].get('name', 'Unknown')}")
         print()
-        print(f"Total relevant tweaks: {sum(len(v) if isinstance(v, list) else 0 for v in relevant_tweaks.values())}")
+        print(f"Total relevant tweaks: {sum(len(v) for v in relevant_tweaks.values() if isinstance(v, list))}")
         print()
         return 0
         

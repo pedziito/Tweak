@@ -223,8 +223,8 @@ class TweaksDatabase:
             },
             {
                 'title': 'Disable Memory Compression (if sufficient RAM)',
-                'description': 'Disable memory compression if you have 16GB+ RAM',
-                'instructions': 'Run PowerShell as admin: Disable-MMAgent -MemoryCompression',
+                'description': 'Disable memory compression if you have 32GB+ RAM for slight performance gain',
+                'instructions': 'Run PowerShell as admin: Disable-MMAgent -MemoryCompression (Recommended only for 32GB+ RAM)',
                 'impact': 'Low',
                 'category': 'Performance'
             },

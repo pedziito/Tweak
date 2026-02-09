@@ -74,7 +74,7 @@ class PCTweaksApp:
         # RAM
         ram = self.hardware_info.get('ram', {})
         print(f"RAM: {ram.get('total', 'Unknown')}")
-        print(f"  Available: {ram.get('available', 'Unknown')} ({ram.get('used_percent', 'Unknown')} used)")
+        print(f"  Available: {ram.get('available', 'Unknown')} (% used: {ram.get('used_percent', 'Unknown')})")
         print()
         
         # Storage

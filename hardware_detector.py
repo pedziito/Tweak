@@ -83,7 +83,7 @@ class HardwareDetector:
                 for gpu in w.Win32_VideoController():
                     gpus.append({
                         'name': gpu.Name,
-                        'memory': f"{int(gpu.AdapterRAM or 0) / (1024**2)}MB" if gpu.AdapterRAM else "Unknown",
+                        'memory': f"{int(gpu.AdapterRAM or 0) / (1024**2):.0f}MB" if gpu.AdapterRAM else "Unknown",
                         'driver': gpu.DriverVersion or "Unknown"
                     })
             except Exception:
