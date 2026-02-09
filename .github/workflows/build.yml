@@ -39,9 +39,14 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Deploy Qt (windeployqt)
+        shell: cmd
         run: |
           mkdir dist
-          copy build\Release\TweakApp.exe dist\ 2>nul || copy build\TweakApp.exe dist\
+          if exist build\Release\TweakApp.exe (
+            copy build\Release\TweakApp.exe dist\
+          ) else (
+            copy build\TweakApp.exe dist\
+          )
           cd dist
           windeployqt --release --qmldir ${{ github.workspace }}\qml TweakApp.exe
 
