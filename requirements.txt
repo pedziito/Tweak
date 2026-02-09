@@ -2,4 +2,4 @@ psutil>=5.9.0
 py-cpuinfo>=9.0.0
 GPUtil>=1.4.0
 wmi>=1.5.1; sys_platform == 'win32'
-pyinstaller>=5.0.0
+pyinstaller>=6.0.0
