@@ -122,7 +122,12 @@ void TweakEngine::updateRecommendations(const HardwareInfo &info)
             || t.id == QStringLiteral("games_task_priority")
             || t.id == QStringLiteral("network_throttle")
             || t.id == QStringLiteral("disable_fullscreen_optim")
-            || t.id == QStringLiteral("disable_game_bar"))
+            || t.id == QStringLiteral("disable_game_bar")
+            || t.id == QStringLiteral("disable_mouse_accel")
+            || t.id == QStringLiteral("disable_transparency")
+            || t.id == QStringLiteral("disable_background_apps")
+            || t.id == QStringLiteral("disable_tips_notifications")
+            || t.id == QStringLiteral("disable_telemetry"))
         {
             t.recommended = true;
         }
@@ -162,6 +167,18 @@ void TweakEngine::updateRecommendations(const HardwareInfo &info)
             || t.id == QStringLiteral("disable_sysmain"))
         {
             t.recommended = info.hasSsd;
+        }
+
+        // Power throttling: recommend for Intel CPUs
+        if (t.id == QStringLiteral("disable_power_throttling")) {
+            t.recommended = info.cpuName.contains(QStringLiteral("Intel"), Qt::CaseInsensitive);
+        }
+
+        // Visual tweaks: recommend if integrated GPU
+        if (t.id == QStringLiteral("visual_fx_performance")
+            || t.id == QStringLiteral("disable_animations"))
+        {
+            t.recommended = (info.gpuVendor == QStringLiteral("Intel"));
         }
     }
 }
@@ -583,6 +600,284 @@ void TweakEngine::initializeTweaks()
                                         "Reduces disk I/O during gaming sessions.");
         t.requiresAdmin = true;
         t.actions.append(serviceAction(QStringLiteral("WSearch"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+
+    // ======= VISUAL (new category) =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_transparency");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Disable transparency effects");
+        t.description = QStringLiteral("Turns off the acrylic / blur transparency in Windows 10/11. "
+                                        "Frees GPU compositing resources.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+            QStringLiteral("EnableTransparency"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_animations");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Disable window animations & effects");
+        t.description = QStringLiteral("Disables minimize/maximize animations, slide-open combos, "
+                                        "and menu fade effects for a snappier desktop.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Control Panel\\Desktop\\WindowMetrics"),
+            QStringLiteral("MinAnimate"),
+            QStringLiteral("0")));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Control Panel\\Desktop"),
+            QStringLiteral("MenuShowDelay"),
+            QStringLiteral("0")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("visual_fx_performance");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Set Visual Effects to 'Best performance'");
+        t.description = QStringLiteral("Sets the VisualFXSetting to performance mode, disabling shadows, "
+                                        "smooth-scrolling, and fade effects system-wide.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects"),
+            QStringLiteral("VisualFXSetting"),
+            QVariant::fromValue(static_cast<quint32>(2))));
+        m_tweaks.append(t);
+    }
+
+    // ======= PRIVACY (new category) =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_cortana");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable Cortana");
+        t.description = QStringLiteral("Prevents Cortana from running in the background, saving CPU and memory.");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"),
+            QStringLiteral("AllowCortana"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_telemetry");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Minimize Windows telemetry level");
+        t.description = QStringLiteral("Sets telemetry to Security level (0), reducing background data "
+                                        "collection that uses CPU, disk and network.");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"),
+            QStringLiteral("AllowTelemetry"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_activity_history");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable activity history & Timeline");
+        t.description = QStringLiteral("Stops Windows from collecting your activity history for Timeline. "
+                                        "Reduces background CPU & disk writes.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\System"),
+            QStringLiteral("EnableActivityFeed"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\System"),
+            QStringLiteral("PublishUserActivities"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.requiresAdmin = true;
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_location_tracking");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable location tracking");
+        t.description = QStringLiteral("Prevents apps from using your location. Saves battery and network usage.");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location"),
+            QStringLiteral("Value"),
+            QStringLiteral("Deny")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_background_apps");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable background apps");
+        t.description = QStringLiteral("Prevents UWP/Store apps from running in the background. "
+                                        "Significant RAM and CPU savings.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications"),
+            QStringLiteral("GlobalUserDisabled"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_tips_notifications");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable Windows tips & suggestions");
+        t.description = QStringLiteral("Stops 'Get tips, tricks and suggestions' notifications that cause "
+                                        "random pop-ups during gaming.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("SoftLandingEnabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("SubscribedContent-338389Enabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= Additional LATENCY =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_power_throttling");
+        t.category = QStringLiteral("Latency");
+        t.name = QStringLiteral("Disable Intel power throttling");
+        t.description = QStringLiteral("Prevents Windows from throttling CPU frequency for power savings. "
+                                        "Ensures max clock during gaming sessions.");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling"),
+            QStringLiteral("PowerThrottlingOff"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+
+    // ======= Additional GAMING =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_mouse_accel");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Disable mouse acceleration (enhance pointer precision)");
+        t.description = QStringLiteral("Removes the 'Enhance pointer precision' acceleration curve. "
+                                        "Essential for consistent aim in FPS games.");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Control Panel\\Mouse"),
+            QStringLiteral("MouseSpeed"),
+            QStringLiteral("0")));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Control Panel\\Mouse"),
+            QStringLiteral("MouseThreshold1"),
+            QStringLiteral("0")));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Control Panel\\Mouse"),
+            QStringLiteral("MouseThreshold2"),
+            QStringLiteral("0")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("gpu_msi_mode");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Enable GPU MSI (Message Signaled Interrupts)");
+        t.description = QStringLiteral("Switches GPU interrupts from legacy line-based to MSI mode. "
+                                        "Reduces DPC latency and improves frame delivery.");
+        t.requiresAdmin = true;
+        // This is a hint — the actual path depends on the GPU device ID
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Tweak\\Hints"),
+            QStringLiteral("GPU_MSI_Mode"),
+            QStringLiteral("Enable MSI mode for your GPU in Device Manager > Properties > MSI: Set to MessageSignaledInterruptProperties")));
+        m_tweaks.append(t);
+    }
+
+    // ======= Additional NETWORK =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("dns_cache_optimize");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Optimize DNS cache size");
+        t.description = QStringLiteral("Increases MaxCacheTtl and MaxCacheEntryTtlLimit for faster DNS "
+                                        "resolution during gaming.");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters"),
+            QStringLiteral("MaxCacheTtl"),
+            QVariant::fromValue(static_cast<quint32>(86400))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters"),
+            QStringLiteral("MaxNegativeCacheTtl"),
+            QVariant::fromValue(static_cast<quint32>(5))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("network_adapter_offload");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Disable TCP/IP task offloading");
+        t.description = QStringLiteral("Prevents the NIC from handling TCP checksums and segmentation. "
+                                        "Can reduce latency spikes on some adapters.");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("DisableTaskOffload"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+
+    // ======= Additional SERVICES =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_windows_update_service");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Pause Windows Update service during gaming");
+        t.description = QStringLiteral("Sets the Windows Update service to manual start. "
+                                        "Prevents updates from downloading during gaming. Re-enable when done.");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("wuauserv"), QStringLiteral("3"))); // 3 = manual
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_remote_desktop");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Remote Desktop services");
+        t.description = QStringLiteral("Stops TermService and related services that listen on the network. "
+                                        "Reduces attack surface and frees resources.");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("TermService"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_print_spooler");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Print Spooler (if no printer)");
+        t.description = QStringLiteral("Stops the Print Spooler service. Saves resources and closes "
+                                        "a known security attack vector (PrintNightmare). Skip if you print.");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("Spooler"), QStringLiteral("4")));
         m_tweaks.append(t);
     }
 }

@@ -49,6 +49,32 @@ ApplicationWindow {
                 color: "#5ad6ff"
             }
 
+            // Tab switcher
+            Row {
+                spacing: 4
+                leftPadding: 24
+
+                Repeater {
+                    model: ["Tweaks", "Performance"]
+
+                    delegate: Button {
+                        text: modelData
+                        flat: true
+                        font.pixelSize: 12
+                        font.weight: contentStack.currentIndex === index ? Font.Bold : Font.Normal
+                        Material.foreground: contentStack.currentIndex === index ? "#5ad6ff" : "#5e7a93"
+
+                        background: Rectangle {
+                            radius: 8
+                            color: contentStack.currentIndex === index ? "#1a3a50" : "transparent"
+                            border.color: contentStack.currentIndex === index ? "#2a7a9c" : "transparent"
+                        }
+
+                        onClicked: contentStack.currentIndex = index
+                    }
+                }
+            }
+
             Item { Layout.fillWidth: true }
 
             Text {
@@ -102,76 +128,87 @@ ApplicationWindow {
             }
         }
 
-        // Right content
-        ColumnLayout {
+        // Right content — tab stack
+        StackLayout {
+            id: contentStack
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 14
+            currentIndex: 0
 
-            // Category filter + title
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 12
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 4
-
-                    Text {
-                        text: "Performance Tweaks"
-                        font.pixelSize: 22
-                        font.weight: Font.Bold
-                        color: "#e6edf6"
-                    }
-                    Text {
-                        text: "Safe, reversible registry & system optimizations"
-                        font.pixelSize: 12
-                        color: "#6b8299"
-                    }
-                }
-
-                CategoryFilter {
-                    id: categoryFilter
-                }
-            }
-
-            // Tweak list
-            ListView {
-                id: tweaksList
+            // === TAB 0: Tweaks ===
+            ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                model: appController.tweaksModel
-                spacing: 10
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
+                spacing: 14
 
-                section.property: "category"
-                section.criteria: ViewSection.FullString
-                section.delegate: Item {
-                    width: tweaksList.width
-                    height: visible ? 36 : 0
-                    visible: categoryFilter.currentCategory === "All"
+                // Category filter + title
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 12
 
-                    Text {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 4
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "▸  " + section
-                        font.pixelSize: 13
-                        font.weight: Font.DemiBold
-                        font.letterSpacing: 1
-                        color: "#5e7a93"
-                        font.capitalization: Font.AllUppercase
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+
+                        Text {
+                            text: "Performance Tweaks"
+                            font.pixelSize: 22
+                            font.weight: Font.Bold
+                            color: "#e6edf6"
+                        }
+                        Text {
+                            text: "Safe, reversible registry & system optimizations"
+                            font.pixelSize: 12
+                            color: "#6b8299"
+                        }
+                    }
+
+                    CategoryFilter {
+                        id: categoryFilter
                     }
                 }
 
-                delegate: TweakCard {
-                    width: tweaksList.width
-                    visible: categoryFilter.currentCategory === "All"
-                             || category === categoryFilter.currentCategory
-                    height: visible ? implicitHeight : 0
+                // Tweak list
+                ListView {
+                    id: tweaksList
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    model: appController.tweaksModel
+                    spacing: 10
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    section.property: "category"
+                    section.criteria: ViewSection.FullString
+                    section.delegate: Item {
+                        width: tweaksList.width
+                        height: visible ? 36 : 0
+                        visible: categoryFilter.currentCategory === "All"
+
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 4
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "▸  " + section
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                            font.letterSpacing: 1
+                            color: "#5e7a93"
+                            font.capitalization: Font.AllUppercase
+                        }
+                    }
+
+                    delegate: TweakCard {
+                        width: tweaksList.width
+                        visible: categoryFilter.currentCategory === "All"
+                                 || category === categoryFilter.currentCategory
+                        height: visible ? implicitHeight : 0
+                    }
                 }
             }
+
+            // === TAB 1: Performance Graph ===
+            PerformanceGraph {}
         }
     }
 

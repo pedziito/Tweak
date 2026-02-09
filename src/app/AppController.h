@@ -10,6 +10,7 @@
 #include "app/TweakListModel.h"
 #include "app/StartupScanner.h"
 #include "app/SettingsManager.h"
+#include "app/BenchmarkEngine.h"
 
 class AppController : public QObject
 {
@@ -40,6 +41,11 @@ class AppController : public QObject
     // Settings
     Q_PROPERTY(QString cs2Path          READ cs2Path   WRITE setCs2Path NOTIFY cs2PathChanged)
     Q_PROPERTY(QString selectedCategory READ selectedCategory WRITE setSelectedCategory NOTIFY selectedCategoryChanged)
+
+    // Benchmark
+    Q_PROPERTY(QVariantList benchmarkResults    READ benchmarkResults    NOTIFY benchmarkChanged)
+    Q_PROPERTY(bool         benchmarkRunning    READ benchmarkRunning    NOTIFY benchmarkRunningChanged)
+    Q_PROPERTY(bool         benchmarkHasBaseline READ benchmarkHasBaseline NOTIFY benchmarkChanged)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -72,12 +78,20 @@ public:
     QString selectedCategory() const;
     void    setSelectedCategory(const QString &cat);
 
+    // Benchmark
+    QVariantList benchmarkResults() const;
+    bool benchmarkRunning() const;
+    bool benchmarkHasBaseline() const;
+
     // Actions
     Q_INVOKABLE void refreshHardware();
     Q_INVOKABLE void applyRecommended();
     Q_INVOKABLE void restoreDefaults();
     Q_INVOKABLE void toggleTweak(int row);
     Q_INVOKABLE bool requestAdmin();
+    Q_INVOKABLE void runBaseline();
+    Q_INVOKABLE void runAfterTweaks();
+    Q_INVOKABLE void resetBenchmark();
 
 signals:
     void hardwareChanged();
@@ -85,6 +99,8 @@ signals:
     void startupChanged();
     void cs2PathChanged();
     void selectedCategoryChanged();
+    void benchmarkChanged();
+    void benchmarkRunningChanged();
 
 private:
     void refreshStartupSuggestions();
@@ -96,4 +112,5 @@ private:
     StartupScanner   m_startupScanner;
     SettingsManager  m_settings;
     QVariantList     m_startupSuggestions;
+    BenchmarkEngine  m_benchmark;
 };

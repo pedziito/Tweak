@@ -11,6 +11,7 @@ AppController::AppController(QObject *parent)
     , m_model(m_engine.tweaks(), this)
     , m_startupScanner()
     , m_settings(this)
+    , m_benchmark(this)
 {
     // Restore persisted CS2 path
     const QString savedCs2 = m_settings.cs2Path();
@@ -20,6 +21,10 @@ AppController::AppController(QObject *parent)
     m_engine.updateRecommendations(m_hwInfo);
     m_model.refresh();
     refreshStartupSuggestions();
+
+    // Connect benchmark signals
+    connect(&m_benchmark, &BenchmarkEngine::resultsChanged, this, &AppController::benchmarkChanged);
+    connect(&m_benchmark, &BenchmarkEngine::runningChanged, this, &AppController::benchmarkRunningChanged);
 }
 
 // ---------------------------------------------------------------------------
@@ -123,3 +128,14 @@ void AppController::refreshStartupSuggestions()
     m_startupSuggestions = m_startupScanner.scan();
     emit startupChanged();
 }
+
+// ---------------------------------------------------------------------------
+// Benchmark
+// ---------------------------------------------------------------------------
+QVariantList AppController::benchmarkResults() const     { return m_benchmark.results(); }
+bool         AppController::benchmarkRunning() const     { return m_benchmark.running(); }
+bool         AppController::benchmarkHasBaseline() const { return m_benchmark.hasBaseline(); }
+
+void AppController::runBaseline()    { m_benchmark.runBaseline(); }
+void AppController::runAfterTweaks() { m_benchmark.runAfterTweaks(); }
+void AppController::resetBenchmark() { m_benchmark.reset(); }

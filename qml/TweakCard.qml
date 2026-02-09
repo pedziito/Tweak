@@ -53,6 +53,8 @@ Rectangle {
                             case "Network":  return "#3d2d1a"
                             case "Power":    return "#3d1a1a"
                             case "Services": return "#1a2d2d"
+                            case "Visual":   return "#2d2d1a"
+                            case "Privacy":  return "#1a2d1a"
                             default:         return "#1a2230"
                         }
                     }
@@ -71,6 +73,8 @@ Rectangle {
                                 case "Network":  return "#ffb454"
                                 case "Power":    return "#ff6b6b"
                                 case "Services": return "#42c6b0"
+                                case "Visual":   return "#ffe066"
+                                case "Privacy":  return "#76d275"
                                 default:         return "#8aa3b8"
                             }
                         }

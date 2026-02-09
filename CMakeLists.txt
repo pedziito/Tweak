@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Widgets)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Widgets Concurrent)
 
 qt_standard_project_setup()
 
@@ -21,6 +21,7 @@ qt_add_executable(TweakApp
     src/app/PowerUtil.cpp
     src/app/UacHelper.cpp
     src/app/SettingsManager.cpp
+    src/app/BenchmarkEngine.cpp
 )
 
 qt_add_qml_module(TweakApp
@@ -34,6 +35,7 @@ qt_add_qml_module(TweakApp
         qml/TweakCard.qml
         qml/CategoryFilter.qml
         qml/Cs2PathDialog.qml
+        qml/PerformanceGraph.qml
 )
 
 target_include_directories(TweakApp PRIVATE src)
@@ -45,6 +47,7 @@ target_link_libraries(TweakApp PRIVATE
     Qt6::Quick
     Qt6::QuickControls2
     Qt6::Widgets
+    Qt6::Concurrent
 )
 
 if (WIN32)

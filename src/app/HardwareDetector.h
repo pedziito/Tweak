@@ -26,5 +26,6 @@ public:
 
 private:
     HardwareInfo detectWindows() const;
+    HardwareInfo detectLinux() const;
     static QString classifyGpuVendor(const QString &gpuName);
 };
