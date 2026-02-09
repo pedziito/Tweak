@@ -5,8 +5,8 @@ import QtQuick.Controls 2.15
 Rectangle {
     Layout.fillWidth: true
     radius: 16
-    color: "#111821"
-    border.color: "#1c2735"
+    color: "#1a1230"
+    border.color: "#2a1f50"
 
     ColumnLayout {
         anchors.fill: parent
@@ -17,13 +17,13 @@ Rectangle {
             text: "Startup Cleanup"
             font.pixelSize: 14
             font.weight: Font.Bold
-            color: "#d7e2ee"
+            color: "#f0eaff"
         }
 
         Text {
             visible: startupList.count === 0
             text: "No startup items detected.\nRun on Windows to scan."
-            color: "#5e7a93"
+            color: "#6b5b95"
             font.pixelSize: 11
             wrapMode: Text.Wrap
         }
@@ -41,8 +41,8 @@ Rectangle {
                 width: startupList.width
                 implicitHeight: startupCol.implicitHeight + 14
                 radius: 10
-                color: "#0d1219"
-                border.color: "#1c2735"
+                color: "#15102a"
+                border.color: "#2a1f50"
 
                 Column {
                     id: startupCol
@@ -52,7 +52,7 @@ Rectangle {
 
                     Text {
                         text: modelData.name
-                        color: "#e0eaf3"
+                        color: "#f0eaff"
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
@@ -60,12 +60,12 @@ Rectangle {
                     }
                     Text {
                         text: modelData.source
-                        color: "#5e7a93"
+                        color: "#6b5b95"
                         font.pixelSize: 10
                     }
                     Text {
                         text: modelData.command
-                        color: "#4a6578"
+                        color: "#4a3d70"
                         font.pixelSize: 10
                         wrapMode: Text.WrapAnywhere
                         width: parent.width

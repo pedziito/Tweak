@@ -1,14 +1,13 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.15
 
 Rectangle {
     Layout.fillWidth: true
     implicitHeight: qaCol.implicitHeight + 36
     radius: 16
-    color: "#111821"
-    border.color: "#1c2735"
+    color: "#1a1230"
+    border.color: "#2a1f50"
 
     ColumnLayout {
         id: qaCol
@@ -20,49 +19,51 @@ Rectangle {
             text: "Quick Actions"
             font.pixelSize: 14
             font.weight: Font.Bold
-            color: "#d7e2ee"
+            color: "#f0eaff"
         }
 
-        Button {
-            text: "⚡  Apply Recommended"
-            Layout.fillWidth: true
-            Material.background: "#1a3a50"
-            Material.foreground: "#5ad6ff"
-            font.weight: Font.DemiBold
-            onClicked: appController.applyRecommended()
-        }
-
-        Button {
-            text: "↺  Restore Defaults"
-            Layout.fillWidth: true
-            Material.background: "#1a2230"
-            Material.foreground: "#8aa3b8"
-            onClicked: appController.restoreDefaults()
-        }
-
-        Button {
-            text: "🔄  Rescan Hardware"
-            Layout.fillWidth: true
-            Material.background: "#1a2230"
-            Material.foreground: "#8aa3b8"
-            onClicked: appController.refreshHardware()
-        }
-
-        Button {
-            text: "📂  Set CS2 Path"
-            Layout.fillWidth: true
-            Material.background: "#1a2230"
-            Material.foreground: "#8aa3b8"
-            onClicked: cs2PathDialog.open()
-        }
+        QAButton { text: "⚡  Apply Recommended"; accent: "#7c3aed"; onClicked: appController.applyRecommended() }
+        QAButton { text: "↺  Restore Defaults"; accent: "#ef4444"; onClicked: appController.restoreDefaults() }
+        QAButton { text: "🔄  Rescan Hardware"; onClicked: appController.refreshHardware() }
+        QAButton { text: "📂  Set CS2 Path"; onClicked: cs2PathDialog.open() }
 
         Text {
             visible: appController.cs2Path !== ""
             text: "CS2: " + appController.cs2Path
-            color: "#5e7a93"
+            color: "#6b5b95"
             font.pixelSize: 10
             wrapMode: Text.Wrap
             Layout.fillWidth: true
         }
+    }
+
+    component QAButton: Rectangle {
+        property string text: ""
+        property color accent: "#7c3aed"
+        signal clicked()
+        Layout.fillWidth: true
+        height: 36
+        radius: 10
+        color: qaHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#15102a"
+        border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.3)
+        border.width: 1
+
+        Text {
+            anchors.centerIn: parent
+            text: parent.text
+            color: "#d4b8ff"
+            font.pixelSize: 12
+            font.weight: Font.DemiBold
+        }
+
+        MouseArea {
+            id: qaHover
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: parent.clicked()
+        }
+
+        Behavior on color { ColorAnimation { duration: 150 } }
     }
 }

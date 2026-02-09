@@ -2,6 +2,8 @@
 #include "app/UacHelper.h"
 
 #include <QCoreApplication>
+#include <QProcess>
+#include <QSysInfo>
 
 AppController::AppController(QObject *parent)
     : QObject(parent)
@@ -12,6 +14,7 @@ AppController::AppController(QObject *parent)
     , m_startupScanner()
     , m_settings(this)
     , m_benchmark(this)
+    , m_systemMonitor(this)
 {
     // Restore persisted CS2 path
     const QString savedCs2 = m_settings.cs2Path();
@@ -21,6 +24,9 @@ AppController::AppController(QObject *parent)
     m_engine.updateRecommendations(m_hwInfo);
     m_model.refresh();
     refreshStartupSuggestions();
+
+    // Start system monitor
+    m_systemMonitor.start();
 
     // Connect benchmark signals
     connect(&m_benchmark, &BenchmarkEngine::resultsChanged, this, &AppController::benchmarkChanged);
@@ -39,6 +45,8 @@ QString AppController::motherboardName()const { return m_hwInfo.motherboard; }
 bool    AppController::hasSsd()         const { return m_hwInfo.hasSsd; }
 bool    AppController::hasNvme()        const { return m_hwInfo.hasNvme; }
 
+QString AppController::totalRam() const { return ramText(); }
+
 QString AppController::ramText() const
 {
     if (m_hwInfo.ramMb == 0) return QStringLiteral("Unknown");
@@ -53,6 +61,18 @@ QString AppController::storageText() const
                : m_hwInfo.storage.join(QStringLiteral(", "));
 }
 
+QString AppController::diskModel() const
+{
+    return m_hwInfo.storage.isEmpty()
+               ? QStringLiteral("Unknown")
+               : m_hwInfo.storage.first();
+}
+
+QString AppController::osVersion() const
+{
+    return QSysInfo::prettyProductName();
+}
+
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
@@ -63,6 +83,9 @@ int  AppController::recommendedCount() const { return m_engine.recommendedCount(
 TweakListModel *AppController::tweaksModel()       { return &m_model; }
 QVariantList    AppController::startupSuggestions() const { return m_startupSuggestions; }
 QStringList     AppController::categories()         const { return m_engine.categories(); }
+
+// System Monitor
+SystemMonitor *AppController::systemMonitor() { return &m_systemMonitor; }
 
 // ---------------------------------------------------------------------------
 // Settings
@@ -80,6 +103,14 @@ void    AppController::setSelectedCategory(const QString &cat)
 {
     m_settings.setSelectedCategory(cat);
     emit selectedCategoryChanged();
+}
+
+QString AppController::filterText() const { return m_filterText; }
+void    AppController::setFilterText(const QString &text)
+{
+    if (m_filterText == text) return;
+    m_filterText = text;
+    emit filterTextChanged();
 }
 
 // ---------------------------------------------------------------------------
@@ -127,6 +158,35 @@ void AppController::refreshStartupSuggestions()
 {
     m_startupSuggestions = m_startupScanner.scan();
     emit startupChanged();
+}
+
+// New actions
+void AppController::applyAllGaming()
+{
+    applyRecommended();
+}
+
+void AppController::restoreAll()
+{
+    restoreDefaults();
+}
+
+void AppController::clearTempFiles()
+{
+#ifdef Q_OS_WIN
+    QProcess::startDetached("cmd", QStringList() << "/c" << "del /q /s %TEMP%\\* 2>nul");
+#else
+    QProcess::startDetached("sh", QStringList() << "-c" << "rm -rf /tmp/tweak_temp 2>/dev/null");
+#endif
+}
+
+void AppController::flushDns()
+{
+#ifdef Q_OS_WIN
+    QProcess::startDetached("cmd", QStringList() << "/c" << "ipconfig /flushdns");
+#else
+    QProcess::startDetached("sh", QStringList() << "-c" << "resolvectl flush-caches 2>/dev/null || systemd-resolve --flush-caches 2>/dev/null");
+#endif
 }
 
 // ---------------------------------------------------------------------------

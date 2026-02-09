@@ -12,9 +12,16 @@ Dialog {
     width: 540
     standardButtons: Dialog.Ok | Dialog.Cancel
 
-    Material.background: "#131a23"
-    Material.foreground: "#e6edf6"
-    Material.accent: "#5ad6ff"
+    Material.background: "#1a1230"
+    Material.foreground: "#f0eaff"
+    Material.accent: "#7c3aed"
+
+    background: Rectangle {
+        radius: 16
+        color: "#1a1230"
+        border.color: "#2a1f50"
+        border.width: 1
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -23,7 +30,7 @@ Dialog {
         Text {
             text: "Enter or browse to your cs2.exe location.\n" +
                   "Leave empty for auto-detection."
-            color: "#8aa3b8"
+            color: "#8b7db0"
             font.pixelSize: 12
             wrapMode: Text.Wrap
             Layout.fillWidth: true
@@ -34,13 +41,13 @@ Dialog {
             Layout.fillWidth: true
             placeholderText: "C:\\...\\cs2.exe"
             text: appController.cs2Path
-            color: "#e6edf6"
-            Material.accent: "#5ad6ff"
+            color: "#f0eaff"
+            Material.accent: "#7c3aed"
         }
 
         Text {
             text: "Tip: Default Steam path is\nC:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\game\\bin\\win64\\cs2.exe"
-            color: "#4a6578"
+            color: "#4a3d70"
             font.pixelSize: 10
             wrapMode: Text.Wrap
             Layout.fillWidth: true

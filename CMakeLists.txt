@@ -22,6 +22,7 @@ qt_add_executable(TweakApp
     src/app/UacHelper.cpp
     src/app/SettingsManager.cpp
     src/app/BenchmarkEngine.cpp
+    src/app/SystemMonitor.cpp
 )
 
 qt_add_qml_module(TweakApp
@@ -29,6 +30,12 @@ qt_add_qml_module(TweakApp
     VERSION 1.0
     QML_FILES
         qml/Main.qml
+        qml/Sidebar.qml
+        qml/DashboardPage.qml
+        qml/TweaksPage.qml
+        qml/CircularGauge.qml
+        qml/StatCard.qml
+        qml/GameProfileCard.qml
         qml/HardwarePanel.qml
         qml/QuickActionsPanel.qml
         qml/StartupPanel.qml

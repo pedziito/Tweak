@@ -11,6 +11,7 @@
 #include "app/StartupScanner.h"
 #include "app/SettingsManager.h"
 #include "app/BenchmarkEngine.h"
+#include "app/SystemMonitor.h"
 
 class AppController : public QObject
 {
@@ -20,11 +21,14 @@ class AppController : public QObject
     Q_PROPERTY(QString cpuName          READ cpuName          NOTIFY hardwareChanged)
     Q_PROPERTY(QString gpuName          READ gpuName          NOTIFY hardwareChanged)
     Q_PROPERTY(QString gpuVendor        READ gpuVendor        NOTIFY hardwareChanged)
+    Q_PROPERTY(QString totalRam         READ totalRam         NOTIFY hardwareChanged)
     Q_PROPERTY(QString ramText          READ ramText          NOTIFY hardwareChanged)
     Q_PROPERTY(int     cpuCores         READ cpuCores         NOTIFY hardwareChanged)
     Q_PROPERTY(int     cpuThreads       READ cpuThreads       NOTIFY hardwareChanged)
     Q_PROPERTY(QString motherboardName  READ motherboardName  NOTIFY hardwareChanged)
     Q_PROPERTY(QString storageText      READ storageText      NOTIFY hardwareChanged)
+    Q_PROPERTY(QString diskModel        READ diskModel        NOTIFY hardwareChanged)
+    Q_PROPERTY(QString osVersion        READ osVersion        NOTIFY hardwareChanged)
     Q_PROPERTY(bool    hasSsd           READ hasSsd           NOTIFY hardwareChanged)
     Q_PROPERTY(bool    hasNvme          READ hasNvme          NOTIFY hardwareChanged)
 
@@ -35,17 +39,22 @@ class AppController : public QObject
 
     // Models
     Q_PROPERTY(TweakListModel* tweaksModel READ tweaksModel CONSTANT)
+    Q_PROPERTY(TweakListModel* tweakModel  READ tweaksModel CONSTANT)
     Q_PROPERTY(QVariantList startupSuggestions READ startupSuggestions NOTIFY startupChanged)
     Q_PROPERTY(QStringList  categories        READ categories         CONSTANT)
 
     // Settings
     Q_PROPERTY(QString cs2Path          READ cs2Path   WRITE setCs2Path NOTIFY cs2PathChanged)
     Q_PROPERTY(QString selectedCategory READ selectedCategory WRITE setSelectedCategory NOTIFY selectedCategoryChanged)
+    Q_PROPERTY(QString filterText       READ filterText WRITE setFilterText NOTIFY filterTextChanged)
 
     // Benchmark
     Q_PROPERTY(QVariantList benchmarkResults    READ benchmarkResults    NOTIFY benchmarkChanged)
     Q_PROPERTY(bool         benchmarkRunning    READ benchmarkRunning    NOTIFY benchmarkRunningChanged)
     Q_PROPERTY(bool         benchmarkHasBaseline READ benchmarkHasBaseline NOTIFY benchmarkChanged)
+
+    // System Monitor
+    Q_PROPERTY(SystemMonitor* systemMonitor READ systemMonitor CONSTANT)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -54,11 +63,14 @@ public:
     QString cpuName() const;
     QString gpuName() const;
     QString gpuVendor() const;
+    QString totalRam() const;
     QString ramText() const;
     int     cpuCores() const;
     int     cpuThreads() const;
     QString motherboardName() const;
     QString storageText() const;
+    QString diskModel() const;
+    QString osVersion() const;
     bool    hasSsd() const;
     bool    hasNvme() const;
 
@@ -77,11 +89,16 @@ public:
     void    setCs2Path(const QString &path);
     QString selectedCategory() const;
     void    setSelectedCategory(const QString &cat);
+    QString filterText() const;
+    void    setFilterText(const QString &text);
 
     // Benchmark
     QVariantList benchmarkResults() const;
     bool benchmarkRunning() const;
     bool benchmarkHasBaseline() const;
+
+    // System Monitor
+    SystemMonitor* systemMonitor();
 
     // Actions
     Q_INVOKABLE void refreshHardware();
@@ -93,12 +110,19 @@ public:
     Q_INVOKABLE void runAfterTweaks();
     Q_INVOKABLE void resetBenchmark();
 
+    // New QML-invokable actions
+    Q_INVOKABLE void applyAllGaming();
+    Q_INVOKABLE void restoreAll();
+    Q_INVOKABLE void clearTempFiles();
+    Q_INVOKABLE void flushDns();
+
 signals:
     void hardwareChanged();
     void tweaksChanged();
     void startupChanged();
     void cs2PathChanged();
     void selectedCategoryChanged();
+    void filterTextChanged();
     void benchmarkChanged();
     void benchmarkRunningChanged();
 
@@ -113,4 +137,6 @@ private:
     SettingsManager  m_settings;
     QVariantList     m_startupSuggestions;
     BenchmarkEngine  m_benchmark;
+    SystemMonitor    m_systemMonitor;
+    QString          m_filterText;
 };

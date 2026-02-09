@@ -1,17 +1,26 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.15
 
 Rectangle {
     id: card
     implicitHeight: cardRow.implicitHeight + 28
     radius: 14
-    color: applied ? "#121e28" : "#111821"
-    border.color: recommended ? "#2a7a9c" : applied ? "#1e4a2e" : "#1c2735"
-    border.width: recommended ? 1.5 : 1
+    color: tweakApplied ? "#1a1835" : "#1a1230"
+    border.color: tweakRecommended ? "#7c3aed" : tweakApplied ? "#1e3a2e" : "#2a1f50"
+    border.width: tweakRecommended ? 1.5 : 1
+
+    property string tweakName: ""
+    property string tweakDesc: ""
+    property string tweakCategory: ""
+    property bool tweakEnabled: true
+    property bool tweakApplied: false
+    property bool tweakRecommended: false
+    property string tweakRisk: "low"
+    signal toggled(bool checked)
 
     Behavior on border.color { ColorAnimation { duration: 200 } }
+    Behavior on color { ColorAnimation { duration: 200 } }
 
     RowLayout {
         id: cardRow
@@ -22,9 +31,20 @@ Rectangle {
         // Status indicator
         Rectangle {
             width: 8; height: 8; radius: 4
-            color: applied ? "#5ee87d" : recommended ? "#5ad6ff" : "#3b4a5a"
+            color: card.tweakApplied ? "#10b981" : card.tweakRecommended ? "#7c3aed" : "#3b2960"
             Layout.alignment: Qt.AlignTop
             Layout.topMargin: 4
+
+            // Glow
+            Rectangle {
+                visible: card.tweakApplied || card.tweakRecommended
+                anchors.centerIn: parent
+                width: 16; height: 16; radius: 8
+                color: "transparent"
+                border.color: parent.color
+                border.width: 1
+                opacity: 0.3
+            }
         }
 
         ColumnLayout {
@@ -34,8 +54,8 @@ Rectangle {
             RowLayout {
                 spacing: 8
                 Text {
-                    text: name
-                    color: "#e6edf6"
+                    text: card.tweakName
+                    color: "#f0eaff"
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
                     wrapMode: Text.Wrap
@@ -43,50 +63,68 @@ Rectangle {
                 }
                 // Category pill
                 Rectangle {
-                    visible: category !== ""
+                    visible: card.tweakCategory !== ""
                     radius: 8
                     color: {
-                        switch (category) {
-                            case "Gaming":   return "#1a2d3d"
-                            case "Latency":  return "#2d1a3d"
-                            case "FPS":      return "#1a3d1f"
-                            case "Network":  return "#3d2d1a"
-                            case "Power":    return "#3d1a1a"
-                            case "Services": return "#1a2d2d"
-                            case "Visual":   return "#2d2d1a"
-                            case "Privacy":  return "#1a2d1a"
-                            default:         return "#1a2230"
+                        switch (card.tweakCategory) {
+                            case "Gaming":   return "#1e1540"
+                            case "Latency":  return "#2d1540"
+                            case "FPS":      return "#152d1a"
+                            case "Network":  return "#2d2015"
+                            case "Power":    return "#2d1515"
+                            case "Services": return "#15252d"
+                            case "Visual":   return "#2d2d15"
+                            case "Privacy":  return "#152d15"
+                            default:         return "#1a1230"
                         }
                     }
                     implicitWidth: catText.implicitWidth + 14
-                    implicitHeight: 20
+                    implicitHeight: 22
 
                     Text {
                         id: catText
                         anchors.centerIn: parent
-                        text: category
+                        text: card.tweakCategory
                         color: {
-                            switch (category) {
-                                case "Gaming":   return "#5ad6ff"
-                                case "Latency":  return "#c77dff"
-                                case "FPS":      return "#5ee87d"
-                                case "Network":  return "#ffb454"
-                                case "Power":    return "#ff6b6b"
-                                case "Services": return "#42c6b0"
-                                case "Visual":   return "#ffe066"
-                                case "Privacy":  return "#76d275"
-                                default:         return "#8aa3b8"
+                            switch (card.tweakCategory) {
+                                case "Gaming":   return "#a78bfa"
+                                case "Latency":  return "#d946ef"
+                                case "FPS":      return "#10b981"
+                                case "Network":  return "#f59e0b"
+                                case "Power":    return "#ef4444"
+                                case "Services": return "#06b6d4"
+                                case "Visual":   return "#fbbf24"
+                                case "Privacy":  return "#34d399"
+                                default:         return "#8b7db0"
                             }
                         }
                         font.pixelSize: 10
                         font.weight: Font.DemiBold
                     }
                 }
+
+                // Risk badge
+                Rectangle {
+                    visible: card.tweakRisk === "high"
+                    radius: 8
+                    color: "#2d1515"
+                    implicitWidth: riskText.implicitWidth + 14
+                    implicitHeight: 22
+
+                    Text {
+                        id: riskText
+                        anchors.centerIn: parent
+                        text: "⚠ High Risk"
+                        color: "#ef4444"
+                        font.pixelSize: 9
+                        font.weight: Font.DemiBold
+                    }
+                }
             }
 
             Text {
-                text: description
-                color: "#6b8299"
+                text: card.tweakDesc
+                color: "#8b7db0"
                 font.pixelSize: 12
                 wrapMode: Text.Wrap
                 Layout.fillWidth: true
@@ -94,35 +132,46 @@ Rectangle {
 
             RowLayout {
                 spacing: 12
-                visible: requiresAdmin || recommended
+                visible: card.tweakRecommended && !card.tweakApplied
 
                 Text {
-                    visible: requiresAdmin
-                    text: "🔒 Requires admin"
-                    color: "#ff9f43"
-                    font.pixelSize: 10
-                }
-                Text {
-                    visible: recommended && !applied
                     text: "★ Recommended"
-                    color: "#5ad6ff"
+                    color: "#7c3aed"
                     font.pixelSize: 10
+                    font.weight: Font.DemiBold
                 }
             }
         }
 
         // Toggle button
-        Button {
-            text: applied ? "✓ Active" : "Apply"
-            flat: applied
-            font.pixelSize: 12
-            font.weight: Font.DemiBold
-            Material.background: applied ? "transparent" : "#1a3a50"
-            Material.foreground: applied ? "#5ee87d" : "#5ad6ff"
+        Rectangle {
             Layout.alignment: Qt.AlignVCenter
-            implicitWidth: 90
+            width: 90; height: 34; radius: 10
+            color: card.tweakApplied ? "#1e3a2e" : "transparent"
+            border.color: card.tweakApplied ? "#10b981" : "#7c3aed"
+            border.width: 1
 
-            onClicked: appController.toggleTweak(index)
+            Gradient {
+                id: applyBtnGrad
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Qt.rgba(0.486, 0.227, 0.929, 0.15) }
+                GradientStop { position: 1.0; color: Qt.rgba(0.850, 0.275, 0.937, 0.15) }
+            }
+            gradient: card.tweakApplied ? null : applyBtnGrad
+
+            Text {
+                anchors.centerIn: parent
+                text: card.tweakApplied ? "✓ Active" : "Apply"
+                color: card.tweakApplied ? "#10b981" : "#d4b8ff"
+                font.pixelSize: 12
+                font.weight: Font.DemiBold
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: card.toggled(!card.tweakApplied)
+            }
         }
     }
 }
