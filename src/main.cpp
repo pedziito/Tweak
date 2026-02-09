@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     AppController controller;
     engine.rootContext()->setContextProperty(QStringLiteral("appController"), &controller);
 
-    const QUrl url(QStringLiteral("qrc:/Tweak/Main.qml"));
+    const QUrl url(QStringLiteral("qrc:/Tweak/qml/Main.qml"));
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreated,
