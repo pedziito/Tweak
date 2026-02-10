@@ -17,7 +17,7 @@ Rectangle {
     property string gameDesc: "Optimize for competitive play"
     property color gradStart: "#7c3aed"
     property color gradEnd: "#d946ef"
-    property string gameIcon: "🎮"
+    property string gameIcon: "G"
     property bool optimized: false
 
     signal optimize()
@@ -48,7 +48,10 @@ Rectangle {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -8
             text: card.gameIcon
-            font.pixelSize: 48
+            font.pixelSize: 22
+            font.weight: Font.Black
+            font.letterSpacing: 1
+            color: "#ffffff"
             opacity: 0.9
         }
 

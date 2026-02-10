@@ -44,8 +44,9 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "⚡"
-                        font.pixelSize: 20
+                        text: "\u26A1"
+                        font.pixelSize: 18
+                        color: "#ffffff"
                     }
                 }
 
@@ -90,7 +91,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "Home"
-            icon: "🏠"
+            icon: "\u2302"
             active: sidebar.currentPage === 0
             onClicked: sidebar.currentPage = 0
         }
@@ -112,7 +113,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "Power Settings"
-            icon: "⚡"
+            icon: "\u26A1"
             active: false
             onClicked: {
                 sidebar.currentPage = 1
@@ -122,7 +123,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "RAM Optimizer"
-            icon: "💾"
+            icon: "\u2B23"
             active: false
             onClicked: {
                 sidebar.currentPage = 1
@@ -132,7 +133,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "Network Tools"
-            icon: "🌐"
+            icon: "\u25C9"
             active: false
             onClicked: {
                 sidebar.currentPage = 1
@@ -157,7 +158,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "All Tweaks"
-            icon: "🔧"
+            icon: "\u2699"
             active: sidebar.currentPage === 1
             onClicked: {
                 sidebar.currentPage = 1
@@ -167,7 +168,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "Gaming"
-            icon: "🎮"
+            icon: "\u25CE"
             active: false
             onClicked: {
                 sidebar.currentPage = 1
@@ -177,7 +178,7 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "Privacy"
-            icon: "🔒"
+            icon: "\u25C6"
             active: false
             onClicked: {
                 sidebar.currentPage = 1
@@ -187,14 +188,14 @@ Rectangle {
         NavButton {
             Layout.fillWidth: true
             text: "Performance"
-            icon: "📊"
+            icon: "\u25B2"
             active: sidebar.currentPage === 2
             onClicked: sidebar.currentPage = 2
         }
         NavButton {
             Layout.fillWidth: true
             text: "Game Estimator"
-            icon: "🎯"
+            icon: "\u25C8"
             active: sidebar.currentPage === 3
             onClicked: sidebar.currentPage = 3
         }
@@ -209,7 +210,7 @@ Rectangle {
         // Version info
         Text {
             Layout.alignment: Qt.AlignHCenter
-            text: "v1.1.0  ·  " + (appController.isAdmin ? "✓ Admin" : "⚠ User")
+            text: "v1.1.0  \u00B7  " + (appController.isAdmin ? "\u2713 Admin" : "\u26A0 User")
             color: appController.isAdmin ? "#10b981" : "#f59e0b"
             font.pixelSize: 10
         }
@@ -232,7 +233,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "🛡️  Run as Admin"
+                text: "\u25B6  Run as Admin"
                 color: "#ffffff"
                 font.pixelSize: 12
                 font.weight: Font.DemiBold

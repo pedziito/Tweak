@@ -18,16 +18,11 @@
 
 GameBenchmark::GameBenchmark(QObject *parent) : QObject(parent)
 {
-    // Initialise game profiles — tuned for 1080p medium-high settings
+    // Initialise game profiles — tuned for 1080p medium settings (base)
     m_profiles = {
-        {"cs2",      "Counter-Strike 2",  "🎯", 0.50, 0.40, 0.10, 120, 550, 0.65},
-        {"fortnite", "Fortnite",          "🏗️", 0.35, 0.55, 0.10, 60,  300, 0.60},
-        {"warzone",  "Warzone",           "💣", 0.40, 0.50, 0.10, 50,  250, 0.55},
-        {"valorant", "Valorant",          "🔫", 0.55, 0.30, 0.15, 150, 600, 0.70},
-        {"apex",     "Apex Legends",      "🔥", 0.40, 0.50, 0.10, 60,  280, 0.58},
-        {"gta5",     "GTA V",             "🚗", 0.35, 0.55, 0.10, 40,  200, 0.55},
-        {"cyberpunk","Cyberpunk 2077",    "🤖", 0.30, 0.60, 0.10, 25,  160, 0.50},
-        {"minecraft","Minecraft",         "⛏️", 0.60, 0.20, 0.20, 100, 500, 0.72},
+        {"cs2",      "Counter-Strike 2",  "CS2", 0.50, 0.40, 0.10, 120, 550, 0.65},
+        {"fortnite", "Fortnite",          "FN",  0.35, 0.55, 0.10, 60,  300, 0.60},
+        {"gta5",     "GTA V",             "GTA", 0.35, 0.55, 0.10, 40,  200, 0.55},
     };
 }
 
@@ -37,6 +32,35 @@ void GameBenchmark::setHardware(const HardwareInfo &, const HardwareScorer *scor
     m_cpuScore = scorer->cpuScore();
     m_gpuScore = scorer->gpuScore();
     m_ramScore = scorer->ramScore();
+}
+
+void GameBenchmark::setSelectedResolution(const QString &res)
+{
+    if (m_resolution == res) return;
+    m_resolution = res;
+    emit resolutionChanged();
+}
+
+void GameBenchmark::setSelectedQuality(const QString &q)
+{
+    if (m_quality == q) return;
+    m_quality = q;
+    emit qualityChanged();
+}
+
+double GameBenchmark::resolutionMultiplier() const
+{
+    if (m_resolution == "1440p") return 0.72;
+    if (m_resolution == "4K")    return 0.45;
+    return 1.0; // 1080p
+}
+
+double GameBenchmark::qualityMultiplier() const
+{
+    if (m_quality == "Low")   return 1.4;
+    if (m_quality == "High")  return 0.7;
+    if (m_quality == "Ultra") return 0.5;
+    return 1.0; // Medium
 }
 
 // ─── FPS Estimation ────────────────────────────────────────────────────
@@ -53,6 +77,10 @@ QVariantMap GameBenchmark::estimateGame(const GameProfile &game, int cpuScore,
     auto sigmoid = [](double x) { return 1.0 / (1.0 + std::exp(-x)); };
     double t = sigmoid((effScore - 40.0) / 22.0);
     double avgFps = game.baseFps + (game.maxFps - game.baseFps) * t;
+
+    // Apply resolution and quality multipliers
+    avgFps *= resolutionMultiplier();
+    avgFps *= qualityMultiplier();
 
     // Add slight random variation (±3%) for realism
     avgFps *= (0.97 + (std::rand() % 60) / 1000.0);

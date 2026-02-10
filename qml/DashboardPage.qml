@@ -369,7 +369,7 @@ Flickable {
                 GameProfileCard {
                     gameName: "Counter-Strike 2"
                     gameDesc: "Max FPS, low latency, competitive settings"
-                    gameIcon: "🎯"
+                    gameIcon: "CS2"
                     gradStart: "#f59e0b"
                     gradEnd: "#ef4444"
                     onOptimize: {
@@ -382,7 +382,7 @@ Flickable {
                 GameProfileCard {
                     gameName: "Fortnite"
                     gameDesc: "Balanced FPS and visual quality"
-                    gameIcon: "🏗️"
+                    gameIcon: "FN"
                     gradStart: "#7c3aed"
                     gradEnd: "#2563eb"
                     onOptimize: {
@@ -392,7 +392,7 @@ Flickable {
                 GameProfileCard {
                     gameName: "Valorant"
                     gameDesc: "Low latency, disable overlays, boost network"
-                    gameIcon: "🔫"
+                    gameIcon: "VAL"
                     gradStart: "#ef4444"
                     gradEnd: "#dc2626"
                     onOptimize: {
@@ -402,7 +402,7 @@ Flickable {
                 GameProfileCard {
                     gameName: "Apex Legends"
                     gameDesc: "Smooth FPS, reduce input lag"
-                    gameIcon: "🔥"
+                    gameIcon: "APEX"
                     gradStart: "#dc2626"
                     gradEnd: "#f59e0b"
                     onOptimize: {
@@ -440,12 +440,12 @@ Flickable {
                     Layout.fillWidth: true
                     spacing: 10
 
-                    ActionPill { text: "🚀  Apply All Gaming Tweaks"; onClicked: appController.applyAllGaming() }
-                    ActionPill { text: "🔄  Restore All Tweaks"; accent: "#ef4444"; onClicked: appController.restoreAll() }
-                    ActionPill { text: "📊  Run Benchmark"; onClicked: appController.runBaseline() }
-                    ActionPill { text: "🎮  Set CS2 Path"; onClicked: cs2PathDialog.open() }
-                    ActionPill { text: "🧹  Clear Temp Files"; onClicked: appController.clearTempFiles() }
-                    ActionPill { text: "💾  Flush DNS"; onClicked: appController.flushDns() }
+                    ActionPill { text: "\u25B6  Apply All Gaming Tweaks"; onClicked: appController.applyAllGaming() }
+                    ActionPill { text: "\u21BA  Restore All Tweaks"; accent: "#ef4444"; onClicked: appController.restoreAll() }
+                    ActionPill { text: "\u25C6  Run Benchmark"; onClicked: appController.runBaseline() }
+                    ActionPill { text: "\u25CE  Set CS2 Path"; onClicked: cs2PathDialog.open() }
+                    ActionPill { text: "\u2726  Clear Temp Files"; onClicked: appController.clearTempFiles() }
+                    ActionPill { text: "\u25A3  Flush DNS"; onClicked: appController.flushDns() }
                 }
             }
         }

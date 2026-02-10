@@ -6,6 +6,9 @@ import QtQuick.Controls 2.15
 Item {
     id: tweaksPage
 
+    // Signal to trigger restart dialog in Main.qml
+    signal restartRequested()
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 28
@@ -25,7 +28,7 @@ Item {
                     font.weight: Font.Bold
                 }
                 Text {
-                    text: appController.tweakModel.rowCount() + " tweaks available  ·  " + appController.selectedCategory
+                    text: appController.tweakModel.rowCount() + " tweaks available  \u00B7  " + appController.selectedCategory
                     color: "#6b5b95"
                     font.pixelSize: 13
                 }
@@ -46,7 +49,7 @@ Item {
                     anchors.rightMargin: 12
                     spacing: 8
 
-                    Text { text: "🔍"; font.pixelSize: 13; color: "#6b5b95" }
+                    Text { text: "\u2315"; font.pixelSize: 15; color: "#6b5b95" }
                     TextInput {
                         id: searchField
                         Layout.fillWidth: true
@@ -62,6 +65,34 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                         }
                         onTextChanged: appController.filterText = text
+                    }
+                }
+            }
+
+            // Save button
+            Rectangle {
+                width: saveBtnText.width + 28; height: 36; radius: 10
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: "#10b981" }
+                    GradientStop { position: 1.0; color: "#06b6d4" }
+                }
+
+                Text {
+                    id: saveBtnText
+                    anchors.centerIn: parent
+                    text: "\u2714  Save"
+                    color: "#ffffff"
+                    font.pixelSize: 12
+                    font.weight: Font.DemiBold
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        appController.saveConfiguration("current")
+                        tweaksPage.restartRequested()
                     }
                 }
             }

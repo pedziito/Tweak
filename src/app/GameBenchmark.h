@@ -19,6 +19,8 @@ class GameBenchmark : public QObject
     Q_PROPERTY(double networkLatency READ networkLatency NOTIFY networkDone)
     Q_PROPERTY(double storageSpeed READ storageSpeed NOTIFY storageDone)
     Q_PROPERTY(int systemLatencyScore READ systemLatencyScore NOTIFY resultsChanged)
+    Q_PROPERTY(QString selectedResolution READ selectedResolution WRITE setSelectedResolution NOTIFY resolutionChanged)
+    Q_PROPERTY(QString selectedQuality READ selectedQuality WRITE setSelectedQuality NOTIFY qualityChanged)
 
 public:
     explicit GameBenchmark(QObject *parent = nullptr);
@@ -30,6 +32,11 @@ public:
     double networkLatency() const { return m_networkLatency; }
     double storageSpeed() const { return m_storageSpeed; }
     int systemLatencyScore() const { return m_systemLatencyScore; }
+    QString selectedResolution() const { return m_resolution; }
+    QString selectedQuality() const { return m_quality; }
+
+    void setSelectedResolution(const QString &res);
+    void setSelectedQuality(const QString &q);
 
     /// Run full estimation suite asynchronously.
     Q_INVOKABLE void runEstimation();
@@ -45,6 +52,8 @@ signals:
     void runningChanged();
     void networkDone();
     void storageDone();
+    void resolutionChanged();
+    void qualityChanged();
 
 private:
     struct GameProfile {
@@ -62,6 +71,8 @@ private:
 
     QVariantMap estimateGame(const GameProfile &game, int cpuScore, int gpuScore,
                              int ramScore) const;
+    double resolutionMultiplier() const;
+    double qualityMultiplier() const;
     double measureNetworkLatency() const;
     double measureStorageSpeed() const;
 
@@ -75,4 +86,7 @@ private:
     int m_cpuScore = 50;
     int m_gpuScore = 50;
     int m_ramScore = 50;
+
+    QString m_resolution = "1080p";
+    QString m_quality = "Medium";
 };

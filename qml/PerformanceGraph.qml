@@ -70,19 +70,19 @@ Rectangle {
             spacing: 10
 
             PerfButton {
-                text: appController.benchmarkRunning ? "⏳ Running..." : "📊 Run Baseline"
+                text: appController.benchmarkRunning ? "\u25CC Running..." : "\u25C6 Run Baseline"
                 enabled: !appController.benchmarkRunning
                 accent: "#7c3aed"
                 onClicked: appController.runBaseline()
             }
             PerfButton {
-                text: appController.benchmarkRunning ? "⏳ Running..." : "📈 After Tweaks"
+                text: appController.benchmarkRunning ? "\u25CC Running..." : "\u25B2 After Tweaks"
                 enabled: !appController.benchmarkRunning && appController.benchmarkHasBaseline
                 accent: "#10b981"
                 onClicked: appController.runAfterTweaks()
             }
             PerfButton {
-                text: "↺ Reset"
+                text: "\u21BA Reset"
                 visible: appController.benchmarkHasBaseline
                 accent: "#ef4444"
                 onClicked: appController.resetBenchmark()
@@ -267,8 +267,9 @@ Rectangle {
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "📊"
+                    text: "\u25C6"
                     font.pixelSize: 48
+                    color: "#7c3aed"
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
