@@ -6,8 +6,8 @@ Rectangle {
     Layout.fillWidth: true
     implicitHeight: qaCol.implicitHeight + 36
     radius: 16
-    color: "#1a1230"
-    border.color: "#2a1f50"
+    color: "#0f1a2e"
+    border.color: "#1e3a5f"
 
     ColumnLayout {
         id: qaCol
@@ -19,10 +19,10 @@ Rectangle {
             text: "Quick Actions"
             font.pixelSize: 14
             font.weight: Font.Bold
-            color: "#f0eaff"
+            color: "#e2e8f0"
         }
 
-        QAButton { text: "⚡  Apply Recommended"; accent: "#7c3aed"; onClicked: appController.applyRecommended() }
+        QAButton { text: "⚡  Apply Recommended"; accent: "#3b82f6"; onClicked: appController.applyRecommended() }
         QAButton { text: "↺  Restore Defaults"; accent: "#ef4444"; onClicked: appController.restoreDefaults() }
         QAButton { text: "🔄  Rescan Hardware"; onClicked: appController.refreshHardware() }
         QAButton { text: "📂  Set CS2 Path"; onClicked: cs2PathDialog.open() }
@@ -30,7 +30,7 @@ Rectangle {
         Text {
             visible: appController.cs2Path !== ""
             text: "CS2: " + appController.cs2Path
-            color: "#6b5b95"
+            color: "#64748b"
             font.pixelSize: 10
             wrapMode: Text.Wrap
             Layout.fillWidth: true
@@ -39,19 +39,19 @@ Rectangle {
 
     component QAButton: Rectangle {
         property string text: ""
-        property color accent: "#7c3aed"
+        property color accent: "#3b82f6"
         signal clicked()
         Layout.fillWidth: true
         height: 36
         radius: 10
-        color: qaHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#15102a"
+        color: qaHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#0c1524"
         border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.3)
         border.width: 1
 
         Text {
             anchors.centerIn: parent
             text: parent.text
-            color: "#d4b8ff"
+            color: "#93c5fd"
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }

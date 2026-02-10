@@ -8,10 +8,10 @@ Canvas {
 
     property real value: 0          // 0..100
     property real lineWidth: 8
-    property color trackColor: "#1e1540"
-    property color startColor: "#7c3aed"
-    property color endColor: "#d946ef"
-    property color glowColor: "#7c3aed"
+    property color trackColor: "#0f2340"
+    property color startColor: "#3b82f6"
+    property color endColor: "#06b6d4"
+    property color glowColor: "#3b82f6"
     property bool showText: true
     property string label: ""
     property real animatedValue: 0
@@ -74,14 +74,14 @@ Canvas {
             text: Math.round(gauge.animatedValue) + "%"
             font.pixelSize: gauge.width * 0.22
             font.weight: Font.Bold
-            color: "#f0eaff"
+            color: "#e2e8f0"
         }
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             visible: gauge.label !== ""
             text: gauge.label
             font.pixelSize: gauge.width * 0.11
-            color: "#6b5b95"
+            color: "#64748b"
         }
     }
 }

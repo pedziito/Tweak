@@ -25,13 +25,13 @@ Rectangle {
                     text: "Performance Benchmark"
                     font.pixelSize: 26
                     font.weight: Font.Bold
-                    color: "#f0eaff"
+                    color: "#e2e8f0"
                 }
                 Text {
                     text: appController.benchmarkHasBaseline
                           ? "Compare system responsiveness before and after applying tweaks."
                           : "Run a baseline benchmark, apply tweaks, then benchmark again to see improvements."
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 13
                 }
             }
@@ -45,8 +45,8 @@ Rectangle {
 
                 Row {
                     spacing: 4
-                    Rectangle { width: 12; height: 12; radius: 3; color: "#3b2960"; anchors.verticalCenter: parent.verticalCenter }
-                    Text { text: "Before"; color: "#8b7db0"; font.pixelSize: 11 }
+                    Rectangle { width: 12; height: 12; radius: 3; color: "#1e3a5f"; anchors.verticalCenter: parent.verticalCenter }
+                    Text { text: "Before"; color: "#94a3b8"; font.pixelSize: 11 }
                 }
                 Row {
                     spacing: 4
@@ -55,11 +55,11 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: "#7c3aed" }
-                            GradientStop { position: 1; color: "#d946ef" }
+                            GradientStop { position: 0; color: "#3b82f6" }
+                            GradientStop { position: 1; color: "#06b6d4" }
                         }
                     }
-                    Text { text: "After"; color: "#8b7db0"; font.pixelSize: 11 }
+                    Text { text: "After"; color: "#94a3b8"; font.pixelSize: 11 }
                 }
             }
         }
@@ -72,7 +72,7 @@ Rectangle {
             PerfButton {
                 text: appController.benchmarkRunning ? "\u25CC Running..." : "\u25C6 Run Baseline"
                 enabled: !appController.benchmarkRunning
-                accent: "#7c3aed"
+                accent: "#3b82f6"
                 onClicked: appController.runBaseline()
             }
             PerfButton {
@@ -93,7 +93,7 @@ Rectangle {
         Text {
             visible: appController.benchmarkRunning
             text: "Running benchmarks — this takes about 15-30 seconds..."
-            color: "#7c3aed"
+            color: "#3b82f6"
             font.pixelSize: 12
             font.italic: true
 
@@ -118,7 +118,7 @@ Rectangle {
 
             ScrollBar.vertical: ScrollBar {
                 policy: ScrollBar.AsNeeded
-                contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#7c3aed"; opacity: 0.5 }
+                contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b82f6"; opacity: 0.5 }
                 background: Rectangle { color: "transparent" }
             }
 
@@ -126,8 +126,8 @@ Rectangle {
                 width: benchList.width
                 height: 90
                 radius: 12
-                color: "#1a1230"
-                border.color: "#2a1f50"
+                color: "#0f1a2e"
+                border.color: "#1e3a5f"
 
                 property var item: modelData
                 property double maxVal: {
@@ -148,7 +148,7 @@ Rectangle {
 
                         Text {
                             text: item.name
-                            color: "#f0eaff"
+                            color: "#e2e8f0"
                             font.pixelSize: 13
                             font.weight: Font.DemiBold
                         }
@@ -161,7 +161,7 @@ Rectangle {
                             radius: 8
                             color: {
                                 var imp = item.improvement || 0
-                                return imp > 0 ? "#152d1a" : imp < 0 ? "#2d1515" : "#1a1230"
+                                return imp > 0 ? "#152d1a" : imp < 0 ? "#2d1515" : "#0f1a2e"
                             }
                             implicitWidth: impText.implicitWidth + 16
                             implicitHeight: 22
@@ -176,7 +176,7 @@ Rectangle {
                                 }
                                 color: {
                                     var imp = item.improvement || 0
-                                    return imp > 0 ? "#10b981" : imp < 0 ? "#ef4444" : "#8b7db0"
+                                    return imp > 0 ? "#10b981" : imp < 0 ? "#ef4444" : "#94a3b8"
                                 }
                                 font.pixelSize: 11
                                 font.weight: Font.Bold
@@ -194,13 +194,13 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 16
                             radius: 4
-                            color: "#15102a"
+                            color: "#0c1524"
 
                             Rectangle {
                                 width: parent.width * Math.min(item.baseline / maxVal, 1.0)
                                 height: parent.height
                                 radius: 4
-                                color: "#3b2960"
+                                color: "#1e3a5f"
 
                                 Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
                             }
@@ -208,7 +208,7 @@ Rectangle {
 
                         Text {
                             text: item.baseline.toFixed(1) + " " + item.unit
-                            color: "#6b5b95"
+                            color: "#64748b"
                             font.pixelSize: 10
                             Layout.preferredWidth: 80
                             horizontalAlignment: Text.AlignRight
@@ -225,7 +225,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 16
                             radius: 4
-                            color: "#15102a"
+                            color: "#0c1524"
 
                             Rectangle {
                                 width: parent.width * Math.min(item.current / maxVal, 1.0)
@@ -234,8 +234,8 @@ Rectangle {
 
                                 gradient: Gradient {
                                     orientation: Gradient.Horizontal
-                                    GradientStop { position: 0.0; color: "#7c3aed" }
-                                    GradientStop { position: 1.0; color: "#d946ef" }
+                                    GradientStop { position: 0.0; color: "#3b82f6" }
+                                    GradientStop { position: 1.0; color: "#06b6d4" }
                                 }
 
                                 Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
@@ -244,7 +244,7 @@ Rectangle {
 
                         Text {
                             text: item.current.toFixed(1) + " " + item.unit
-                            color: "#d4b8ff"
+                            color: "#93c5fd"
                             font.pixelSize: 10
                             font.weight: Font.DemiBold
                             Layout.preferredWidth: 80
@@ -269,18 +269,18 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "\u25C6"
                     font.pixelSize: 48
-                    color: "#7c3aed"
+                    color: "#3b82f6"
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "No benchmark data yet"
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 14
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "Click 'Run Baseline' to start measuring"
-                    color: "#4a3d70"
+                    color: "#475569"
                     font.pixelSize: 12
                 }
             }
@@ -292,8 +292,8 @@ Rectangle {
             visible: appController.benchmarkResults.length > 0 && appController.benchmarkHasBaseline
             height: 44
             radius: 12
-            color: "#1a1230"
-            border.color: "#2a1f50"
+            color: "#0f1a2e"
+            border.color: "#1e3a5f"
 
             RowLayout {
                 anchors.fill: parent
@@ -316,7 +316,7 @@ Rectangle {
                         var prefix = avg > 0 ? "+" : ""
                         return "Overall: " + prefix + avg.toFixed(1) + "% average improvement across " + count + " metrics"
                     }
-                    color: "#d4b8ff"
+                    color: "#93c5fd"
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                     Layout.fillWidth: true
@@ -327,15 +327,15 @@ Rectangle {
 
     component PerfButton: Rectangle {
         property string text: ""
-        property color accent: "#7c3aed"
+        property color accent: "#3b82f6"
         property bool enabled: true
         signal clicked()
 
         width: perfBtnText.implicitWidth + 28
         height: 36
         radius: 10
-        color: !enabled ? "#15102a" : perfBtnHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.15) : "#15102a"
-        border.color: !enabled ? "#1e1540" : Qt.rgba(accent.r, accent.g, accent.b, 0.4)
+        color: !enabled ? "#0c1524" : perfBtnHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.15) : "#0c1524"
+        border.color: !enabled ? "#0f2340" : Qt.rgba(accent.r, accent.g, accent.b, 0.4)
         border.width: 1
         opacity: enabled ? 1.0 : 0.5
 
@@ -343,7 +343,7 @@ Rectangle {
             id: perfBtnText
             anchors.centerIn: parent
             text: parent.text
-            color: parent.enabled ? "#d4b8ff" : "#4a3d70"
+            color: parent.enabled ? "#93c5fd" : "#475569"
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }

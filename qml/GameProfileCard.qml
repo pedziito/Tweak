@@ -8,15 +8,15 @@ Rectangle {
     width: 220
     height: 260
     radius: 16
-    color: "#1a1230"
-    border.color: hoverArea.containsMouse ? "#7c3aed" : "#2a1f50"
+    color: "#0f1a2e"
+    border.color: hoverArea.containsMouse ? "#3b82f6" : "#1e3a5f"
     border.width: 1
     clip: true
 
     property string gameName: "Game"
     property string gameDesc: "Optimize for competitive play"
-    property color gradStart: "#7c3aed"
-    property color gradEnd: "#d946ef"
+    property color gradStart: "#3b82f6"
+    property color gradEnd: "#06b6d4"
     property string gameIcon: "G"
     property bool optimized: false
 
@@ -40,7 +40,7 @@ Rectangle {
             anchors.bottom: parent.bottom
             width: parent.width
             height: 16
-            color: "#1a1230"
+            color: "#0f1a2e"
         }
 
         // Game icon large
@@ -79,14 +79,14 @@ Rectangle {
 
         Text {
             text: card.gameName
-            color: "#f0eaff"
+            color: "#e2e8f0"
             font.pixelSize: 15
             font.weight: Font.Bold
         }
 
         Text {
             text: card.gameDesc
-            color: "#6b5b95"
+            color: "#64748b"
             font.pixelSize: 11
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
@@ -100,21 +100,21 @@ Rectangle {
             height: 34
             radius: 10
             color: card.optimized ? "#1e3a2e" : "transparent"
-            border.color: card.optimized ? "#10b981" : "#7c3aed"
+            border.color: card.optimized ? "#10b981" : "#3b82f6"
             border.width: 1
 
             Gradient {
                 id: optimizeBtnGrad
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Qt.rgba(0.486, 0.227, 0.929, 0.15) }
-                GradientStop { position: 1.0; color: Qt.rgba(0.850, 0.275, 0.937, 0.15) }
+                GradientStop { position: 0.0; color: Qt.rgba(0.231, 0.510, 0.965, 0.15) }
+                GradientStop { position: 1.0; color: Qt.rgba(0.024, 0.714, 0.831, 0.15) }
             }
             gradient: card.optimized ? null : optimizeBtnGrad
 
             Text {
                 anchors.centerIn: parent
                 text: card.optimized ? "✓ Optimized" : "Optimize"
-                color: card.optimized ? "#10b981" : "#d4b8ff"
+                color: card.optimized ? "#10b981" : "#93c5fd"
                 font.pixelSize: 12
                 font.weight: Font.DemiBold
             }

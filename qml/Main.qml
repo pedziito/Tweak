@@ -13,22 +13,22 @@ ApplicationWindow {
     title: "Tweak  —  Performance Suite"
 
     Material.theme: Material.Dark
-    Material.accent: "#7c3aed"
-    Material.primary: "#0f0a1a"
-    Material.background: "#0f0a1a"
+    Material.accent: "#3b82f6"
+    Material.primary: "#080e1a"
+    Material.background: "#080e1a"
 
     font.family: "Segoe UI"
     font.pixelSize: 13
 
-    color: "#0f0a1a"
+    color: "#080e1a"
 
     // ── Background ──
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#0f0a1a" }
-            GradientStop { position: 0.4; color: "#110d1f" }
-            GradientStop { position: 1.0; color: "#0d0816" }
+            GradientStop { position: 0.0; color: "#080e1a" }
+            GradientStop { position: 0.4; color: "#0a1220" }
+            GradientStop { position: 1.0; color: "#060c18" }
         }
     }
 
@@ -89,8 +89,8 @@ ApplicationWindow {
 
         background: Rectangle {
             radius: 16
-            color: "#1a1230"
-            border.color: "#7c3aed"
+            color: "#0f1a2e"
+            border.color: "#3b82f6"
             border.width: 1
         }
 
@@ -100,7 +100,7 @@ ApplicationWindow {
             Text {
                 Layout.fillWidth: true
                 text: "Restart to Apply"
-                color: "#f0eaff"
+                color: "#e2e8f0"
                 font.pixelSize: 20
                 font.weight: Font.Bold
                 horizontalAlignment: Text.AlignHCenter
@@ -109,7 +109,7 @@ ApplicationWindow {
             Text {
                 Layout.fillWidth: true
                 text: "Your tweaks have been saved.\nRestart your PC to apply the changes."
-                color: "#8b7db0"
+                color: "#94a3b8"
                 font.pixelSize: 13
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
@@ -125,13 +125,13 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     height: 40; radius: 10
                     color: "transparent"
-                    border.color: "#3b2960"
+                    border.color: "#1e3a5f"
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text: "Later"
-                        color: "#8b7db0"
+                        color: "#94a3b8"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                     }
@@ -149,8 +149,8 @@ ApplicationWindow {
                     height: 40; radius: 10
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: "#7c3aed" }
-                        GradientStop { position: 1.0; color: "#d946ef" }
+                        GradientStop { position: 0.0; color: "#3b82f6" }
+                        GradientStop { position: 1.0; color: "#06b6d4" }
                     }
 
                     Text {

@@ -6,7 +6,7 @@ import QtQuick.Controls 2.15
 Rectangle {
     id: sidebar
     width: 250
-    color: "#110c1f"
+    color: "#0a1220"
     border.width: 0
 
     property int currentPage: 0  // 0=Home, 1=Tweaks, 2=Performance, 3=Game Benchmark
@@ -16,7 +16,7 @@ Rectangle {
         anchors.right: parent.right
         width: 1
         height: parent.height
-        color: "#2a1f50"
+        color: "#1e3a5f"
     }
 
     ColumnLayout {
@@ -38,8 +38,8 @@ Rectangle {
                 Rectangle {
                     width: 42; height: 42; radius: 14
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: "#7c3aed" }
-                        GradientStop { position: 1.0; color: "#d946ef" }
+                        GradientStop { position: 0.0; color: "#3b82f6" }
+                        GradientStop { position: 1.0; color: "#06b6d4" }
                     }
 
                     Text {
@@ -54,14 +54,14 @@ Rectangle {
                     spacing: 2
                     Text {
                         text: "Tweak"
-                        color: "#f0eaff"
+                        color: "#e2e8f0"
                         font.pixelSize: 18
                         font.weight: Font.Bold
                         font.letterSpacing: 1
                     }
                     Text {
                         text: "PERFORMANCE SUITE"
-                        color: "#6b5b95"
+                        color: "#64748b"
                         font.pixelSize: 8
                         font.weight: Font.DemiBold
                         font.letterSpacing: 2
@@ -71,7 +71,7 @@ Rectangle {
         }
 
         // ── Separator ──
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#1e1540"; Layout.leftMargin: 20; Layout.rightMargin: 20 }
+        Rectangle { Layout.fillWidth: true; height: 1; color: "#0f2340"; Layout.leftMargin: 20; Layout.rightMargin: 20 }
 
         // ── Nav sections ──
         Item { Layout.preferredHeight: 16 }
@@ -79,7 +79,7 @@ Rectangle {
         // MAIN section
         Text {
             text: "MAIN"
-            color: "#4a3d70"
+            color: "#475569"
             font.pixelSize: 10
             font.weight: Font.DemiBold
             font.letterSpacing: 2
@@ -101,7 +101,7 @@ Rectangle {
         // GENERAL section
         Text {
             text: "GENERAL"
-            color: "#4a3d70"
+            color: "#475569"
             font.pixelSize: 10
             font.weight: Font.DemiBold
             font.letterSpacing: 2
@@ -146,7 +146,7 @@ Rectangle {
         // TWEAKS section
         Text {
             text: "TWEAKS"
-            color: "#4a3d70"
+            color: "#475569"
             font.pixelSize: 10
             font.weight: Font.DemiBold
             font.letterSpacing: 2
@@ -203,7 +203,7 @@ Rectangle {
         Item { Layout.fillHeight: true }
 
         // ── Bottom area ──
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#1e1540"; Layout.leftMargin: 20; Layout.rightMargin: 20 }
+        Rectangle { Layout.fillWidth: true; height: 1; color: "#0f2340"; Layout.leftMargin: 20; Layout.rightMargin: 20 }
 
         Item { Layout.preferredHeight: 12 }
 
@@ -227,8 +227,8 @@ Rectangle {
             visible: !appController.isAdmin
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: "#7c3aed" }
-                GradientStop { position: 1.0; color: "#d946ef" }
+                GradientStop { position: 0.0; color: "#3b82f6" }
+                GradientStop { position: 1.0; color: "#06b6d4" }
             }
 
             Text {
@@ -260,7 +260,7 @@ Rectangle {
         signal clicked()
 
         height: 40
-        color: active ? "#1e1540" : hoverArea.containsMouse ? "#16112e" : "transparent"
+        color: active ? "#0f2340" : hoverArea.containsMouse ? "#0d1b30" : "transparent"
         radius: 0
 
         // Active indicator
@@ -269,7 +269,7 @@ Rectangle {
             width: 3
             height: parent.height
             radius: 2
-            color: "#7c3aed"
+            color: "#3b82f6"
             visible: parent.active
         }
 
@@ -285,7 +285,7 @@ Rectangle {
             }
             Text {
                 text: parent.parent.text
-                color: parent.parent.active ? "#d4b8ff" : "#8b7db0"
+                color: parent.parent.active ? "#93c5fd" : "#94a3b8"
                 font.pixelSize: 13
                 font.weight: parent.parent.active ? Font.DemiBold : Font.Normal
                 Layout.fillWidth: true

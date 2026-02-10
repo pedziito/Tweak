@@ -7,8 +7,8 @@ Rectangle {
     id: scoreCard
     implicitHeight: scoreCol.height + 32
     radius: 16
-    color: "#1a1230"
-    border.color: "#2a1f50"
+    color: "#0f1a2e"
+    border.color: "#1e3a5f"
     border.width: 1
 
     ColumnLayout {
@@ -24,7 +24,7 @@ Rectangle {
             Layout.fillWidth: true
             Text {
                 text: "System Score"
-                color: "#f0eaff"
+                color: "#e2e8f0"
                 font.pixelSize: 17
                 font.weight: Font.Bold
             }
@@ -33,8 +33,8 @@ Rectangle {
                 width: tierLabel.width + 16; height: 26; radius: 10
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#7c3aed" }
-                    GradientStop { position: 1.0; color: "#d946ef" }
+                    GradientStop { position: 0.0; color: "#3b82f6" }
+                    GradientStop { position: 1.0; color: "#06b6d4" }
                 }
                 opacity: 0.8
                 Text {
@@ -63,15 +63,15 @@ Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     width: 100; height: 100
                     value: appController.hwScorer ? appController.hwScorer.gamingScore : 0
-                    startColor: "#7c3aed"
-                    endColor: "#d946ef"
-                    glowColor: "#7c3aed"
+                    startColor: "#3b82f6"
+                    endColor: "#06b6d4"
+                    glowColor: "#3b82f6"
                     label: ""
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: "Gaming Score"
-                    color: "#8b7db0"
+                    color: "#94a3b8"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -94,7 +94,7 @@ Rectangle {
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: "Performance Score"
-                    color: "#8b7db0"
+                    color: "#94a3b8"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -106,7 +106,7 @@ Rectangle {
             Layout.fillWidth: true
             height: bnRow.height + 16
             radius: 10
-            color: "#15102a"
+            color: "#0c1524"
             visible: appController.hwScorer && appController.hwScorer.bottleneck !== ""
 
             RowLayout {
@@ -136,8 +136,8 @@ Rectangle {
             columnSpacing: 12
             rowSpacing: 8
 
-            SubScoreBar { barLabel: "CPU"; barValue: appController.hwScorer ? appController.hwScorer.cpuScore : 0; barColor: "#7c3aed" }
-            SubScoreBar { barLabel: "GPU"; barValue: appController.hwScorer ? appController.hwScorer.gpuScore : 0; barColor: "#d946ef" }
+            SubScoreBar { barLabel: "CPU"; barValue: appController.hwScorer ? appController.hwScorer.cpuScore : 0; barColor: "#3b82f6" }
+            SubScoreBar { barLabel: "GPU"; barValue: appController.hwScorer ? appController.hwScorer.gpuScore : 0; barColor: "#06b6d4" }
             SubScoreBar { barLabel: "RAM"; barValue: appController.hwScorer ? appController.hwScorer.ramScore : 0; barColor: "#06b6d4" }
             SubScoreBar { barLabel: "Storage"; barValue: appController.hwScorer ? appController.hwScorer.storageScore : 0; barColor: "#10b981" }
         }
@@ -150,7 +150,7 @@ Rectangle {
 
             Text {
                 text: "Insights"
-                color: "#f0eaff"
+                color: "#e2e8f0"
                 font.pixelSize: 13
                 font.weight: Font.Bold
             }
@@ -167,14 +167,14 @@ Rectangle {
                         if (s === "good") return "#0d1f17"
                         if (s === "warning") return "#1f1a0d"
                         if (s === "critical") return "#1f0d0d"
-                        return "#15102a"
+                        return "#0c1524"
                     }
                     border.color: {
                         var s = modelData.severity || "info"
                         if (s === "good") return "#10b981"
                         if (s === "warning") return "#f59e0b"
                         if (s === "critical") return "#ef4444"
-                        return "#2a1f50"
+                        return "#1e3a5f"
                     }
                     border.width: 1
 
@@ -198,7 +198,7 @@ Rectangle {
                         }
                         Text {
                             text: modelData.text || ""
-                            color: "#c4b5e0"
+                            color: "#cbd5e1"
                             font.pixelSize: 11
                             wrapMode: Text.Wrap
                             Layout.fillWidth: true
@@ -213,14 +213,14 @@ Rectangle {
     component SubScoreBar: RowLayout {
         property string barLabel: ""
         property int barValue: 0
-        property color barColor: "#7c3aed"
+        property color barColor: "#3b82f6"
 
         Layout.fillWidth: true
         spacing: 8
 
         Text {
             text: barLabel
-            color: "#6b5b95"
+            color: "#64748b"
             font.pixelSize: 11
             Layout.preferredWidth: 50
         }
@@ -229,7 +229,7 @@ Rectangle {
             Layout.fillWidth: true
             height: 10
             radius: 5
-            color: "#15102a"
+            color: "#0c1524"
 
             Rectangle {
                 width: parent.width * Math.min(barValue / 100.0, 1.0)
@@ -243,7 +243,7 @@ Rectangle {
 
         Text {
             text: barValue.toString()
-            color: "#c4b5e0"
+            color: "#cbd5e1"
             font.pixelSize: 11
             font.weight: Font.Bold
             Layout.preferredWidth: 28

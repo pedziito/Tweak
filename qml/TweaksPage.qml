@@ -23,13 +23,13 @@ Item {
                 spacing: 2
                 Text {
                     text: "Tweaks"
-                    color: "#f0eaff"
+                    color: "#e2e8f0"
                     font.pixelSize: 26
                     font.weight: Font.Bold
                 }
                 Text {
                     text: appController.tweakModel.rowCount() + " tweaks available  \u00B7  " + appController.selectedCategory
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 13
                 }
             }
@@ -39,8 +39,8 @@ Item {
             // Search field
             Rectangle {
                 width: 220; height: 36; radius: 10
-                color: "#15102a"
-                border.color: searchField.activeFocus ? "#7c3aed" : "#2a1f50"
+                color: "#0c1524"
+                border.color: searchField.activeFocus ? "#3b82f6" : "#1e3a5f"
                 border.width: 1
 
                 RowLayout {
@@ -49,17 +49,17 @@ Item {
                     anchors.rightMargin: 12
                     spacing: 8
 
-                    Text { text: "\u2315"; font.pixelSize: 15; color: "#6b5b95" }
+                    Text { text: "\u2315"; font.pixelSize: 15; color: "#64748b" }
                     TextInput {
                         id: searchField
                         Layout.fillWidth: true
-                        color: "#f0eaff"
+                        color: "#e2e8f0"
                         font.pixelSize: 12
                         clip: true
                         Text {
                             anchors.fill: parent
                             text: "Search tweaks..."
-                            color: "#4a3d70"
+                            color: "#475569"
                             font.pixelSize: 12
                             visible: !searchField.text && !searchField.activeFocus
                             verticalAlignment: Text.AlignVCenter
@@ -102,8 +102,8 @@ Item {
                 width: applyAllText.width + 28; height: 36; radius: 10
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#7c3aed" }
-                    GradientStop { position: 1.0; color: "#d946ef" }
+                    GradientStop { position: 0.0; color: "#3b82f6" }
+                    GradientStop { position: 1.0; color: "#06b6d4" }
                 }
 
                 Text {
@@ -166,7 +166,7 @@ Item {
                 contentItem: Rectangle {
                     implicitWidth: 4
                     radius: 2
-                    color: "#7c3aed"
+                    color: "#3b82f6"
                     opacity: 0.5
                 }
                 background: Rectangle { color: "transparent" }
@@ -188,7 +188,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: "No tweaks match your filter"
-                color: "#4a3d70"
+                color: "#475569"
                 font.pixelSize: 14
                 visible: tweakList.count === 0
             }

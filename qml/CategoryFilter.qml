@@ -15,15 +15,15 @@ Flow {
             width: catBtnText.implicitWidth + 24
             height: 32
             radius: 10
-            color: filterRoot.currentCategory === modelData ? "#1e1540" : catBtnHover.containsMouse ? "#16112e" : "#15102a"
-            border.color: filterRoot.currentCategory === modelData ? "#7c3aed" : "#2a1f50"
+            color: filterRoot.currentCategory === modelData ? "#0f2340" : catBtnHover.containsMouse ? "#0d1b30" : "#0c1524"
+            border.color: filterRoot.currentCategory === modelData ? "#3b82f6" : "#1e3a5f"
             border.width: 1
 
             Text {
                 id: catBtnText
                 anchors.centerIn: parent
                 text: modelData
-                color: filterRoot.currentCategory === modelData ? "#d4b8ff" : "#8b7db0"
+                color: filterRoot.currentCategory === modelData ? "#93c5fd" : "#94a3b8"
                 font.pixelSize: 11
                 font.weight: filterRoot.currentCategory === modelData ? Font.Bold : Font.Normal
             }

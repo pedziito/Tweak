@@ -12,7 +12,7 @@ Flickable {
 
     ScrollBar.vertical: ScrollBar {
         policy: ScrollBar.AsNeeded
-        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#7c3aed"; opacity: 0.5 }
+        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b82f6"; opacity: 0.5 }
         background: Rectangle { color: "transparent" }
     }
 
@@ -33,13 +33,13 @@ Flickable {
                 spacing: 2
                 Text {
                     text: "Game Performance Estimator"
-                    color: "#f0eaff"
+                    color: "#e2e8f0"
                     font.pixelSize: 26
                     font.weight: Font.Bold
                 }
                 Text {
                     text: "Estimated FPS based on your hardware profile"
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 13
                 }
             }
@@ -51,8 +51,8 @@ Flickable {
                 width: runBtnText.width + 32; height: 40; radius: 12
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#7c3aed" }
-                    GradientStop { position: 1.0; color: "#d946ef" }
+                    GradientStop { position: 0.0; color: "#3b82f6" }
+                    GradientStop { position: 1.0; color: "#06b6d4" }
                 }
                 opacity: appController.gameBenchmark && appController.gameBenchmark.running ? 0.6 : 1.0
 
@@ -85,7 +85,7 @@ Flickable {
                 spacing: 4
                 Text {
                     text: "Resolution"
-                    color: "#8b7db0"
+                    color: "#94a3b8"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -98,15 +98,15 @@ Flickable {
 
                     background: Rectangle {
                         radius: 10
-                        color: "#15102a"
-                        border.color: resolutionCombo.pressed ? "#7c3aed" : "#2a1f50"
+                        color: "#0c1524"
+                        border.color: resolutionCombo.pressed ? "#3b82f6" : "#1e3a5f"
                         border.width: 1
                     }
 
                     contentItem: Text {
                         leftPadding: 12
                         text: resolutionCombo.displayText
-                        color: "#f0eaff"
+                        color: "#e2e8f0"
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
                         verticalAlignment: Text.AlignVCenter
@@ -120,8 +120,8 @@ Flickable {
 
                         background: Rectangle {
                             radius: 10
-                            color: "#1a1230"
-                            border.color: "#2a1f50"
+                            color: "#0f1a2e"
+                            border.color: "#1e3a5f"
                             border.width: 1
                         }
 
@@ -138,13 +138,13 @@ Flickable {
                         height: 32
                         contentItem: Text {
                             text: modelData
-                            color: resolutionCombo.currentIndex === index ? "#d4b8ff" : "#8b7db0"
+                            color: resolutionCombo.currentIndex === index ? "#93c5fd" : "#94a3b8"
                             font.pixelSize: 12
                             verticalAlignment: Text.AlignVCenter
                             leftPadding: 12
                         }
                         background: Rectangle {
-                            color: hovered ? "#1e1540" : "transparent"
+                            color: hovered ? "#0f2340" : "transparent"
                             radius: 6
                         }
                     }
@@ -161,7 +161,7 @@ Flickable {
                 spacing: 4
                 Text {
                     text: "Quality"
-                    color: "#8b7db0"
+                    color: "#94a3b8"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -174,15 +174,15 @@ Flickable {
 
                     background: Rectangle {
                         radius: 10
-                        color: "#15102a"
-                        border.color: qualityCombo.pressed ? "#7c3aed" : "#2a1f50"
+                        color: "#0c1524"
+                        border.color: qualityCombo.pressed ? "#3b82f6" : "#1e3a5f"
                         border.width: 1
                     }
 
                     contentItem: Text {
                         leftPadding: 12
                         text: qualityCombo.displayText
-                        color: "#f0eaff"
+                        color: "#e2e8f0"
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
                         verticalAlignment: Text.AlignVCenter
@@ -196,8 +196,8 @@ Flickable {
 
                         background: Rectangle {
                             radius: 10
-                            color: "#1a1230"
-                            border.color: "#2a1f50"
+                            color: "#0f1a2e"
+                            border.color: "#1e3a5f"
                             border.width: 1
                         }
 
@@ -214,13 +214,13 @@ Flickable {
                         height: 32
                         contentItem: Text {
                             text: modelData
-                            color: qualityCombo.currentIndex === index ? "#d4b8ff" : "#8b7db0"
+                            color: qualityCombo.currentIndex === index ? "#93c5fd" : "#94a3b8"
                             font.pixelSize: 12
                             verticalAlignment: Text.AlignVCenter
                             leftPadding: 12
                         }
                         background: Rectangle {
-                            color: hovered ? "#1e1540" : "transparent"
+                            color: hovered ? "#0f2340" : "transparent"
                             radius: 6
                         }
                     }
@@ -237,15 +237,15 @@ Flickable {
             // Current settings display
             Rectangle {
                 width: settingsLabel.width + 24; height: 32; radius: 10
-                color: "#15102a"
-                border.color: "#2a1f50"
+                color: "#0c1524"
+                border.color: "#1e3a5f"
                 border.width: 1
 
                 Text {
                     id: settingsLabel
                     anchors.centerIn: parent
                     text: resolutionCombo.currentText + "  \u00B7  " + qualityCombo.currentText
-                    color: "#7c3aed"
+                    color: "#3b82f6"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -266,7 +266,7 @@ Flickable {
                 accentColor: appController.gameBenchmark && appController.gameBenchmark.networkLatency > 0
                     ? (appController.gameBenchmark.networkLatency < 30 ? "#10b981"
                        : appController.gameBenchmark.networkLatency < 60 ? "#f59e0b" : "#ef4444")
-                    : "#6b5b95"
+                    : "#64748b"
             }
             MetricCard {
                 metricLabel: "Storage Speed"
@@ -277,7 +277,7 @@ Flickable {
                 accentColor: appController.gameBenchmark && appController.gameBenchmark.storageSpeed > 0
                     ? (appController.gameBenchmark.storageSpeed > 500 ? "#10b981"
                        : appController.gameBenchmark.storageSpeed > 100 ? "#f59e0b" : "#ef4444")
-                    : "#6b5b95"
+                    : "#64748b"
             }
             MetricCard {
                 metricLabel: "System Latency"
@@ -288,14 +288,14 @@ Flickable {
                 accentColor: appController.gameBenchmark && appController.gameBenchmark.systemLatencyScore > 0
                     ? (appController.gameBenchmark.systemLatencyScore > 70 ? "#10b981"
                        : appController.gameBenchmark.systemLatencyScore > 40 ? "#f59e0b" : "#ef4444")
-                    : "#6b5b95"
+                    : "#64748b"
             }
         }
 
         // ── Game FPS Cards Grid ──
         Text {
             text: "Estimated FPS by Game"
-            color: "#f0eaff"
+            color: "#e2e8f0"
             font.pixelSize: 17
             font.weight: Font.Bold
             visible: gameRepeater.count > 0
@@ -317,8 +317,8 @@ Flickable {
                     Layout.minimumWidth: 260
                     height: 180
                     radius: 16
-                    color: "#1a1230"
-                    border.color: "#2a1f50"
+                    color: "#0f1a2e"
+                    border.color: "#1e3a5f"
                     border.width: 1
 
                     property var game: modelData
@@ -342,7 +342,7 @@ Flickable {
                                     GradientStop { position: 0.0; color: {
                                         var id = game.id || ""
                                         if (id === "cs2") return "#f59e0b"
-                                        if (id === "fortnite") return "#7c3aed"
+                                        if (id === "fortnite") return "#3b82f6"
                                         return "#ef4444"
                                     }}
                                     GradientStop { position: 1.0; color: {
@@ -378,7 +378,7 @@ Flickable {
                                     id: ratingText
                                     anchors.centerIn: parent
                                     text: game.rating || "N/A"
-                                    color: game.ratingColor || "#8b7db0"
+                                    color: game.ratingColor || "#94a3b8"
                                     font.pixelSize: 10
                                     font.weight: Font.Bold
                                 }
@@ -392,14 +392,14 @@ Flickable {
 
                             Text {
                                 text: game.name || "Unknown"
-                                color: "#f0eaff"
+                                color: "#e2e8f0"
                                 font.pixelSize: 16
                                 font.weight: Font.Bold
                             }
 
                             Text {
                                 text: resolutionCombo.currentText + " \u00B7 " + qualityCombo.currentText
-                                color: "#6b5b95"
+                                color: "#64748b"
                                 font.pixelSize: 10
                             }
 
@@ -424,7 +424,7 @@ Flickable {
                                 Layout.fillWidth: true
                                 height: 8
                                 radius: 4
-                                color: "#15102a"
+                                color: "#0c1524"
 
                                 Rectangle {
                                     width: parent.width * Math.min((game.avgFps || 0) / 400, 1.0)
@@ -432,8 +432,8 @@ Flickable {
                                     radius: 4
                                     gradient: Gradient {
                                         orientation: Gradient.Horizontal
-                                        GradientStop { position: 0.0; color: "#7c3aed" }
-                                        GradientStop { position: 1.0; color: game.ratingColor || "#d946ef" }
+                                        GradientStop { position: 0.0; color: "#3b82f6" }
+                                        GradientStop { position: 1.0; color: game.ratingColor || "#06b6d4" }
                                     }
 
                                     Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
@@ -458,25 +458,25 @@ Flickable {
                 Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 64; height: 64; radius: 16
-                    color: "#1e1540"
+                    color: "#0f2340"
 
                     Text {
                         anchors.centerIn: parent
                         text: "\u25B6"
                         font.pixelSize: 28
-                        color: "#7c3aed"
+                        color: "#3b82f6"
                     }
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "No estimation data yet"
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 14
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "Select resolution & quality, then click 'Run Estimation'"
-                    color: "#4a3d70"
+                    color: "#475569"
                     font.pixelSize: 12
                 }
             }
@@ -491,11 +491,11 @@ Flickable {
         property string metricLabel: ""
         property string metricValue: ""
         property string metricIcon: ""
-        property color accentColor: "#6b5b95"
+        property color accentColor: "#64748b"
 
         width: 200; height: 90; radius: 14
-        color: "#1a1230"
-        border.color: "#2a1f50"
+        color: "#0f1a2e"
+        border.color: "#1e3a5f"
         border.width: 1
 
         RowLayout {
@@ -510,7 +510,7 @@ Flickable {
                 spacing: 3
                 Text {
                     text: metricLabel
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -532,7 +532,7 @@ Flickable {
         spacing: 2
         Text {
             text: fpsLabel
-            color: "#6b5b95"
+            color: "#64748b"
             font.pixelSize: 9
             font.weight: Font.DemiBold
         }

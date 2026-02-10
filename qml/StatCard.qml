@@ -8,8 +8,8 @@ Rectangle {
     implicitWidth: 200
     implicitHeight: 170
     radius: 18
-    color: "#1a1230"
-    border.color: "#2a1f50"
+    color: "#0f1a2e"
+    border.color: "#1e3a5f"
     border.width: 1
 
     property string cardTitle: ""
@@ -17,8 +17,8 @@ Rectangle {
     property string subtitle: ""
     property string overrideText: ""
     property string overrideLabel: ""
-    property color accentStart: "#7c3aed"
-    property color accentEnd: "#d946ef"
+    property color accentStart: "#3b82f6"
+    property color accentEnd: "#06b6d4"
 
     ColumnLayout {
         anchors.fill: parent
@@ -29,7 +29,7 @@ Rectangle {
             Layout.fillWidth: true
             Text {
                 text: card.cardTitle
-                color: "#8b7db0"
+                color: "#94a3b8"
                 font.pixelSize: 12
                 font.weight: Font.DemiBold
                 Layout.fillWidth: true
@@ -60,7 +60,7 @@ Rectangle {
         Text {
             Layout.alignment: Qt.AlignHCenter
             text: card.subtitle
-            color: "#6b5b95"
+            color: "#64748b"
             font.pixelSize: 10
             elide: Text.ElideRight
         }

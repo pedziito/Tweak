@@ -15,7 +15,7 @@ Flickable {
         contentItem: Rectangle {
             implicitWidth: 4
             radius: 2
-            color: "#7c3aed"
+            color: "#3b82f6"
             opacity: 0.5
         }
         background: Rectangle { color: "transparent" }
@@ -38,13 +38,13 @@ Flickable {
                 spacing: 2
                 Text {
                     text: "Dashboard"
-                    color: "#f0eaff"
+                    color: "#e2e8f0"
                     font.pixelSize: 26
                     font.weight: Font.Bold
                 }
                 Text {
                     text: "System overview and quick actions"
-                    color: "#6b5b95"
+                    color: "#64748b"
                     font.pixelSize: 13
                 }
             }
@@ -58,12 +58,12 @@ Flickable {
                 MiniStatBadge {
                     label: "CPU"
                     value: Math.round(appController.systemMonitor ? appController.systemMonitor.cpuUsage : 0) + "%"
-                    accent: "#7c3aed"
+                    accent: "#3b82f6"
                 }
                 MiniStatBadge {
                     label: "RAM"
                     value: Math.round(appController.systemMonitor ? appController.systemMonitor.ramUsage : 0) + "%"
-                    accent: "#d946ef"
+                    accent: "#06b6d4"
                 }
                 MiniStatBadge {
                     label: "DISK"
@@ -94,8 +94,8 @@ Flickable {
                 subtitle: appController.systemMonitor
                        ? (appController.systemMonitor.ramTotalGb - appController.systemMonitor.ramUsedGb).toFixed(1) + " GB free"
                        : "-- GB free"
-                accentStart: "#7c3aed"
-                accentEnd: "#a855f7"
+                accentStart: "#3b82f6"
+                accentEnd: "#60a5fa"
             }
             StatCard {
                 cardTitle: "Uptime"
@@ -115,7 +115,7 @@ Flickable {
                 subtitle: appController.systemMonitor
                        ? appController.systemMonitor.ramUsedGb.toFixed(1) + " / " + appController.systemMonitor.ramTotalGb.toFixed(1) + " GB"
                        : "-- / -- GB"
-                accentStart: "#d946ef"
+                accentStart: "#06b6d4"
                 accentEnd: "#f472b6"
             }
             StatCard {
@@ -139,8 +139,8 @@ Flickable {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 220
                 radius: 16
-                color: "#1a1230"
-                border.color: "#2a1f50"
+                color: "#0f1a2e"
+                border.color: "#1e3a5f"
                 border.width: 1
 
                 ColumnLayout {
@@ -152,19 +152,19 @@ Flickable {
                         Layout.fillWidth: true
                         Text {
                             text: "CPU Usage"
-                            color: "#f0eaff"
+                            color: "#e2e8f0"
                             font.pixelSize: 15
                             font.weight: Font.Bold
                         }
                         Item { Layout.fillWidth: true }
                         Rectangle {
                             width: cpuLabel.width + 16; height: 26; radius: 8
-                            color: "#1e1540"
+                            color: "#0f2340"
                             Text {
                                 id: cpuLabel
                                 anchors.centerIn: parent
                                 text: Math.round(appController.systemMonitor ? appController.systemMonitor.cpuUsage : 0) + "% CPU"
-                                color: "#7c3aed"
+                                color: "#3b82f6"
                                 font.pixelSize: 12
                                 font.weight: Font.DemiBold
                             }
@@ -198,7 +198,7 @@ Flickable {
                             if (history.length < 2) return
 
                             // Grid lines
-                            ctx.strokeStyle = "#1e1540"
+                            ctx.strokeStyle = "#0f2340"
                             ctx.lineWidth = 1
                             for (var g = 0; g < 5; g++) {
                                 var gy = h * g / 4
@@ -233,8 +233,8 @@ Flickable {
 
                             // Line
                             var lineGrad = ctx.createLinearGradient(0, 0, w, 0)
-                            lineGrad.addColorStop(0, "#7c3aed")
-                            lineGrad.addColorStop(1, "#d946ef")
+                            lineGrad.addColorStop(0, "#3b82f6")
+                            lineGrad.addColorStop(1, "#06b6d4")
 
                             ctx.beginPath()
                             ctx.moveTo(xOff, h - (history[startIdx] / 100) * h)
@@ -253,7 +253,7 @@ Flickable {
                                 var lastY = h - (history[history.length - 1] / 100) * h
                                 ctx.beginPath()
                                 ctx.arc(lastX, lastY, 4, 0, Math.PI * 2)
-                                ctx.fillStyle = "#d946ef"
+                                ctx.fillStyle = "#06b6d4"
                                 ctx.fill()
                                 ctx.beginPath()
                                 ctx.arc(lastX, lastY, 8, 0, Math.PI * 2)
@@ -270,8 +270,8 @@ Flickable {
                 Layout.preferredWidth: 280
                 Layout.preferredHeight: 220
                 radius: 16
-                color: "#1a1230"
-                border.color: "#2a1f50"
+                color: "#0f1a2e"
+                border.color: "#1e3a5f"
                 border.width: 1
 
                 ColumnLayout {
@@ -281,7 +281,7 @@ Flickable {
 
                     Text {
                         text: "System Details"
-                        color: "#f0eaff"
+                        color: "#e2e8f0"
                         font.pixelSize: 15
                         font.weight: Font.Bold
                     }
@@ -301,8 +301,8 @@ Flickable {
             Layout.fillWidth: true
             Layout.preferredHeight: hwCol.height + 32
             radius: 16
-            color: "#1a1230"
-            border.color: "#2a1f50"
+            color: "#0f1a2e"
+            border.color: "#1e3a5f"
             border.width: 1
 
             ColumnLayout {
@@ -317,14 +317,14 @@ Flickable {
                     Layout.fillWidth: true
                     Text {
                         text: "Hardware Information"
-                        color: "#f0eaff"
+                        color: "#e2e8f0"
                         font.pixelSize: 15
                         font.weight: Font.Bold
                     }
                     Item { Layout.fillWidth: true }
                     Rectangle {
                         width: 60; height: 24; radius: 8
-                        color: "#1e1540"
+                        color: "#0f2340"
                         Text { anchors.centerIn: parent; text: "Live"; color: "#10b981"; font.pixelSize: 10; font.weight: Font.DemiBold }
                     }
                 }
@@ -357,7 +357,7 @@ Flickable {
 
             Text {
                 text: "Game Optimization Profiles"
-                color: "#f0eaff"
+                color: "#e2e8f0"
                 font.pixelSize: 17
                 font.weight: Font.Bold
             }
@@ -383,7 +383,7 @@ Flickable {
                     gameName: "Fortnite"
                     gameDesc: "Balanced FPS and visual quality"
                     gameIcon: "FN"
-                    gradStart: "#7c3aed"
+                    gradStart: "#3b82f6"
                     gradEnd: "#2563eb"
                     onOptimize: {
                         optimized = !optimized
@@ -417,8 +417,8 @@ Flickable {
             Layout.fillWidth: true
             Layout.preferredHeight: qaCol.height + 32
             radius: 16
-            color: "#1a1230"
-            border.color: "#2a1f50"
+            color: "#0f1a2e"
+            border.color: "#1e3a5f"
             border.width: 1
 
             ColumnLayout {
@@ -431,7 +431,7 @@ Flickable {
 
                 Text {
                     text: "Quick Actions"
-                    color: "#f0eaff"
+                    color: "#e2e8f0"
                     font.pixelSize: 15
                     font.weight: Font.Bold
                 }
@@ -458,13 +458,13 @@ Flickable {
     component MiniStatBadge: Rectangle {
         property string label: ""
         property string value: ""
-        property color accent: "#7c3aed"
+        property color accent: "#3b82f6"
 
         width: badgeRow.width + 20
         height: 32
         radius: 10
-        color: "#1a1230"
-        border.color: "#2a1f50"
+        color: "#0f1a2e"
+        border.color: "#1e3a5f"
         border.width: 1
 
         Row {
@@ -476,8 +476,8 @@ Flickable {
                 color: parent.parent.accent
                 anchors.verticalCenter: parent.verticalCenter
             }
-            Text { text: parent.parent.label; color: "#6b5b95"; font.pixelSize: 10; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
-            Text { text: parent.parent.value; color: "#f0eaff"; font.pixelSize: 11; font.weight: Font.Bold; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: parent.parent.label; color: "#64748b"; font.pixelSize: 10; font.weight: Font.DemiBold; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: parent.parent.value; color: "#e2e8f0"; font.pixelSize: 11; font.weight: Font.Bold; anchors.verticalCenter: parent.verticalCenter }
         }
     }
 
@@ -485,10 +485,10 @@ Flickable {
         property string label: ""
         property string value: ""
         Layout.fillWidth: true
-        Text { text: parent.label; color: "#6b5b95"; font.pixelSize: 11; Layout.preferredWidth: 60 }
+        Text { text: parent.label; color: "#64748b"; font.pixelSize: 11; Layout.preferredWidth: 60 }
         Text {
             text: parent.value
-            color: "#c4b5e0"
+            color: "#cbd5e1"
             font.pixelSize: 11
             elide: Text.ElideRight
             Layout.fillWidth: true
@@ -498,22 +498,22 @@ Flickable {
     component HwInfoItem: ColumnLayout {
         property string label: ""
         property string value: ""
-        property color valueColor: "#c4b5e0"
+        property color valueColor: "#cbd5e1"
         spacing: 2
         Layout.fillWidth: true
-        Text { text: parent.label; color: "#6b5b95"; font.pixelSize: 10; font.weight: Font.DemiBold }
+        Text { text: parent.label; color: "#64748b"; font.pixelSize: 10; font.weight: Font.DemiBold }
         Text { text: parent.value; color: parent.valueColor; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
     }
 
     component ActionPill: Rectangle {
         property string text: ""
-        property color accent: "#7c3aed"
+        property color accent: "#3b82f6"
         signal clicked()
 
         width: pillText.width + 28
         height: 34
         radius: 10
-        color: pillHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.15) : "#15102a"
+        color: pillHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.15) : "#0c1524"
         border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.3)
         border.width: 1
 
@@ -521,7 +521,7 @@ Flickable {
             id: pillText
             anchors.centerIn: parent
             text: parent.text
-            color: "#d4b8ff"
+            color: "#93c5fd"
             font.pixelSize: 11
             font.weight: Font.DemiBold
         }
