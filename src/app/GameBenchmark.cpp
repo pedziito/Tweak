@@ -8,6 +8,7 @@
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QCoreApplication>
+#include <QRegularExpression>
 
 #include <cmath>
 #include <algorithm>
