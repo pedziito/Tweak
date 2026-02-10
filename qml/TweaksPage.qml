@@ -2,17 +2,14 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-/// Tweaks Page — category filter + tweak cards list
 Item {
     id: tweaksPage
-
-    // Signal to trigger restart dialog in Main.qml
     signal restartRequested()
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 28
-        spacing: 20
+        anchors.margins: 24
+        spacing: 16
 
         // ── Header ──
         RowLayout {
@@ -23,14 +20,14 @@ Item {
                 spacing: 2
                 Text {
                     text: "Tweaks"
-                    color: "#e2e8f0"
-                    font.pixelSize: 26
+                    color: "#f1f5f9"
+                    font.pixelSize: 28
                     font.weight: Font.Bold
                 }
                 Text {
                     text: appController.tweakModel.rowCount() + " tweaks available  \u00B7  " + appController.selectedCategory
                     color: "#64748b"
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                 }
             }
 
@@ -38,9 +35,9 @@ Item {
 
             // Search field
             Rectangle {
-                width: 220; height: 36; radius: 10
-                color: "#0c1524"
-                border.color: searchField.activeFocus ? "#3b82f6" : "#1e3a5f"
+                width: 240; height: 38; radius: 10
+                color: "#111827"
+                border.color: searchField.activeFocus ? "#6366f1" : "#1e293b"
                 border.width: 1
 
                 RowLayout {
@@ -49,7 +46,7 @@ Item {
                     anchors.rightMargin: 12
                     spacing: 8
 
-                    Text { text: "\u2315"; font.pixelSize: 15; color: "#64748b" }
+                    Text { text: "\u2315"; font.pixelSize: 15; color: "#475569" }
                     TextInput {
                         id: searchField
                         Layout.fillWidth: true
@@ -68,21 +65,107 @@ Item {
                     }
                 }
             }
+        }
+
+        // ── Stats bar ──
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+
+            // Applied stat
+            Rectangle {
+                implicitWidth: appliedStatRow.width + 24; height: 36; radius: 10
+                color: "#0f172a"
+                border.color: "#1e293b"
+                border.width: 1
+
+                Row {
+                    id: appliedStatRow
+                    anchors.centerIn: parent
+                    spacing: 8
+                    Rectangle { width: 8; height: 8; radius: 4; color: "#22c55e"; anchors.verticalCenter: parent.verticalCenter }
+                    Text { text: appController.appliedCount + " Applied"; color: "#94a3b8"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                }
+            }
+
+            // Recommended stat
+            Rectangle {
+                implicitWidth: recStatRow.width + 24; height: 36; radius: 10
+                color: "#0f172a"
+                border.color: "#1e293b"
+                border.width: 1
+
+                Row {
+                    id: recStatRow
+                    anchors.centerIn: parent
+                    spacing: 8
+                    Rectangle { width: 8; height: 8; radius: 4; color: "#6366f1"; anchors.verticalCenter: parent.verticalCenter }
+                    Text { text: appController.recommendedCount + " Recommended"; color: "#94a3b8"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                }
+            }
+
+            Item { Layout.fillWidth: true }
+
+            // Verify All button
+            Rectangle {
+                width: verifyText.width + 28; height: 36; radius: 10
+                color: "#052e16"
+                border.color: "#166534"
+                border.width: 1
+
+                Text {
+                    id: verifyText
+                    anchors.centerIn: parent
+                    text: "\u2713  Verify All"
+                    color: "#22c55e"
+                    font.pixelSize: 12
+                    font.weight: Font.DemiBold
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: appController.verifyAllTweaks()
+                }
+            }
+
+            // Apply Recommended button
+            Rectangle {
+                width: applyRecText.width + 28; height: 36; radius: 10
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: "#6366f1" }
+                    GradientStop { position: 1.0; color: "#8b5cf6" }
+                }
+
+                Text {
+                    id: applyRecText
+                    anchors.centerIn: parent
+                    text: "Apply Recommended"
+                    color: "#ffffff"
+                    font.pixelSize: 12
+                    font.weight: Font.Bold
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: appController.applyAllGaming()
+                }
+            }
 
             // Save button
             Rectangle {
                 width: saveBtnText.width + 28; height: 36; radius: 10
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#10b981" }
-                    GradientStop { position: 1.0; color: "#06b6d4" }
-                }
+                color: "#0f172a"
+                border.color: "#22c55e"
+                border.width: 1
 
                 Text {
                     id: saveBtnText
                     anchors.centerIn: parent
-                    text: "\u2714  Save"
-                    color: "#ffffff"
+                    text: "\u2714 Save & Apply"
+                    color: "#22c55e"
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }
@@ -97,43 +180,18 @@ Item {
                 }
             }
 
-            // Apply All button
+            // Restore button
             Rectangle {
-                width: applyAllText.width + 28; height: 36; radius: 10
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#3b82f6" }
-                    GradientStop { position: 1.0; color: "#06b6d4" }
-                }
-
-                Text {
-                    id: applyAllText
-                    anchors.centerIn: parent
-                    text: "Apply All"
-                    color: "#ffffff"
-                    font.pixelSize: 12
-                    font.weight: Font.DemiBold
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: appController.applyAllGaming()
-                }
-            }
-
-            // Restore All button
-            Rectangle {
-                width: restoreAllText.width + 28; height: 36; radius: 10
+                width: restoreText.width + 28; height: 36; radius: 10
                 color: "transparent"
-                border.color: "#ef4444"
+                border.color: "#7f1d1d"
                 border.width: 1
 
                 Text {
-                    id: restoreAllText
+                    id: restoreText
                     anchors.centerIn: parent
                     text: "Restore All"
-                    color: "#ef4444"
+                    color: "#f87171"
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                 }
@@ -157,7 +215,7 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             model: appController.tweakModel
-            spacing: 10
+            spacing: 6
             clip: true
             boundsBehavior: Flickable.StopAtBounds
 
@@ -166,8 +224,8 @@ Item {
                 contentItem: Rectangle {
                     implicitWidth: 4
                     radius: 2
-                    color: "#3b82f6"
-                    opacity: 0.5
+                    color: "#6366f1"
+                    opacity: 0.4
                 }
                 background: Rectangle { color: "transparent" }
             }
@@ -179,18 +237,30 @@ Item {
                 tweakCategory: model.category
                 tweakApplied: model.applied
                 tweakRecommended: model.recommended
+                tweakVerified: model.verified || false
                 tweakRisk: model.risk || "safe"
                 tweakLearnMore: model.learnMore || ""
                 onToggled: appController.toggleTweak(model.index)
             }
 
             // Empty state
-            Text {
+            Column {
                 anchors.centerIn: parent
-                text: "No tweaks match your filter"
-                color: "#475569"
-                font.pixelSize: 14
+                spacing: 12
                 visible: tweakList.count === 0
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "\u2699"
+                    font.pixelSize: 40
+                    color: "#374151"
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "No tweaks match your filter"
+                    color: "#475569"
+                    font.pixelSize: 14
+                }
             }
         }
     }

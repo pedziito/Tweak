@@ -6,8 +6,8 @@ Rectangle {
     Layout.fillWidth: true
     implicitHeight: qaCol.implicitHeight + 36
     radius: 16
-    color: "#0f1a2e"
-    border.color: "#1e3a5f"
+    color: "#0d1117"
+    border.color: "#1e293b"
 
     ColumnLayout {
         id: qaCol
@@ -22,7 +22,7 @@ Rectangle {
             color: "#e2e8f0"
         }
 
-        QAButton { text: "⚡  Apply Recommended"; accent: "#3b82f6"; onClicked: appController.applyRecommended() }
+        QAButton { text: "⚡  Apply Recommended"; accent: "#6366f1"; onClicked: appController.applyRecommended() }
         QAButton { text: "↺  Restore Defaults"; accent: "#ef4444"; onClicked: appController.restoreDefaults() }
         QAButton { text: "🔄  Rescan Hardware"; onClicked: appController.refreshHardware() }
         QAButton { text: "📂  Set CS2 Path"; onClicked: cs2PathDialog.open() }
@@ -39,19 +39,19 @@ Rectangle {
 
     component QAButton: Rectangle {
         property string text: ""
-        property color accent: "#3b82f6"
+        property color accent: "#6366f1"
         signal clicked()
         Layout.fillWidth: true
         height: 36
         radius: 10
-        color: qaHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#0c1524"
+        color: qaHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#111827"
         border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.3)
         border.width: 1
 
         Text {
             anchors.centerIn: parent
             text: parent.text
-            color: "#93c5fd"
+            color: "#a5b4fc"
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }

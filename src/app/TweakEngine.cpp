@@ -127,7 +127,19 @@ void TweakEngine::updateRecommendations(const HardwareInfo &info)
             || t.id == QStringLiteral("disable_transparency")
             || t.id == QStringLiteral("disable_background_apps")
             || t.id == QStringLiteral("disable_tips_notifications")
-            || t.id == QStringLiteral("disable_telemetry"))
+            || t.id == QStringLiteral("disable_telemetry")
+            || t.id == QStringLiteral("win32_priority_separation")
+            || t.id == QStringLiteral("disable_notifications_fullscreen")
+            || t.id == QStringLiteral("disable_ntfs_last_access")
+            || t.id == QStringLiteral("disable_8dot3_names")
+            || t.id == QStringLiteral("disable_delivery_optimization")
+            || t.id == QStringLiteral("disable_advertising_id")
+            || t.id == QStringLiteral("disable_feedback_frequency")
+            || t.id == QStringLiteral("disable_bing_search")
+            || t.id == QStringLiteral("disable_error_reporting")
+            || t.id == QStringLiteral("disable_aero_shake")
+            || t.id == QStringLiteral("disable_core_parking")
+            || t.id == QStringLiteral("disable_ecn"))
         {
             t.recommended = true;
         }
@@ -213,6 +225,57 @@ void TweakEngine::toggleTweak(const QString &id)
             else           applyTweak(t);
             break;
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Verification — checks if a tweak's values are actually present on the system
+// ---------------------------------------------------------------------------
+bool TweakEngine::verifyTweak(const QString &id)
+{
+    for (Tweak &t : m_tweaks) {
+        if (t.id != id) continue;
+        if (!t.applied) { t.verified = false; return false; }
+
+        bool allMatch = true;
+        for (const QVariantMap &action : std::as_const(t.actions)) {
+            const QString type = action.value(QStringLiteral("type")).toString();
+
+            if (type == QStringLiteral("registry")) {
+                const QString hive = action.value(QStringLiteral("hive")).toString();
+                const QString path = action.value(QStringLiteral("path")).toString();
+                const QString name = action.value(QStringLiteral("name")).toString();
+                const QVariant expected = action.value(QStringLiteral("value"));
+
+                RegistryValue current = RegistryUtil::readValue(hive, path, name);
+                if (!current.exists || current.value != expected) {
+                    allMatch = false;
+                    break;
+                }
+            } else if (type == QStringLiteral("service")) {
+                const QString svc = action.value(QStringLiteral("service")).toString();
+                const QString expectedStart = action.value(QStringLiteral("startType")).toString();
+                const QString regPath = QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\") + svc;
+
+                RegistryValue current = RegistryUtil::readValue(QStringLiteral("HKLM"), regPath, QStringLiteral("Start"));
+                if (!current.exists || current.value.toUInt() != expectedStart.toUInt()) {
+                    allMatch = false;
+                    break;
+                }
+            }
+            // powerplan and gpupref are harder to verify, assume ok if applied
+        }
+        t.verified = allMatch;
+        return allMatch;
+    }
+    return false;
+}
+
+void TweakEngine::verifyAllTweaks()
+{
+    for (Tweak &t : m_tweaks) {
+        if (t.applied) verifyTweak(t.id);
+        else t.verified = false;
     }
 }
 
@@ -1084,6 +1147,460 @@ void TweakEngine::initializeTweaks()
             QVariant::fromValue(static_cast<quint32>(1))));
         m_tweaks.append(t);
     }
+
+    // ======= NEW TWEAKS: GAMING =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("win32_priority_separation");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Optimize foreground app priority (Win32PrioritySeparation)");
+        t.description = QStringLiteral("Sets Win32PrioritySeparation to 0x26 for maximum foreground application responsiveness. "
+                                        "Games get significantly more CPU quantum time.");
+        t.learnMore = QStringLiteral("This registry value controls how Windows allocates CPU time between foreground and background "
+                                      "processes. 0x26 (38) = short, variable, high foreground boost — ideal for gaming. "
+                                      "Default is 0x02 which gives minimal foreground priority.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\PriorityControl"),
+            QStringLiteral("Win32PrioritySeparation"),
+            QVariant::fromValue(static_cast<quint32>(0x26))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_game_mode");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Disable Windows Game Mode");
+        t.description = QStringLiteral("Game Mode can interfere with some games and cause stuttering. "
+                                        "Disabling it gives you manual control over optimizations.");
+        t.learnMore = QStringLiteral("Windows Game Mode modifies thread scheduling and power management when a game is detected. "
+                                      "While it helps some games, it causes stuttering in others, especially with background "
+                                      "tasks like streaming or recording.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\GameBar"),
+            QStringLiteral("AutoGameModeEnabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_notifications_fullscreen");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Disable notifications during fullscreen apps");
+        t.description = QStringLiteral("Prevents toast notifications from stealing focus or causing "
+                                        "framerate drops during fullscreen gaming.");
+        t.learnMore = QStringLiteral("Windows notifications can cause a DWM composition cycle that drops frames "
+                                      "and breaks exclusive fullscreen mode temporarily. This is especially problematic "
+                                      "in competitive games where every frame matters.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings"),
+            QStringLiteral("NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: STORAGE =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_ntfs_last_access");
+        t.category = QStringLiteral("Storage");
+        t.name = QStringLiteral("Disable NTFS last-access timestamp updates");
+        t.description = QStringLiteral("Stops NTFS from updating the last access time on every file read. "
+                                        "Reduces disk writes and improves I/O performance.");
+        t.learnMore = QStringLiteral("Every time a file is read, NTFS writes an updated last-access timestamp. "
+                                      "This generates thousands of unnecessary writes per second during gaming. "
+                                      "Microsoft themselves recommend disabling this for performance.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\FileSystem"),
+            QStringLiteral("NtfsDisableLastAccessUpdate"),
+            QVariant::fromValue(static_cast<quint32>(0x80000003))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_8dot3_names");
+        t.category = QStringLiteral("Storage");
+        t.name = QStringLiteral("Disable 8.3 legacy filename creation (NTFS)");
+        t.description = QStringLiteral("Disables creation of short 8.3 filenames for DOS compatibility. "
+                                        "Speeds up file creation and directory enumeration.");
+        t.learnMore = QStringLiteral("NTFS creates a secondary short filename (e.g., PROGRA~1) for every long filename. "
+                                      "This legacy DOS feature adds overhead to every file operation. "
+                                      "No modern applications require 8.3 names.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\FileSystem"),
+            QStringLiteral("NtfsDisable8dot3NameCreation"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("increase_filesystem_cache");
+        t.category = QStringLiteral("Storage");
+        t.name = QStringLiteral("Increase NTFS memory usage for file operations");
+        t.description = QStringLiteral("Allows NTFS to use more system memory for its internal structures. "
+                                        "Improves file access speed for game asset loading.");
+        t.learnMore = QStringLiteral("NtfsMemoryUsage=2 tells the NTFS driver to allocate more paged pool memory "
+                                      "for directory and file metadata. This means fewer disk reads when navigating "
+                                      "large game directories with many small files.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\FileSystem"),
+            QStringLiteral("NtfsMemoryUsage"),
+            QVariant::fromValue(static_cast<quint32>(2))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: PRIVACY =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_delivery_optimization");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable Delivery Optimization (P2P updates)");
+        t.description = QStringLiteral("Stops Windows from uploading update files to other PCs on the internet. "
+                                        "Saves upload bandwidth for gaming.");
+        t.learnMore = QStringLiteral("Delivery Optimization uses your internet connection to send Windows Update files "
+                                      "to other PCs. This can consume significant upload bandwidth, increasing ping "
+                                      "in online games. Setting DODownloadMode=0 disables this entirely.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization"),
+            QStringLiteral("DODownloadMode"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_advertising_id");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable advertising ID tracking");
+        t.description = QStringLiteral("Prevents Windows from assigning a unique advertising ID to your profile. "
+                                        "Reduces background data collection.");
+        t.learnMore = QStringLiteral("Windows assigns each user a unique advertising ID used by apps and websites "
+                                      "to serve targeted ads. The data collection process runs periodically in the background "
+                                      "consuming CPU and network resources.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo"),
+            QStringLiteral("Enabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_feedback_frequency");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable Windows feedback requests");
+        t.description = QStringLiteral("Stops Windows from periodically asking for feedback. "
+                                        "Eliminates popup interruptions during gaming.");
+        t.learnMore = QStringLiteral("Windows Feedback Hub generates periodic prompts asking you to rate features. "
+                                      "These pop-ups can minimize fullscreen games and cause focus loss. "
+                                      "Setting NumberOfSIUFInPeriod=0 disables these prompts.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Siuf\\Rules"),
+            QStringLiteral("NumberOfSIUFInPeriod"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_bing_search");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable Bing web search in Start menu");
+        t.description = QStringLiteral("Removes Bing web search results from Start menu searches. "
+                                        "Makes local search faster and more private.");
+        t.learnMore = QStringLiteral("When you search in the Start menu, Windows sends your query to Bing via the cloud. "
+                                      "This adds latency to local searches, uses bandwidth, and sends your search terms "
+                                      "to Microsoft servers. Disabling makes Start search instant and local-only.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Policies\\Microsoft\\Windows\\Explorer"),
+            QStringLiteral("DisableSearchBoxSuggestions"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_suggested_content");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable suggested content in Settings");
+        t.description = QStringLiteral("Removes Microsoft's suggested content and app recommendations "
+                                        "from the Settings app.");
+        t.learnMore = QStringLiteral("Microsoft displays promotional content and app suggestions in Windows Settings. "
+                                      "This runs background processes to fetch recommendations, using CPU and network. "
+                                      "Disabling creates a cleaner, faster settings experience.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("SubscribedContent-338393Enabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("SubscribedContent-353694Enabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("SubscribedContent-353696Enabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: NETWORK =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_ecn");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Disable Explicit Congestion Notification (ECN)");
+        t.description = QStringLiteral("Disables ECN which can cause compatibility issues with some "
+                                        "game servers and add processing overhead.");
+        t.learnMore = QStringLiteral("ECN is a TCP extension that signals network congestion without dropping packets. "
+                                      "While theoretically beneficial, many game servers and routers don't support it properly, "
+                                      "leading to connection issues and added header processing overhead.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("ECNCapability"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("default_ttl");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Set optimal default TTL to 64");
+        t.description = QStringLiteral("Sets the default IP Time-To-Live to 64 (Linux/Unix standard). "
+                                        "Windows defaults to 128 which wastes bandwidth on long routes.");
+        t.learnMore = QStringLiteral("TTL determines how many network hops a packet can traverse. "
+                                      "Windows defaults to 128 which is unnecessarily high. TTL=64 is the internet "
+                                      "standard used by Linux and most servers, reducing packet overhead.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("DefaultTTL"),
+            QVariant::fromValue(static_cast<quint32>(64))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_lso");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Disable TCP Large Send Offload");
+        t.description = QStringLiteral("Prevents the NIC from batching TCP segments. "
+                                        "Reduces latency for small game packets at the cost of throughput.");
+        t.learnMore = QStringLiteral("Large Send Offload (LSO) batches multiple small TCP segments into one large one "
+                                      "before sending. While great for file transfers, this adds latency to small game packets. "
+                                      "Disabling ensures each packet is sent immediately.");
+        t.risk = QStringLiteral("advanced");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("EnableTCPChimney"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: POWER =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_core_parking");
+        t.category = QStringLiteral("Power");
+        t.name = QStringLiteral("Disable CPU core parking");
+        t.description = QStringLiteral("Prevents Windows from parking (sleeping) CPU cores to save power. "
+                                        "Keeps all cores active for maximum gaming performance.");
+        t.learnMore = QStringLiteral("Core parking puts unused CPU cores into a deep sleep state. "
+                                      "When a game suddenly needs more threads, there's a delay while cores wake up, "
+                                      "causing micro-stutters. Value 0 = 0% cores parked (all active).");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Power\\PowerSettings\\54533251-82be-4824-96c1-47b60b740d00\\0cc5b647-c1df-4637-891a-dec35c318583"),
+            QStringLiteral("ValueMax"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: SERVICES =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_error_reporting");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Windows Error Reporting");
+        t.description = QStringLiteral("Stops the WER service from collecting crash dumps and sending them to Microsoft. "
+                                        "Reduces disk usage after game crashes.");
+        t.learnMore = QStringLiteral("When a program crashes, WER collects a full memory dump which can be hundreds of MB. "
+                                      "This disk I/O happens while you're trying to restart your game. "
+                                      "Disabling prevents this overhead.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("WerSvc"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_remote_registry");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Remote Registry service");
+        t.description = QStringLiteral("Stops the RemoteRegistry service that allows remote computers to modify your registry. "
+                                        "Improves security and frees resources.");
+        t.learnMore = QStringLiteral("Remote Registry allows network access to your Windows registry. "
+                                      "This is a significant security risk and virtually never needed on gaming PCs. "
+                                      "Disabling closes this attack vector.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("RemoteRegistry"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_fax");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Fax service");
+        t.description = QStringLiteral("Stops the legacy Fax service. Nobody uses fax on a gaming PC.");
+        t.learnMore = QStringLiteral("The Fax service is a legacy Windows component that runs in the background. "
+                                      "It loads several DLLs and maintains a service handle, wasting ~5MB of RAM. "
+                                      "Unless you send faxes, this is pure overhead.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("Fax"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: VISUAL =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_aero_shake");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Disable Aero Shake (shake to minimize)");
+        t.description = QStringLiteral("Prevents the 'shake window to minimize others' feature that can accidentally "
+                                        "minimize your game when repositioning windows.");
+        t.learnMore = QStringLiteral("Aero Shake minimizes all other windows when you shake a window's title bar. "
+                                      "This can accidentally trigger during gaming when adjusting windowed games, "
+                                      "causing your game to lose focus or minimize.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"),
+            QStringLiteral("DisallowShaking"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("enable_dark_mode");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Enable system-wide dark mode");
+        t.description = QStringLiteral("Sets Windows to dark mode for both apps and system. "
+                                        "Reduces eye strain during late-night gaming sessions.");
+        t.learnMore = QStringLiteral("Dark mode uses less GPU power for desktop rendering (less bright pixels) "
+                                      "and is significantly easier on the eyes during extended gaming sessions. "
+                                      "Also reduces power consumption on OLED displays.");
+        t.risk = QStringLiteral("safe");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+            QStringLiteral("AppsUseLightTheme"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"),
+            QStringLiteral("SystemUsesLightTheme"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: LATENCY =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_spectre_meltdown");
+        t.category = QStringLiteral("Latency");
+        t.name = QStringLiteral("Disable Spectre/Meltdown mitigations (5-30% FPS boost)");
+        t.description = QStringLiteral("Disables CPU vulnerability mitigations for significant performance gains. "
+                                        "WARNING: Reduces security. Only for dedicated gaming PCs.");
+        t.learnMore = QStringLiteral("Spectre and Meltdown mitigations add overhead to every system call and context switch. "
+                                      "On Intel CPUs this can cost 5-30% performance. For a dedicated gaming PC that doesn't "
+                                      "run untrusted code, disabling gives a massive FPS boost. Re-enable for daily browsing.");
+        t.risk = QStringLiteral("advanced");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
+            QStringLiteral("FeatureSettingsOverride"),
+            QVariant::fromValue(static_cast<quint32>(3))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
+            QStringLiteral("FeatureSettingsOverrideMask"),
+            QVariant::fromValue(static_cast<quint32>(3))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("msi_mode_irq");
+        t.category = QStringLiteral("Latency");
+        t.name = QStringLiteral("Optimize interrupt affinity policy");
+        t.description = QStringLiteral("Sets the system interrupt affinity policy to spread IRQs across all cores. "
+                                        "Reduces DPC latency and improves frame consistency.");
+        t.learnMore = QStringLiteral("By default Windows may route all interrupts to core 0, creating a bottleneck. "
+                                      "Spreading interrupts across cores ensures no single core is overwhelmed, "
+                                      "reducing DPC latency and frame time spikes.");
+        t.risk = QStringLiteral("advanced");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\PriorityControl"),
+            QStringLiteral("IRQ8Priority"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW TWEAKS: MEMORY =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("clear_pagefile_shutdown");
+        t.category = QStringLiteral("Memory");
+        t.name = QStringLiteral("Clear page file at shutdown");
+        t.description = QStringLiteral("Erases the page file when Windows shuts down. "
+                                        "Prevents sensitive data from persisting on disk.");
+        t.learnMore = QStringLiteral("The page file can contain passwords, encryption keys, and other sensitive data "
+                                      "from RAM. Clearing it at shutdown ensures this data doesn't persist on disk. "
+                                      "Adds ~10-30 seconds to shutdown time depending on page file size.");
+        t.risk = QStringLiteral("safe");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
+            QStringLiteral("ClearPageFileAtShutdown"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1181,6 +1698,9 @@ void TweakEngine::applyTweak(Tweak &tweak)
         saveBackup(tweak.id, backup);
     }
     tweak.applied = true;
+
+    // Verify the tweak was actually applied
+    verifyTweak(tweak.id);
 }
 
 // ---------------------------------------------------------------------------

@@ -12,7 +12,7 @@ Flickable {
 
     ScrollBar.vertical: ScrollBar {
         policy: ScrollBar.AsNeeded
-        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b82f6"; opacity: 0.5 }
+        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#6366f1"; opacity: 0.5 }
         background: Rectangle { color: "transparent" }
     }
 
@@ -51,8 +51,8 @@ Flickable {
                 width: runBtnText.width + 32; height: 40; radius: 12
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#3b82f6" }
-                    GradientStop { position: 1.0; color: "#06b6d4" }
+                    GradientStop { position: 0.0; color: "#6366f1" }
+                    GradientStop { position: 1.0; color: "#8b5cf6" }
                 }
                 opacity: appController.gameBenchmark && appController.gameBenchmark.running ? 0.6 : 1.0
 
@@ -98,8 +98,8 @@ Flickable {
 
                     background: Rectangle {
                         radius: 10
-                        color: "#0c1524"
-                        border.color: resolutionCombo.pressed ? "#3b82f6" : "#1e3a5f"
+                        color: "#111827"
+                        border.color: resolutionCombo.pressed ? "#6366f1" : "#1e293b"
                         border.width: 1
                     }
 
@@ -120,8 +120,8 @@ Flickable {
 
                         background: Rectangle {
                             radius: 10
-                            color: "#0f1a2e"
-                            border.color: "#1e3a5f"
+                            color: "#0d1117"
+                            border.color: "#1e293b"
                             border.width: 1
                         }
 
@@ -138,13 +138,13 @@ Flickable {
                         height: 32
                         contentItem: Text {
                             text: modelData
-                            color: resolutionCombo.currentIndex === index ? "#93c5fd" : "#94a3b8"
+                            color: resolutionCombo.currentIndex === index ? "#a5b4fc" : "#94a3b8"
                             font.pixelSize: 12
                             verticalAlignment: Text.AlignVCenter
                             leftPadding: 12
                         }
                         background: Rectangle {
-                            color: hovered ? "#0f2340" : "transparent"
+                            color: hovered ? "#1e293b" : "transparent"
                             radius: 6
                         }
                     }
@@ -174,8 +174,8 @@ Flickable {
 
                     background: Rectangle {
                         radius: 10
-                        color: "#0c1524"
-                        border.color: qualityCombo.pressed ? "#3b82f6" : "#1e3a5f"
+                        color: "#111827"
+                        border.color: qualityCombo.pressed ? "#6366f1" : "#1e293b"
                         border.width: 1
                     }
 
@@ -196,8 +196,8 @@ Flickable {
 
                         background: Rectangle {
                             radius: 10
-                            color: "#0f1a2e"
-                            border.color: "#1e3a5f"
+                            color: "#0d1117"
+                            border.color: "#1e293b"
                             border.width: 1
                         }
 
@@ -214,13 +214,13 @@ Flickable {
                         height: 32
                         contentItem: Text {
                             text: modelData
-                            color: qualityCombo.currentIndex === index ? "#93c5fd" : "#94a3b8"
+                            color: qualityCombo.currentIndex === index ? "#a5b4fc" : "#94a3b8"
                             font.pixelSize: 12
                             verticalAlignment: Text.AlignVCenter
                             leftPadding: 12
                         }
                         background: Rectangle {
-                            color: hovered ? "#0f2340" : "transparent"
+                            color: hovered ? "#1e293b" : "transparent"
                             radius: 6
                         }
                     }
@@ -237,15 +237,15 @@ Flickable {
             // Current settings display
             Rectangle {
                 width: settingsLabel.width + 24; height: 32; radius: 10
-                color: "#0c1524"
-                border.color: "#1e3a5f"
+                color: "#111827"
+                border.color: "#1e293b"
                 border.width: 1
 
                 Text {
                     id: settingsLabel
                     anchors.centerIn: parent
                     text: resolutionCombo.currentText + "  \u00B7  " + qualityCombo.currentText
-                    color: "#3b82f6"
+                    color: "#6366f1"
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
                 }
@@ -317,8 +317,8 @@ Flickable {
                     Layout.minimumWidth: 260
                     height: 180
                     radius: 16
-                    color: "#0f1a2e"
-                    border.color: "#1e3a5f"
+                    color: "#0d1117"
+                    border.color: "#1e293b"
                     border.width: 1
 
                     property var game: modelData
@@ -334,7 +334,7 @@ Flickable {
                             spacing: 8
                             Layout.alignment: Qt.AlignTop
 
-                            // Styled text icon instead of emoji
+                            // Styled text icon
                             Rectangle {
                                 Layout.alignment: Qt.AlignHCenter
                                 width: 56; height: 56; radius: 14
@@ -342,13 +342,13 @@ Flickable {
                                     GradientStop { position: 0.0; color: {
                                         var id = game.id || ""
                                         if (id === "cs2") return "#f59e0b"
-                                        if (id === "fortnite") return "#3b82f6"
+                                        if (id === "fortnite") return "#6366f1"
                                         return "#ef4444"
                                     }}
                                     GradientStop { position: 1.0; color: {
                                         var id = game.id || ""
                                         if (id === "cs2") return "#ef4444"
-                                        if (id === "fortnite") return "#2563eb"
+                                        if (id === "fortnite") return "#4f46e5"
                                         return "#f59e0b"
                                     }}
                                 }
@@ -368,7 +368,7 @@ Flickable {
                                 width: ratingText.width + 16; height: 22; radius: 8
                                 color: {
                                     var r = game.rating || ""
-                                    if (r === "Excellent") return "#152d1a"
+                                    if (r === "Excellent") return "#0d2818"
                                     if (r === "Great") return "#1a2d15"
                                     if (r === "Good") return "#2d2d15"
                                     if (r === "Playable") return "#2d2015"
@@ -424,7 +424,7 @@ Flickable {
                                 Layout.fillWidth: true
                                 height: 8
                                 radius: 4
-                                color: "#0c1524"
+                                color: "#111827"
 
                                 Rectangle {
                                     width: parent.width * Math.min((game.avgFps || 0) / 400, 1.0)
@@ -432,8 +432,8 @@ Flickable {
                                     radius: 4
                                     gradient: Gradient {
                                         orientation: Gradient.Horizontal
-                                        GradientStop { position: 0.0; color: "#3b82f6" }
-                                        GradientStop { position: 1.0; color: game.ratingColor || "#06b6d4" }
+                                        GradientStop { position: 0.0; color: "#6366f1" }
+                                        GradientStop { position: 1.0; color: game.ratingColor || "#8b5cf6" }
                                     }
 
                                     Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
@@ -458,13 +458,13 @@ Flickable {
                 Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 64; height: 64; radius: 16
-                    color: "#0f2340"
+                    color: "#1e293b"
 
                     Text {
                         anchors.centerIn: parent
                         text: "\u25B6"
                         font.pixelSize: 28
-                        color: "#3b82f6"
+                        color: "#6366f1"
                     }
                 }
                 Text {
@@ -494,8 +494,8 @@ Flickable {
         property color accentColor: "#64748b"
 
         width: 200; height: 90; radius: 14
-        color: "#0f1a2e"
-        border.color: "#1e3a5f"
+        color: "#0d1117"
+        border.color: "#1e293b"
         border.width: 1
 
         RowLayout {

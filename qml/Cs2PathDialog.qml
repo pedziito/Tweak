@@ -12,14 +12,14 @@ Dialog {
     width: 540
     standardButtons: Dialog.Ok | Dialog.Cancel
 
-    Material.background: "#0f1a2e"
+    Material.background: "#0d1117"
     Material.foreground: "#e2e8f0"
-    Material.accent: "#3b82f6"
+    Material.accent: "#6366f1"
 
     background: Rectangle {
         radius: 16
-        color: "#0f1a2e"
-        border.color: "#1e3a5f"
+        color: "#0d1117"
+        border.color: "#1e293b"
         border.width: 1
     }
 
@@ -42,7 +42,7 @@ Dialog {
             placeholderText: "C:\\...\\cs2.exe"
             text: appController.cs2Path
             color: "#e2e8f0"
-            Material.accent: "#3b82f6"
+            Material.accent: "#6366f1"
         }
 
         Text {

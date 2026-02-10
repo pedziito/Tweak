@@ -8,15 +8,15 @@ Rectangle {
     width: 220
     height: 260
     radius: 16
-    color: "#0f1a2e"
-    border.color: hoverArea.containsMouse ? "#3b82f6" : "#1e3a5f"
+    color: "#0d1117"
+    border.color: hoverArea.containsMouse ? "#6366f1" : "#1e293b"
     border.width: 1
     clip: true
 
     property string gameName: "Game"
     property string gameDesc: "Optimize for competitive play"
-    property color gradStart: "#3b82f6"
-    property color gradEnd: "#06b6d4"
+    property color gradStart: "#6366f1"
+    property color gradEnd: "#8b5cf6"
     property string gameIcon: "G"
     property bool optimized: false
 
@@ -40,7 +40,7 @@ Rectangle {
             anchors.bottom: parent.bottom
             width: parent.width
             height: 16
-            color: "#0f1a2e"
+            color: "#0d1117"
         }
 
         // Game icon large
@@ -99,22 +99,22 @@ Rectangle {
             Layout.fillWidth: true
             height: 34
             radius: 10
-            color: card.optimized ? "#1e3a2e" : "transparent"
-            border.color: card.optimized ? "#10b981" : "#3b82f6"
+            color: card.optimized ? "#0d2818" : "transparent"
+            border.color: card.optimized ? "#10b981" : "#6366f1"
             border.width: 1
 
             Gradient {
                 id: optimizeBtnGrad
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Qt.rgba(0.231, 0.510, 0.965, 0.15) }
-                GradientStop { position: 1.0; color: Qt.rgba(0.024, 0.714, 0.831, 0.15) }
+                GradientStop { position: 0.0; color: Qt.rgba(0.388, 0.400, 0.945, 0.15) }
+                GradientStop { position: 1.0; color: Qt.rgba(0.545, 0.361, 0.965, 0.15) }
             }
             gradient: card.optimized ? null : optimizeBtnGrad
 
             Text {
                 anchors.centerIn: parent
                 text: card.optimized ? "✓ Optimized" : "Optimize"
-                color: card.optimized ? "#10b981" : "#93c5fd"
+                color: card.optimized ? "#10b981" : "#a5b4fc"
                 font.pixelSize: 12
                 font.weight: Font.DemiBold
             }

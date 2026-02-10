@@ -6,8 +6,8 @@ Rectangle {
     Layout.fillWidth: true
     implicitHeight: hwCol.implicitHeight + 36
     radius: 16
-    color: "#0f1a2e"
-    border.color: "#1e3a5f"
+    color: "#0d1117"
+    border.color: "#1e293b"
 
     ColumnLayout {
         id: hwCol
@@ -66,13 +66,13 @@ Rectangle {
                 spacing: 8
                 Rectangle {
                     width: 10; height: 10; radius: 5
-                    color: appController.hasSsd ? "#10b981" : "#1e3a5f"
+                    color: appController.hasSsd ? "#10b981" : "#1e293b"
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Text { text: "SSD"; color: "#cbd5e1"; font.pixelSize: 11 }
                 Rectangle {
                     width: 10; height: 10; radius: 5
-                    color: appController.hasNvme ? "#3b82f6" : "#1e3a5f"
+                    color: appController.hasNvme ? "#6366f1" : "#1e293b"
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Text { text: "NVMe"; color: "#cbd5e1"; font.pixelSize: 11 }

@@ -263,3 +263,22 @@ QStringList AppController::appliedTweakIds() const
     }
     return ids;
 }
+
+// ---------------------------------------------------------------------------
+// Verification
+// ---------------------------------------------------------------------------
+bool AppController::verifyTweak(int row)
+{
+    if (!m_model.isValidRow(row)) return false;
+    const QString id = m_model.tweakIdForRow(row);
+    bool ok = m_engine.verifyTweak(id);
+    m_model.refreshRow(row);
+    return ok;
+}
+
+void AppController::verifyAllTweaks()
+{
+    m_engine.verifyAllTweaks();
+    m_model.refresh();
+    emit tweaksChanged();
+}

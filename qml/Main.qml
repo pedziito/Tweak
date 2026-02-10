@@ -5,30 +5,46 @@ import QtQuick.Controls.Material 2.15
 
 ApplicationWindow {
     id: root
-    width: 1360
-    height: 860
-    minimumWidth: 1040
-    minimumHeight: 700
+    width: 1440
+    height: 900
+    minimumWidth: 1100
+    minimumHeight: 750
     visible: true
     title: "Tweak  —  Performance Suite"
 
     Material.theme: Material.Dark
-    Material.accent: "#3b82f6"
-    Material.primary: "#080e1a"
-    Material.background: "#080e1a"
+    Material.accent: "#6366f1"
+    Material.primary: "#0a0e1a"
+    Material.background: "#0a0e1a"
 
     font.family: "Segoe UI"
     font.pixelSize: 13
 
-    color: "#080e1a"
+    color: "#0a0e1a"
 
     // ── Background ──
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#080e1a" }
-            GradientStop { position: 0.4; color: "#0a1220" }
-            GradientStop { position: 1.0; color: "#060c18" }
+            GradientStop { position: 0.0; color: "#0a0e1a" }
+            GradientStop { position: 0.3; color: "#0d1225" }
+            GradientStop { position: 1.0; color: "#080c18" }
+        }
+    }
+
+    // Subtle noise overlay for depth
+    Rectangle {
+        anchors.fill: parent
+        color: "transparent"
+        opacity: 0.03
+        Rectangle {
+            anchors.fill: parent
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "#6366f1" }
+                GradientStop { position: 0.5; color: "transparent" }
+                GradientStop { position: 1.0; color: "#06b6d4" }
+            }
         }
     }
 
@@ -42,6 +58,18 @@ ApplicationWindow {
             Layout.fillHeight: true
         }
 
+        // Thin separator line
+        Rectangle {
+            Layout.fillHeight: true
+            width: 1
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 0.2; color: "#1e293b" }
+                GradientStop { position: 0.8; color: "#1e293b" }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+        }
+
         // Page content area
         StackLayout {
             id: pageStack
@@ -49,26 +77,22 @@ ApplicationWindow {
             Layout.fillHeight: true
             currentIndex: sidebar.currentPage
 
-            // Page 0: Dashboard
             DashboardPage {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
 
-            // Page 1: Tweaks
             TweaksPage {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 onRestartRequested: restartDialog.open()
             }
 
-            // Page 2: Performance Benchmark
             PerformanceGraph {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
 
-            // Page 3: Game FPS Estimator
             GameBenchmarkPage {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -76,43 +100,70 @@ ApplicationWindow {
         }
     }
 
-    // CS2 path dialog
     Cs2PathDialog { id: cs2PathDialog }
 
     // ── Restart Required Dialog ──
     Dialog {
         id: restartDialog
         anchors.centerIn: parent
-        width: 380
+        width: 420
         modal: true
         title: ""
 
         background: Rectangle {
-            radius: 16
-            color: "#0f1a2e"
-            border.color: "#3b82f6"
+            radius: 20
+            color: "#111827"
+            border.color: "#374151"
             border.width: 1
+
+            // Glow effect
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -1
+                radius: 21
+                color: "transparent"
+                border.color: "#6366f1"
+                border.width: 1
+                opacity: 0.3
+            }
         }
 
         contentItem: ColumnLayout {
-            spacing: 16
+            spacing: 20
+
+            // Icon
+            Rectangle {
+                Layout.alignment: Qt.AlignHCenter
+                width: 56; height: 56; radius: 28
+                color: "#1e1b4b"
+                border.color: "#6366f1"
+                border.width: 1
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "\u21BB"
+                    font.pixelSize: 24
+                    color: "#818cf8"
+                }
+            }
 
             Text {
                 Layout.fillWidth: true
-                text: "Restart to Apply"
-                color: "#e2e8f0"
-                font.pixelSize: 20
+                text: "Restart Required"
+                color: "#f1f5f9"
+                font.pixelSize: 22
                 font.weight: Font.Bold
                 horizontalAlignment: Text.AlignHCenter
             }
 
             Text {
                 Layout.fillWidth: true
-                text: "Your tweaks have been saved.\nRestart your PC to apply the changes."
+                text: "Your tweaks have been saved and applied.\nA system restart is needed for all changes to take effect."
                 color: "#94a3b8"
                 font.pixelSize: 13
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
+                lineHeight: 1.4
             }
 
             RowLayout {
@@ -120,19 +171,18 @@ ApplicationWindow {
                 spacing: 12
                 Layout.topMargin: 8
 
-                // Later button
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 40; radius: 10
+                    height: 44; radius: 12
                     color: "transparent"
-                    border.color: "#1e3a5f"
+                    border.color: "#374151"
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text: "Later"
                         color: "#94a3b8"
-                        font.pixelSize: 13
+                        font.pixelSize: 14
                         font.weight: Font.DemiBold
                     }
 
@@ -143,21 +193,20 @@ ApplicationWindow {
                     }
                 }
 
-                // Restart Now button
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 40; radius: 10
+                    height: 44; radius: 12
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: "#3b82f6" }
-                        GradientStop { position: 1.0; color: "#06b6d4" }
+                        GradientStop { position: 0.0; color: "#6366f1" }
+                        GradientStop { position: 1.0; color: "#8b5cf6" }
                     }
 
                     Text {
                         anchors.centerIn: parent
                         text: "Restart Now"
                         color: "#ffffff"
-                        font.pixelSize: 13
+                        font.pixelSize: 14
                         font.weight: Font.Bold
                     }
 

@@ -5,8 +5,8 @@ import QtQuick.Controls 2.15
 Rectangle {
     Layout.fillWidth: true
     radius: 16
-    color: "#0f1a2e"
-    border.color: "#1e3a5f"
+    color: "#0d1117"
+    border.color: "#1e293b"
 
     ColumnLayout {
         anchors.fill: parent
@@ -41,8 +41,8 @@ Rectangle {
                 width: startupList.width
                 implicitHeight: startupCol.implicitHeight + 14
                 radius: 10
-                color: "#0c1524"
-                border.color: "#1e3a5f"
+                color: "#111827"
+                border.color: "#1e293b"
 
                 Column {
                     id: startupCol

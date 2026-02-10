@@ -2,164 +2,91 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-/// Left sidebar navigation
 Rectangle {
     id: sidebar
-    width: 250
-    color: "#0a1220"
-    border.width: 0
+    width: 240
+    color: "#0c1221"
 
-    property int currentPage: 0  // 0=Home, 1=Tweaks, 2=Performance, 3=Game Benchmark
-
-    // Right border accent
-    Rectangle {
-        anchors.right: parent.right
-        width: 1
-        height: parent.height
-        color: "#1e3a5f"
-    }
+    property int currentPage: 0
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 0
         spacing: 0
 
-        // ── Logo area ──
-        Rectangle {
+        // ── Logo ──
+        Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 80
-            color: "transparent"
+            Layout.preferredHeight: 72
 
             RowLayout {
                 anchors.centerIn: parent
-                spacing: 12
+                spacing: 10
 
-                // Logo icon
                 Rectangle {
-                    width: 42; height: 42; radius: 14
+                    width: 36; height: 36; radius: 10
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: "#3b82f6" }
-                        GradientStop { position: 1.0; color: "#06b6d4" }
+                        GradientStop { position: 0.0; color: "#6366f1" }
+                        GradientStop { position: 1.0; color: "#8b5cf6" }
                     }
-
                     Text {
                         anchors.centerIn: parent
                         text: "\u26A1"
-                        font.pixelSize: 18
+                        font.pixelSize: 16
                         color: "#ffffff"
                     }
                 }
-
                 Column {
-                    spacing: 2
+                    spacing: 1
                     Text {
                         text: "Tweak"
-                        color: "#e2e8f0"
+                        color: "#f1f5f9"
                         font.pixelSize: 18
                         font.weight: Font.Bold
-                        font.letterSpacing: 1
+                        font.letterSpacing: 0.5
                     }
                     Text {
                         text: "PERFORMANCE SUITE"
-                        color: "#64748b"
+                        color: "#6366f1"
                         font.pixelSize: 8
-                        font.weight: Font.DemiBold
-                        font.letterSpacing: 2
+                        font.weight: Font.Bold
+                        font.letterSpacing: 3
                     }
                 }
             }
         }
 
-        // ── Separator ──
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#0f2340"; Layout.leftMargin: 20; Layout.rightMargin: 20 }
-
-        // ── Nav sections ──
-        Item { Layout.preferredHeight: 16 }
-
-        // MAIN section
-        Text {
-            text: "MAIN"
-            color: "#475569"
-            font.pixelSize: 10
-            font.weight: Font.DemiBold
-            font.letterSpacing: 2
-            Layout.leftMargin: 24
+        // Separator
+        Rectangle {
+            Layout.fillWidth: true; height: 1; color: "#1e293b"
+            Layout.leftMargin: 16; Layout.rightMargin: 16
         }
 
-        Item { Layout.preferredHeight: 8 }
+        Item { Layout.preferredHeight: 20 }
+
+        // OVERVIEW
+        SectionLabel { label: "OVERVIEW" }
+        Item { Layout.preferredHeight: 4 }
 
         NavButton {
             Layout.fillWidth: true
-            text: "Home"
-            icon: "\u2302"
+            text: "Dashboard"
+            icon: "\u25A3"
             active: sidebar.currentPage === 0
             onClicked: sidebar.currentPage = 0
         }
 
         Item { Layout.preferredHeight: 16 }
 
-        // GENERAL section
-        Text {
-            text: "GENERAL"
-            color: "#475569"
-            font.pixelSize: 10
-            font.weight: Font.DemiBold
-            font.letterSpacing: 2
-            Layout.leftMargin: 24
-        }
-
-        Item { Layout.preferredHeight: 8 }
-
-        NavButton {
-            Layout.fillWidth: true
-            text: "Power Settings"
-            icon: "\u26A1"
-            active: false
-            onClicked: {
-                sidebar.currentPage = 1
-                appController.selectedCategory = "Power"
-            }
-        }
-        NavButton {
-            Layout.fillWidth: true
-            text: "RAM Optimizer"
-            icon: "\u2B23"
-            active: false
-            onClicked: {
-                sidebar.currentPage = 1
-                appController.selectedCategory = "FPS"
-            }
-        }
-        NavButton {
-            Layout.fillWidth: true
-            text: "Network Tools"
-            icon: "\u25C9"
-            active: false
-            onClicked: {
-                sidebar.currentPage = 1
-                appController.selectedCategory = "Network"
-            }
-        }
-
-        Item { Layout.preferredHeight: 16 }
-
-        // TWEAKS section
-        Text {
-            text: "TWEAKS"
-            color: "#475569"
-            font.pixelSize: 10
-            font.weight: Font.DemiBold
-            font.letterSpacing: 2
-            Layout.leftMargin: 24
-        }
-
-        Item { Layout.preferredHeight: 8 }
+        // OPTIMIZE
+        SectionLabel { label: "OPTIMIZE" }
+        Item { Layout.preferredHeight: 4 }
 
         NavButton {
             Layout.fillWidth: true
             text: "All Tweaks"
             icon: "\u2699"
-            active: sidebar.currentPage === 1
+            active: sidebar.currentPage === 1 && appController.selectedCategory === "All"
+            badge: appController.appliedCount > 0 ? appController.appliedCount.toString() : ""
             onClicked: {
                 sidebar.currentPage = 1
                 appController.selectedCategory = "All"
@@ -169,22 +96,37 @@ Rectangle {
             Layout.fillWidth: true
             text: "Gaming"
             icon: "\u25CE"
-            active: false
-            onClicked: {
-                sidebar.currentPage = 1
-                appController.selectedCategory = "Gaming"
-            }
+            active: sidebar.currentPage === 1 && appController.selectedCategory === "Gaming"
+            onClicked: { sidebar.currentPage = 1; appController.selectedCategory = "Gaming" }
+        }
+        NavButton {
+            Layout.fillWidth: true
+            text: "Network"
+            icon: "\u25C9"
+            active: sidebar.currentPage === 1 && appController.selectedCategory === "Network"
+            onClicked: { sidebar.currentPage = 1; appController.selectedCategory = "Network" }
         }
         NavButton {
             Layout.fillWidth: true
             text: "Privacy"
             icon: "\u25C6"
-            active: false
-            onClicked: {
-                sidebar.currentPage = 1
-                appController.selectedCategory = "Privacy"
-            }
+            active: sidebar.currentPage === 1 && appController.selectedCategory === "Privacy"
+            onClicked: { sidebar.currentPage = 1; appController.selectedCategory = "Privacy" }
         }
+        NavButton {
+            Layout.fillWidth: true
+            text: "Power"
+            icon: "\u26A1"
+            active: sidebar.currentPage === 1 && appController.selectedCategory === "Power"
+            onClicked: { sidebar.currentPage = 1; appController.selectedCategory = "Power" }
+        }
+
+        Item { Layout.preferredHeight: 16 }
+
+        // BENCHMARK
+        SectionLabel { label: "BENCHMARK" }
+        Item { Layout.preferredHeight: 4 }
+
         NavButton {
             Layout.fillWidth: true
             text: "Performance"
@@ -202,33 +144,54 @@ Rectangle {
 
         Item { Layout.fillHeight: true }
 
-        // ── Bottom area ──
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#0f2340"; Layout.leftMargin: 20; Layout.rightMargin: 20 }
+        // ── Bottom ──
+        Rectangle {
+            Layout.fillWidth: true; height: 1; color: "#1e293b"
+            Layout.leftMargin: 16; Layout.rightMargin: 16
+        }
 
         Item { Layout.preferredHeight: 12 }
 
-        // Version info
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            text: "v1.1.0  \u00B7  " + (appController.isAdmin ? "\u2713 Admin" : "\u26A0 User")
-            color: appController.isAdmin ? "#10b981" : "#f59e0b"
-            font.pixelSize: 10
-        }
+        // Admin status
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            height: 36
+            radius: 10
+            color: appController.isAdmin ? "#052e16" : "#451a03"
+            border.color: appController.isAdmin ? "#166534" : "#92400e"
+            border.width: 1
 
-        Item { Layout.preferredHeight: 8 }
+            RowLayout {
+                anchors.centerIn: parent
+                spacing: 6
+                Rectangle {
+                    width: 6; height: 6; radius: 3
+                    color: appController.isAdmin ? "#22c55e" : "#f59e0b"
+                }
+                Text {
+                    text: appController.isAdmin ? "Administrator" : "Standard User"
+                    color: appController.isAdmin ? "#22c55e" : "#f59e0b"
+                    font.pixelSize: 11
+                    font.weight: Font.DemiBold
+                }
+            }
+        }
 
         // Elevate button
         Rectangle {
             Layout.fillWidth: true
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-            Layout.preferredHeight: 36
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.preferredHeight: 38
+            Layout.topMargin: 8
             radius: 10
             visible: !appController.isAdmin
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: "#3b82f6" }
-                GradientStop { position: 1.0; color: "#06b6d4" }
+                GradientStop { position: 0.0; color: "#6366f1" }
+                GradientStop { position: 1.0; color: "#8b5cf6" }
             }
 
             Text {
@@ -236,7 +199,7 @@ Rectangle {
                 text: "\u25B6  Run as Admin"
                 color: "#ffffff"
                 font.pixelSize: 12
-                font.weight: Font.DemiBold
+                font.weight: Font.Bold
             }
 
             MouseArea {
@@ -249,46 +212,95 @@ Rectangle {
             }
         }
 
+        // Version
+        Text {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.topMargin: 8
+            text: "v2.0.0"
+            color: "#475569"
+            font.pixelSize: 10
+        }
+
         Item { Layout.preferredHeight: 16 }
     }
 
-    // ── NavButton component ──
+    // ── Components ──
+    component SectionLabel: Text {
+        property string label: ""
+        Layout.leftMargin: 20
+        text: label
+        color: "#475569"
+        font.pixelSize: 9
+        font.weight: Font.Bold
+        font.letterSpacing: 2.5
+    }
+
     component NavButton: Rectangle {
         property string text: ""
         property string icon: ""
         property bool active: false
+        property string badge: ""
         signal clicked()
 
-        height: 40
-        color: active ? "#0f2340" : hoverArea.containsMouse ? "#0d1b30" : "transparent"
-        radius: 0
+        height: 38
+        color: active ? "#1e1b4b" : hoverArea.containsMouse ? "#111827" : "transparent"
+        radius: 8
+        Layout.leftMargin: 10
+        Layout.rightMargin: 10
 
         // Active indicator
         Rectangle {
             anchors.left: parent.left
+            anchors.leftMargin: -2
             width: 3
-            height: parent.height
+            height: 20
+            anchors.verticalCenter: parent.verticalCenter
             radius: 2
-            color: "#3b82f6"
+            color: "#6366f1"
             visible: parent.active
+
+            // Glow
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -3
+                radius: 5
+                color: "#6366f1"
+                opacity: 0.2
+            }
         }
 
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: 24
-            anchors.rightMargin: 16
-            spacing: 12
+            anchors.leftMargin: 14
+            anchors.rightMargin: 10
+            spacing: 10
 
             Text {
                 text: parent.parent.icon
-                font.pixelSize: 15
+                font.pixelSize: 14
+                color: parent.parent.active ? "#a5b4fc" : "#64748b"
             }
             Text {
                 text: parent.parent.text
-                color: parent.parent.active ? "#93c5fd" : "#94a3b8"
+                color: parent.parent.active ? "#e0e7ff" : "#94a3b8"
                 font.pixelSize: 13
                 font.weight: parent.parent.active ? Font.DemiBold : Font.Normal
                 Layout.fillWidth: true
+            }
+
+            // Badge
+            Rectangle {
+                visible: parent.parent.badge !== ""
+                width: badgeText.width + 12; height: 20; radius: 10
+                color: "#312e81"
+                Text {
+                    id: badgeText
+                    anchors.centerIn: parent
+                    text: parent.parent.parent.badge
+                    color: "#a5b4fc"
+                    font.pixelSize: 10
+                    font.weight: Font.Bold
+                }
             }
         }
 

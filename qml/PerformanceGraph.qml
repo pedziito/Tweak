@@ -45,7 +45,7 @@ Rectangle {
 
                 Row {
                     spacing: 4
-                    Rectangle { width: 12; height: 12; radius: 3; color: "#1e3a5f"; anchors.verticalCenter: parent.verticalCenter }
+                    Rectangle { width: 12; height: 12; radius: 3; color: "#1e293b"; anchors.verticalCenter: parent.verticalCenter }
                     Text { text: "Before"; color: "#94a3b8"; font.pixelSize: 11 }
                 }
                 Row {
@@ -55,8 +55,8 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: "#3b82f6" }
-                            GradientStop { position: 1; color: "#06b6d4" }
+                            GradientStop { position: 0; color: "#6366f1" }
+                            GradientStop { position: 1; color: "#8b5cf6" }
                         }
                     }
                     Text { text: "After"; color: "#94a3b8"; font.pixelSize: 11 }
@@ -72,7 +72,7 @@ Rectangle {
             PerfButton {
                 text: appController.benchmarkRunning ? "\u25CC Running..." : "\u25C6 Run Baseline"
                 enabled: !appController.benchmarkRunning
-                accent: "#3b82f6"
+                accent: "#6366f1"
                 onClicked: appController.runBaseline()
             }
             PerfButton {
@@ -93,7 +93,7 @@ Rectangle {
         Text {
             visible: appController.benchmarkRunning
             text: "Running benchmarks — this takes about 15-30 seconds..."
-            color: "#3b82f6"
+            color: "#6366f1"
             font.pixelSize: 12
             font.italic: true
 
@@ -118,7 +118,7 @@ Rectangle {
 
             ScrollBar.vertical: ScrollBar {
                 policy: ScrollBar.AsNeeded
-                contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#3b82f6"; opacity: 0.5 }
+                contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#6366f1"; opacity: 0.5 }
                 background: Rectangle { color: "transparent" }
             }
 
@@ -126,8 +126,8 @@ Rectangle {
                 width: benchList.width
                 height: 90
                 radius: 12
-                color: "#0f1a2e"
-                border.color: "#1e3a5f"
+                color: "#0d1117"
+                border.color: "#1e293b"
 
                 property var item: modelData
                 property double maxVal: {
@@ -161,7 +161,7 @@ Rectangle {
                             radius: 8
                             color: {
                                 var imp = item.improvement || 0
-                                return imp > 0 ? "#152d1a" : imp < 0 ? "#2d1515" : "#0f1a2e"
+                                return imp > 0 ? "#0d2818" : imp < 0 ? "#2d1515" : "#0d1117"
                             }
                             implicitWidth: impText.implicitWidth + 16
                             implicitHeight: 22
@@ -194,13 +194,13 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 16
                             radius: 4
-                            color: "#0c1524"
+                            color: "#111827"
 
                             Rectangle {
                                 width: parent.width * Math.min(item.baseline / maxVal, 1.0)
                                 height: parent.height
                                 radius: 4
-                                color: "#1e3a5f"
+                                color: "#1e293b"
 
                                 Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
                             }
@@ -225,7 +225,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 16
                             radius: 4
-                            color: "#0c1524"
+                            color: "#111827"
 
                             Rectangle {
                                 width: parent.width * Math.min(item.current / maxVal, 1.0)
@@ -234,8 +234,8 @@ Rectangle {
 
                                 gradient: Gradient {
                                     orientation: Gradient.Horizontal
-                                    GradientStop { position: 0.0; color: "#3b82f6" }
-                                    GradientStop { position: 1.0; color: "#06b6d4" }
+                                    GradientStop { position: 0.0; color: "#6366f1" }
+                                    GradientStop { position: 1.0; color: "#8b5cf6" }
                                 }
 
                                 Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
@@ -244,7 +244,7 @@ Rectangle {
 
                         Text {
                             text: item.current.toFixed(1) + " " + item.unit
-                            color: "#93c5fd"
+                            color: "#a5b4fc"
                             font.pixelSize: 10
                             font.weight: Font.DemiBold
                             Layout.preferredWidth: 80
@@ -269,7 +269,7 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "\u25C6"
                     font.pixelSize: 48
-                    color: "#3b82f6"
+                    color: "#6366f1"
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -292,8 +292,8 @@ Rectangle {
             visible: appController.benchmarkResults.length > 0 && appController.benchmarkHasBaseline
             height: 44
             radius: 12
-            color: "#0f1a2e"
-            border.color: "#1e3a5f"
+            color: "#0d1117"
+            border.color: "#1e293b"
 
             RowLayout {
                 anchors.fill: parent
@@ -316,7 +316,7 @@ Rectangle {
                         var prefix = avg > 0 ? "+" : ""
                         return "Overall: " + prefix + avg.toFixed(1) + "% average improvement across " + count + " metrics"
                     }
-                    color: "#93c5fd"
+                    color: "#a5b4fc"
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                     Layout.fillWidth: true
@@ -327,15 +327,15 @@ Rectangle {
 
     component PerfButton: Rectangle {
         property string text: ""
-        property color accent: "#3b82f6"
+        property color accent: "#6366f1"
         property bool enabled: true
         signal clicked()
 
         width: perfBtnText.implicitWidth + 28
         height: 36
         radius: 10
-        color: !enabled ? "#0c1524" : perfBtnHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.15) : "#0c1524"
-        border.color: !enabled ? "#0f2340" : Qt.rgba(accent.r, accent.g, accent.b, 0.4)
+        color: !enabled ? "#111827" : perfBtnHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.15) : "#111827"
+        border.color: !enabled ? "#1e293b" : Qt.rgba(accent.r, accent.g, accent.b, 0.4)
         border.width: 1
         opacity: enabled ? 1.0 : 0.5
 
@@ -343,7 +343,7 @@ Rectangle {
             id: perfBtnText
             anchors.centerIn: parent
             text: parent.text
-            color: parent.enabled ? "#93c5fd" : "#475569"
+            color: parent.enabled ? "#a5b4fc" : "#475569"
             font.pixelSize: 12
             font.weight: Font.DemiBold
         }

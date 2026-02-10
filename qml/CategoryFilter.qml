@@ -14,16 +14,16 @@ Flow {
         delegate: Rectangle {
             width: catBtnText.implicitWidth + 24
             height: 32
-            radius: 10
-            color: filterRoot.currentCategory === modelData ? "#0f2340" : catBtnHover.containsMouse ? "#0d1b30" : "#0c1524"
-            border.color: filterRoot.currentCategory === modelData ? "#3b82f6" : "#1e3a5f"
+            radius: 8
+            color: filterRoot.currentCategory === modelData ? "#1e1b4b" : catBtnHover.containsMouse ? "#111827" : "#0d1117"
+            border.color: filterRoot.currentCategory === modelData ? "#6366f1" : catBtnHover.containsMouse ? "#1e293b" : "#1a1f2e"
             border.width: 1
 
             Text {
                 id: catBtnText
                 anchors.centerIn: parent
                 text: modelData
-                color: filterRoot.currentCategory === modelData ? "#93c5fd" : "#94a3b8"
+                color: filterRoot.currentCategory === modelData ? "#a5b4fc" : "#94a3b8"
                 font.pixelSize: 11
                 font.weight: filterRoot.currentCategory === modelData ? Font.Bold : Font.Normal
             }

@@ -146,6 +146,10 @@ public:
     Q_INVOKABLE void deleteConfiguration(const QString &name);
     Q_INVOKABLE QStringList appliedTweakIds() const;
 
+    // Verification
+    Q_INVOKABLE bool verifyTweak(int row);
+    Q_INVOKABLE void verifyAllTweaks();
+
 signals:
     void hardwareChanged();
     void tweaksChanged();

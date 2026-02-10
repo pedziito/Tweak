@@ -8,8 +8,8 @@ Rectangle {
     implicitWidth: 200
     implicitHeight: 170
     radius: 18
-    color: "#0f1a2e"
-    border.color: "#1e3a5f"
+    color: "#0d1117"
+    border.color: "#1e293b"
     border.width: 1
 
     property string cardTitle: ""
@@ -17,8 +17,8 @@ Rectangle {
     property string subtitle: ""
     property string overrideText: ""
     property string overrideLabel: ""
-    property color accentStart: "#3b82f6"
-    property color accentEnd: "#06b6d4"
+    property color accentStart: "#6366f1"
+    property color accentEnd: "#8b5cf6"
 
     ColumnLayout {
         anchors.fill: parent

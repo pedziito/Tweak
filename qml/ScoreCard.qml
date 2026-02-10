@@ -7,8 +7,8 @@ Rectangle {
     id: scoreCard
     implicitHeight: scoreCol.height + 32
     radius: 16
-    color: "#0f1a2e"
-    border.color: "#1e3a5f"
+    color: "#0d1117"
+    border.color: "#1e293b"
     border.width: 1
 
     ColumnLayout {
@@ -33,10 +33,10 @@ Rectangle {
                 width: tierLabel.width + 16; height: 26; radius: 10
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#3b82f6" }
-                    GradientStop { position: 1.0; color: "#06b6d4" }
+                    GradientStop { position: 0.0; color: "#6366f1" }
+                    GradientStop { position: 1.0; color: "#8b5cf6" }
                 }
-                opacity: 0.8
+                opacity: 0.9
                 Text {
                     id: tierLabel
                     anchors.centerIn: parent
@@ -63,9 +63,9 @@ Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     width: 100; height: 100
                     value: appController.hwScorer ? appController.hwScorer.gamingScore : 0
-                    startColor: "#3b82f6"
-                    endColor: "#06b6d4"
-                    glowColor: "#3b82f6"
+                    startColor: "#6366f1"
+                    endColor: "#8b5cf6"
+                    glowColor: "#6366f1"
                     label: ""
                 }
                 Text {
@@ -86,9 +86,9 @@ Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     width: 100; height: 100
                     value: appController.hwScorer ? appController.hwScorer.performanceScore : 0
-                    startColor: "#06b6d4"
+                    startColor: "#8b5cf6"
                     endColor: "#10b981"
-                    glowColor: "#06b6d4"
+                    glowColor: "#8b5cf6"
                     label: ""
                 }
                 Text {
@@ -106,7 +106,7 @@ Rectangle {
             Layout.fillWidth: true
             height: bnRow.height + 16
             radius: 10
-            color: "#0c1524"
+            color: "#111827"
             visible: appController.hwScorer && appController.hwScorer.bottleneck !== ""
 
             RowLayout {
@@ -136,9 +136,9 @@ Rectangle {
             columnSpacing: 12
             rowSpacing: 8
 
-            SubScoreBar { barLabel: "CPU"; barValue: appController.hwScorer ? appController.hwScorer.cpuScore : 0; barColor: "#3b82f6" }
-            SubScoreBar { barLabel: "GPU"; barValue: appController.hwScorer ? appController.hwScorer.gpuScore : 0; barColor: "#06b6d4" }
-            SubScoreBar { barLabel: "RAM"; barValue: appController.hwScorer ? appController.hwScorer.ramScore : 0; barColor: "#06b6d4" }
+            SubScoreBar { barLabel: "CPU"; barValue: appController.hwScorer ? appController.hwScorer.cpuScore : 0; barColor: "#6366f1" }
+            SubScoreBar { barLabel: "GPU"; barValue: appController.hwScorer ? appController.hwScorer.gpuScore : 0; barColor: "#8b5cf6" }
+            SubScoreBar { barLabel: "RAM"; barValue: appController.hwScorer ? appController.hwScorer.ramScore : 0; barColor: "#a78bfa" }
             SubScoreBar { barLabel: "Storage"; barValue: appController.hwScorer ? appController.hwScorer.storageScore : 0; barColor: "#10b981" }
         }
 
@@ -167,14 +167,14 @@ Rectangle {
                         if (s === "good") return "#0d1f17"
                         if (s === "warning") return "#1f1a0d"
                         if (s === "critical") return "#1f0d0d"
-                        return "#0c1524"
+                        return "#111827"
                     }
                     border.color: {
                         var s = modelData.severity || "info"
                         if (s === "good") return "#10b981"
                         if (s === "warning") return "#f59e0b"
                         if (s === "critical") return "#ef4444"
-                        return "#1e3a5f"
+                        return "#1e293b"
                     }
                     border.width: 1
 
@@ -213,7 +213,7 @@ Rectangle {
     component SubScoreBar: RowLayout {
         property string barLabel: ""
         property int barValue: 0
-        property color barColor: "#3b82f6"
+        property color barColor: "#6366f1"
 
         Layout.fillWidth: true
         spacing: 8
@@ -229,7 +229,7 @@ Rectangle {
             Layout.fillWidth: true
             height: 10
             radius: 5
-            color: "#0c1524"
+            color: "#111827"
 
             Rectangle {
                 width: parent.width * Math.min(barValue / 100.0, 1.0)
