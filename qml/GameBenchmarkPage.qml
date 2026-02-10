@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-/// Game FPS Estimation & System Benchmark Page
+/// Game FPS Estimation page — redesigned with cyan/amber theme + new layout
 Flickable {
     id: gbPage
     contentWidth: width
@@ -12,7 +12,7 @@ Flickable {
 
     ScrollBar.vertical: ScrollBar {
         policy: ScrollBar.AsNeeded
-        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#6366f1"; opacity: 0.5 }
+        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#06b6d4"; opacity: 0.5 }
         background: Rectangle { color: "transparent" }
     }
 
@@ -24,23 +24,23 @@ Flickable {
         anchors.margins: 28
         spacing: 20
 
-        // ── Header ──
+        // ═══════ HEADER ═══════
         RowLayout {
             Layout.fillWidth: true
             spacing: 12
 
             ColumnLayout {
-                spacing: 2
+                spacing: 3
                 Text {
                     text: "Game Performance Estimator"
-                    color: "#e2e8f0"
+                    color: "#f0f6ff"
                     font.pixelSize: 26
                     font.weight: Font.Bold
                 }
                 Text {
                     text: "Estimated FPS based on your hardware profile"
-                    color: "#64748b"
-                    font.pixelSize: 13
+                    color: "#4a5568"
+                    font.pixelSize: 12
                 }
             }
 
@@ -48,13 +48,13 @@ Flickable {
 
             // Run button
             Rectangle {
-                width: runBtnText.width + 32; height: 40; radius: 12
+                width: runBtnText.width + 28; height: 38; radius: 10
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#6366f1" }
-                    GradientStop { position: 1.0; color: "#8b5cf6" }
+                    GradientStop { position: 0.0; color: "#06b6d4" }
+                    GradientStop { position: 1.0; color: "#0ea5e9" }
                 }
-                opacity: appController.gameBenchmark && appController.gameBenchmark.running ? 0.6 : 1.0
+                opacity: appController.gameBenchmark && appController.gameBenchmark.running ? 0.5 : 1.0
 
                 Text {
                     id: runBtnText
@@ -62,7 +62,7 @@ Flickable {
                     text: appController.gameBenchmark && appController.gameBenchmark.running
                           ? "\u25CC  Estimating..." : "\u25B6  Run Estimation"
                     color: "#ffffff"
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     font.weight: Font.Bold
                 }
 
@@ -75,78 +75,36 @@ Flickable {
             }
         }
 
-        // ── Settings Row: Resolution & Quality Dropdowns ──
+        // ═══════ SETTINGS ROW ═══════
         RowLayout {
             Layout.fillWidth: true
             spacing: 20
 
-            // Resolution dropdown
             ColumnLayout {
                 spacing: 4
-                Text {
-                    text: "Resolution"
-                    color: "#94a3b8"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                }
+                Text { text: "Resolution"; color: "#4a5568"; font.pixelSize: 10; font.weight: Font.Bold }
                 ComboBox {
                     id: resolutionCombo
                     model: ["1080p", "1440p", "4K"]
                     currentIndex: 0
-                    implicitWidth: 140
-                    implicitHeight: 36
+                    implicitWidth: 130; implicitHeight: 34
 
-                    background: Rectangle {
-                        radius: 10
-                        color: "#111827"
-                        border.color: resolutionCombo.pressed ? "#6366f1" : "#1e293b"
-                        border.width: 1
-                    }
-
-                    contentItem: Text {
-                        leftPadding: 12
-                        text: resolutionCombo.displayText
-                        color: "#e2e8f0"
-                        font.pixelSize: 12
-                        font.weight: Font.DemiBold
-                        verticalAlignment: Text.AlignVCenter
-                    }
+                    background: Rectangle { radius: 8; color: "#12172b"; border.color: resolutionCombo.pressed ? "#06b6d4" : "#1c2333"; border.width: 1 }
+                    contentItem: Text { leftPadding: 10; text: resolutionCombo.displayText; color: "#c5d0de"; font.pixelSize: 12; font.weight: Font.DemiBold; verticalAlignment: Text.AlignVCenter }
 
                     popup: Popup {
                         y: resolutionCombo.height + 2
                         width: resolutionCombo.width
                         implicitHeight: contentItem.implicitHeight + 8
                         padding: 4
-
-                        background: Rectangle {
-                            radius: 10
-                            color: "#0d1117"
-                            border.color: "#1e293b"
-                            border.width: 1
-                        }
-
-                        contentItem: ListView {
-                            clip: true
-                            implicitHeight: contentHeight
-                            model: resolutionCombo.popup.visible ? resolutionCombo.delegateModel : null
-                            ScrollIndicator.vertical: ScrollIndicator {}
-                        }
+                        background: Rectangle { radius: 8; color: "#0f1423"; border.color: "#1c2333"; border.width: 1 }
+                        contentItem: ListView { clip: true; implicitHeight: contentHeight; model: resolutionCombo.popup.visible ? resolutionCombo.delegateModel : null; ScrollIndicator.vertical: ScrollIndicator {} }
                     }
 
                     delegate: ItemDelegate {
-                        width: resolutionCombo.width
-                        height: 32
-                        contentItem: Text {
-                            text: modelData
-                            color: resolutionCombo.currentIndex === index ? "#a5b4fc" : "#94a3b8"
-                            font.pixelSize: 12
-                            verticalAlignment: Text.AlignVCenter
-                            leftPadding: 12
-                        }
-                        background: Rectangle {
-                            color: hovered ? "#1e293b" : "transparent"
-                            radius: 6
-                        }
+                        width: resolutionCombo.width; height: 30
+                        contentItem: Text { text: modelData; color: resolutionCombo.currentIndex === index ? "#22d3ee" : "#7b8ba3"; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter; leftPadding: 10 }
+                        background: Rectangle { color: hovered ? "#1c2333" : "transparent"; radius: 4 }
                     }
 
                     onCurrentTextChanged: {
@@ -156,73 +114,31 @@ Flickable {
                 }
             }
 
-            // Quality dropdown
             ColumnLayout {
                 spacing: 4
-                Text {
-                    text: "Quality"
-                    color: "#94a3b8"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                }
+                Text { text: "Quality"; color: "#4a5568"; font.pixelSize: 10; font.weight: Font.Bold }
                 ComboBox {
                     id: qualityCombo
                     model: ["Low", "Medium", "High", "Ultra"]
                     currentIndex: 1
-                    implicitWidth: 140
-                    implicitHeight: 36
+                    implicitWidth: 130; implicitHeight: 34
 
-                    background: Rectangle {
-                        radius: 10
-                        color: "#111827"
-                        border.color: qualityCombo.pressed ? "#6366f1" : "#1e293b"
-                        border.width: 1
-                    }
-
-                    contentItem: Text {
-                        leftPadding: 12
-                        text: qualityCombo.displayText
-                        color: "#e2e8f0"
-                        font.pixelSize: 12
-                        font.weight: Font.DemiBold
-                        verticalAlignment: Text.AlignVCenter
-                    }
+                    background: Rectangle { radius: 8; color: "#12172b"; border.color: qualityCombo.pressed ? "#06b6d4" : "#1c2333"; border.width: 1 }
+                    contentItem: Text { leftPadding: 10; text: qualityCombo.displayText; color: "#c5d0de"; font.pixelSize: 12; font.weight: Font.DemiBold; verticalAlignment: Text.AlignVCenter }
 
                     popup: Popup {
                         y: qualityCombo.height + 2
                         width: qualityCombo.width
                         implicitHeight: contentItem.implicitHeight + 8
                         padding: 4
-
-                        background: Rectangle {
-                            radius: 10
-                            color: "#0d1117"
-                            border.color: "#1e293b"
-                            border.width: 1
-                        }
-
-                        contentItem: ListView {
-                            clip: true
-                            implicitHeight: contentHeight
-                            model: qualityCombo.popup.visible ? qualityCombo.delegateModel : null
-                            ScrollIndicator.vertical: ScrollIndicator {}
-                        }
+                        background: Rectangle { radius: 8; color: "#0f1423"; border.color: "#1c2333"; border.width: 1 }
+                        contentItem: ListView { clip: true; implicitHeight: contentHeight; model: qualityCombo.popup.visible ? qualityCombo.delegateModel : null; ScrollIndicator.vertical: ScrollIndicator {} }
                     }
 
                     delegate: ItemDelegate {
-                        width: qualityCombo.width
-                        height: 32
-                        contentItem: Text {
-                            text: modelData
-                            color: qualityCombo.currentIndex === index ? "#a5b4fc" : "#94a3b8"
-                            font.pixelSize: 12
-                            verticalAlignment: Text.AlignVCenter
-                            leftPadding: 12
-                        }
-                        background: Rectangle {
-                            color: hovered ? "#1e293b" : "transparent"
-                            radius: 6
-                        }
+                        width: qualityCombo.width; height: 30
+                        contentItem: Text { text: modelData; color: qualityCombo.currentIndex === index ? "#22d3ee" : "#7b8ba3"; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter; leftPadding: 10 }
+                        background: Rectangle { color: hovered ? "#1c2333" : "transparent"; radius: 4 }
                     }
 
                     onCurrentTextChanged: {
@@ -234,69 +150,63 @@ Flickable {
 
             Item { Layout.fillWidth: true }
 
-            // Current settings display
+            // Current settings pill
             Rectangle {
-                width: settingsLabel.width + 24; height: 32; radius: 10
-                color: "#111827"
-                border.color: "#1e293b"
-                border.width: 1
+                width: settingsLbl.width + 20; height: 30; radius: 8
+                color: "#12172b"; border.color: "#1c2333"; border.width: 1
 
                 Text {
-                    id: settingsLabel
+                    id: settingsLbl
                     anchors.centerIn: parent
                     text: resolutionCombo.currentText + "  \u00B7  " + qualityCombo.currentText
-                    color: "#6366f1"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
+                    color: "#06b6d4"
+                    font.pixelSize: 11; font.weight: Font.DemiBold
                 }
             }
         }
 
-        // ── System Metrics Row ──
-        Flow {
+        // ═══════ SYSTEM METRICS ROW ═══════
+        RowLayout {
             Layout.fillWidth: true
             spacing: 14
 
             MetricCard {
+                Layout.fillWidth: true
                 metricLabel: "Network Latency"
-                metricValue: appController.gameBenchmark
-                    ? appController.gameBenchmark.networkLatency.toFixed(1) + " ms"
-                    : "-- ms"
+                metricValue: appController.gameBenchmark ? appController.gameBenchmark.networkLatency.toFixed(1) + " ms" : "-- ms"
                 metricIcon: "\u25C9"
                 accentColor: appController.gameBenchmark && appController.gameBenchmark.networkLatency > 0
                     ? (appController.gameBenchmark.networkLatency < 30 ? "#10b981"
-                       : appController.gameBenchmark.networkLatency < 60 ? "#f59e0b" : "#ef4444")
-                    : "#64748b"
+                       : appController.gameBenchmark.networkLatency < 60 ? "#f59e0b" : "#f43f5e")
+                    : "#3d4a5c"
             }
             MetricCard {
+                Layout.fillWidth: true
                 metricLabel: "Storage Speed"
-                metricValue: appController.gameBenchmark
-                    ? appController.gameBenchmark.storageSpeed.toFixed(0) + " MB/s"
-                    : "-- MB/s"
+                metricValue: appController.gameBenchmark ? appController.gameBenchmark.storageSpeed.toFixed(0) + " MB/s" : "-- MB/s"
                 metricIcon: "\u25A3"
                 accentColor: appController.gameBenchmark && appController.gameBenchmark.storageSpeed > 0
                     ? (appController.gameBenchmark.storageSpeed > 500 ? "#10b981"
-                       : appController.gameBenchmark.storageSpeed > 100 ? "#f59e0b" : "#ef4444")
-                    : "#64748b"
+                       : appController.gameBenchmark.storageSpeed > 100 ? "#f59e0b" : "#f43f5e")
+                    : "#3d4a5c"
             }
             MetricCard {
+                Layout.fillWidth: true
                 metricLabel: "System Latency"
-                metricValue: appController.gameBenchmark
-                    ? appController.gameBenchmark.systemLatencyScore + "/100"
-                    : "--/100"
+                metricValue: appController.gameBenchmark ? appController.gameBenchmark.systemLatencyScore + "/100" : "--/100"
                 metricIcon: "\u26A1"
                 accentColor: appController.gameBenchmark && appController.gameBenchmark.systemLatencyScore > 0
                     ? (appController.gameBenchmark.systemLatencyScore > 70 ? "#10b981"
-                       : appController.gameBenchmark.systemLatencyScore > 40 ? "#f59e0b" : "#ef4444")
-                    : "#64748b"
+                       : appController.gameBenchmark.systemLatencyScore > 40 ? "#f59e0b" : "#f43f5e")
+                    : "#3d4a5c"
             }
         }
 
-        // ── Game FPS Cards Grid ──
+        // ═══════ GAME FPS CARDS ═══════
         Text {
             text: "Estimated FPS by Game"
-            color: "#e2e8f0"
-            font.pixelSize: 17
+            color: "#f0f6ff"
+            font.pixelSize: 16
             font.weight: Font.Bold
             visible: gameRepeater.count > 0
         }
@@ -315,40 +225,38 @@ Flickable {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 260
-                    height: 180
-                    radius: 16
-                    color: "#0d1117"
-                    border.color: "#1e293b"
-                    border.width: 1
+                    height: 170
+                    radius: 14
+                    color: "#12172b"
+                    border.color: "#1c2333"; border.width: 1
 
                     property var game: modelData
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 18
-                        spacing: 16
+                        anchors.margins: 16
+                        spacing: 14
 
                         // Icon + Rating
                         ColumnLayout {
-                            Layout.preferredWidth: 70
-                            spacing: 8
+                            Layout.preferredWidth: 60
+                            spacing: 6
                             Layout.alignment: Qt.AlignTop
 
-                            // Styled text icon
                             Rectangle {
                                 Layout.alignment: Qt.AlignHCenter
-                                width: 56; height: 56; radius: 14
+                                width: 48; height: 48; radius: 12
                                 gradient: Gradient {
                                     GradientStop { position: 0.0; color: {
                                         var id = game.id || ""
                                         if (id === "cs2") return "#f59e0b"
-                                        if (id === "fortnite") return "#6366f1"
-                                        return "#ef4444"
+                                        if (id === "fortnite") return "#06b6d4"
+                                        return "#f43f5e"
                                     }}
                                     GradientStop { position: 1.0; color: {
                                         var id = game.id || ""
-                                        if (id === "cs2") return "#ef4444"
-                                        if (id === "fortnite") return "#4f46e5"
+                                        if (id === "cs2") return "#f43f5e"
+                                        if (id === "fortnite") return "#0ea5e9"
                                         return "#f59e0b"
                                     }}
                                 }
@@ -357,15 +265,13 @@ Flickable {
                                     anchors.centerIn: parent
                                     text: game.icon || "?"
                                     color: "#ffffff"
-                                    font.pixelSize: 16
-                                    font.weight: Font.Black
-                                    font.letterSpacing: 1
+                                    font.pixelSize: 14; font.weight: Font.Black; font.letterSpacing: 1
                                 }
                             }
 
                             Rectangle {
                                 Layout.alignment: Qt.AlignHCenter
-                                width: ratingText.width + 16; height: 22; radius: 8
+                                width: ratingT.width + 12; height: 20; radius: 6
                                 color: {
                                     var r = game.rating || ""
                                     if (r === "Excellent") return "#0d2818"
@@ -375,12 +281,11 @@ Flickable {
                                     return "#2d1515"
                                 }
                                 Text {
-                                    id: ratingText
+                                    id: ratingT
                                     anchors.centerIn: parent
                                     text: game.rating || "N/A"
-                                    color: game.ratingColor || "#94a3b8"
-                                    font.pixelSize: 10
-                                    font.weight: Font.Bold
+                                    color: game.ratingColor || "#7b8ba3"
+                                    font.pixelSize: 9; font.weight: Font.Bold
                                 }
                             }
                         }
@@ -388,55 +293,29 @@ Flickable {
                         // Stats
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 6
+                            spacing: 5
 
-                            Text {
-                                text: game.name || "Unknown"
-                                color: "#e2e8f0"
-                                font.pixelSize: 16
-                                font.weight: Font.Bold
-                            }
-
-                            Text {
-                                text: resolutionCombo.currentText + " \u00B7 " + qualityCombo.currentText
-                                color: "#64748b"
-                                font.pixelSize: 10
-                            }
+                            Text { text: game.name || "Unknown"; color: "#c5d0de"; font.pixelSize: 15; font.weight: Font.Bold }
+                            Text { text: resolutionCombo.currentText + " \u00B7 " + qualityCombo.currentText; color: "#3d4a5c"; font.pixelSize: 10 }
 
                             RowLayout {
-                                spacing: 20
-                                Layout.fillWidth: true
-
-                                FpsDisplay {
-                                    fpsLabel: "AVG FPS"
-                                    fpsValue: game.avgFps ? Math.round(game.avgFps) : 0
-                                    fpsColor: game.ratingColor || "#10b981"
-                                }
-                                FpsDisplay {
-                                    fpsLabel: "1% LOW"
-                                    fpsValue: game.onePercentLow ? Math.round(game.onePercentLow) : 0
-                                    fpsColor: "#f59e0b"
-                                }
+                                spacing: 20; Layout.fillWidth: true
+                                FpsDisplay { fpsLabel: "AVG FPS"; fpsValue: game.avgFps ? Math.round(game.avgFps) : 0; fpsColor: game.ratingColor || "#10b981" }
+                                FpsDisplay { fpsLabel: "1% LOW";  fpsValue: game.onePercentLow ? Math.round(game.onePercentLow) : 0; fpsColor: "#f59e0b" }
                             }
 
                             // FPS bar
                             Rectangle {
-                                Layout.fillWidth: true
-                                height: 8
-                                radius: 4
-                                color: "#111827"
-
+                                Layout.fillWidth: true; height: 6; radius: 3; color: "#0f1423"
                                 Rectangle {
                                     width: parent.width * Math.min((game.avgFps || 0) / 400, 1.0)
-                                    height: parent.height
-                                    radius: 4
+                                    height: parent.height; radius: 3
                                     gradient: Gradient {
                                         orientation: Gradient.Horizontal
-                                        GradientStop { position: 0.0; color: "#6366f1" }
-                                        GradientStop { position: 1.0; color: game.ratingColor || "#8b5cf6" }
+                                        GradientStop { position: 0.0; color: "#06b6d4" }
+                                        GradientStop { position: 1.0; color: game.ratingColor || "#22d3ee" }
                                     }
-
-                                    Behavior on width { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
+                                    Behavior on width { NumberAnimation { duration: 500; easing.type: Easing.OutCubic } }
                                 }
                             }
                         }
@@ -445,81 +324,52 @@ Flickable {
             }
         }
 
-        // ── Empty state ──
+        // ═══════ EMPTY STATE ═══════
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 200
+            Layout.preferredHeight: 180
             visible: gameRepeater.count === 0
 
             Column {
                 anchors.centerIn: parent
-                spacing: 12
+                spacing: 10
 
                 Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: 64; height: 64; radius: 16
-                    color: "#1e293b"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "\u25B6"
-                        font.pixelSize: 28
-                        color: "#6366f1"
-                    }
+                    width: 56; height: 56; radius: 14
+                    color: "#1c2333"
+                    Text { anchors.centerIn: parent; text: "\u25B6"; font.pixelSize: 24; color: "#06b6d4" }
                 }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "No estimation data yet"
-                    color: "#64748b"
-                    font.pixelSize: 14
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "Select resolution & quality, then click 'Run Estimation'"
-                    color: "#475569"
-                    font.pixelSize: 12
-                }
+                Text { anchors.horizontalCenter: parent.horizontalCenter; text: "No estimation data yet"; color: "#3d4a5c"; font.pixelSize: 13 }
+                Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Select resolution & quality, then run estimation"; color: "#2d3748"; font.pixelSize: 11 }
             }
         }
 
-        Item { height: 20 }
+        Item { height: 16 }
     }
 
     // ── Inline Components ──
-
     component MetricCard: Rectangle {
         property string metricLabel: ""
         property string metricValue: ""
         property string metricIcon: ""
-        property color accentColor: "#64748b"
+        property color accentColor: "#3d4a5c"
 
-        width: 200; height: 90; radius: 14
-        color: "#0d1117"
-        border.color: "#1e293b"
-        border.width: 1
+        height: 80; radius: 12
+        color: "#12172b"; border.color: "#1c2333"; border.width: 1
 
         RowLayout {
             anchors.fill: parent
             anchors.margins: 14
-            spacing: 12
+            spacing: 10
 
-            Text { text: parent.parent.metricIcon; font.pixelSize: 22; color: parent.parent.accentColor }
+            Text { text: parent.parent.metricIcon; font.pixelSize: 20; color: parent.parent.accentColor }
 
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 3
-                Text {
-                    text: metricLabel
-                    color: "#64748b"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                }
-                Text {
-                    text: metricValue
-                    color: accentColor
-                    font.pixelSize: 18
-                    font.weight: Font.Bold
-                }
+                spacing: 2
+                Text { text: metricLabel; color: "#4a5568"; font.pixelSize: 10; font.weight: Font.DemiBold }
+                Text { text: metricValue; color: accentColor; font.pixelSize: 17; font.weight: Font.Bold }
             }
         }
     }
@@ -529,18 +379,8 @@ Flickable {
         property int fpsValue: 0
         property color fpsColor: "#10b981"
 
-        spacing: 2
-        Text {
-            text: fpsLabel
-            color: "#64748b"
-            font.pixelSize: 9
-            font.weight: Font.DemiBold
-        }
-        Text {
-            text: fpsValue.toString()
-            color: fpsColor
-            font.pixelSize: 26
-            font.weight: Font.Bold
-        }
+        spacing: 1
+        Text { text: fpsLabel; color: "#4a5568"; font.pixelSize: 9; font.weight: Font.DemiBold }
+        Text { text: fpsValue.toString(); color: fpsColor; font.pixelSize: 22; font.weight: Font.Bold }
     }
 }

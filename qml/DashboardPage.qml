@@ -2,138 +2,190 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
+/// Bento-grid dashboard with asymmetric tile layout
 Flickable {
-    id: dashPage
+    id: dashRoot
     contentWidth: width
-    contentHeight: mainCol.height + 40
+    contentHeight: outerCol.height + 40
     clip: true
     boundsBehavior: Flickable.StopAtBounds
 
     ScrollBar.vertical: ScrollBar {
         policy: ScrollBar.AsNeeded
-        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#6366f1"; opacity: 0.4 }
+        contentItem: Rectangle { implicitWidth: 4; radius: 2; color: "#06b6d4"; opacity: 0.5 }
         background: Rectangle { color: "transparent" }
     }
 
     ColumnLayout {
-        id: mainCol
+        id: outerCol
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: 24
-        spacing: 20
+        anchors.margins: 28
+        spacing: 16
 
-        // ── Header ──
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-
-            ColumnLayout {
-                spacing: 2
-                Text {
-                    text: "Dashboard"
-                    color: "#f1f5f9"
-                    font.pixelSize: 28
-                    font.weight: Font.Bold
-                }
-                Text {
-                    text: "System overview and quick actions"
-                    color: "#64748b"
-                    font.pixelSize: 12
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Row {
-                spacing: 8
-
-                MiniStatBadge {
-                    label: "CPU"
-                    value: Math.round(appController.systemMonitor ? appController.systemMonitor.cpuUsage : 0) + "%"
-                    accent: "#6366f1"
-                }
-                MiniStatBadge {
-                    label: "RAM"
-                    value: Math.round(appController.systemMonitor ? appController.systemMonitor.ramUsage : 0) + "%"
-                    accent: "#8b5cf6"
-                }
-                MiniStatBadge {
-                    label: "DISK"
-                    value: Math.round(appController.systemMonitor ? appController.systemMonitor.storageUsage : 0) + "%"
-                    accent: "#06b6d4"
-                }
-            }
-        }
-
-        // ── Score + Stats Row ──
+        // ═══════ HERO ROW: Score + Stats side by side ═══════
         RowLayout {
             Layout.fillWidth: true
             spacing: 16
 
-            ScoreCard {
+            // ── Hero Score Card (large, left) ──
+            Rectangle {
+                Layout.preferredWidth: 380
+                Layout.preferredHeight: 260
+                radius: 16
+                color: "#12172b"
+                border.color: "#1c2333"; border.width: 1
+
+                // Gradient accent top edge
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 3; radius: 16
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0.0; color: "#06b6d4" }
+                        GradientStop { position: 1.0; color: "#0ea5e9" }
+                    }
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 24
+                    spacing: 12
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "System Score"; color: "#7b8ba3"; font.pixelSize: 13; font.weight: Font.DemiBold }
+                        Item { Layout.fillWidth: true }
+                        Rectangle {
+                            width: tierLbl.width + 14; height: 24; radius: 6
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "#06b6d4" }
+                                GradientStop { position: 1.0; color: "#0ea5e9" }
+                            }
+                            Text { id: tierLbl; anchors.centerIn: parent; text: appController.hwScorer ? appController.hwScorer.tier : "—"; color: "#fff"; font.pixelSize: 10; font.weight: Font.Bold }
+                        }
+                    }
+
+                    // Big gauges row
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 24
+
+                        ColumnLayout {
+                            spacing: 6
+                            Layout.alignment: Qt.AlignHCenter
+                            CircularGauge {
+                                Layout.alignment: Qt.AlignHCenter
+                                width: 90; height: 90
+                                value: appController.hwScorer ? appController.hwScorer.gamingScore : 0
+                                startColor: "#06b6d4"
+                                endColor: "#22d3ee"
+                                glowColor: "#06b6d4"
+                                label: ""
+                            }
+                            Text { Layout.alignment: Qt.AlignHCenter; text: "Gaming"; color: "#7b8ba3"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        }
+
+                        ColumnLayout {
+                            spacing: 6
+                            Layout.alignment: Qt.AlignHCenter
+                            CircularGauge {
+                                Layout.alignment: Qt.AlignHCenter
+                                width: 90; height: 90
+                                value: appController.hwScorer ? appController.hwScorer.performanceScore : 0
+                                startColor: "#f59e0b"
+                                endColor: "#fbbf24"
+                                glowColor: "#f59e0b"
+                                label: ""
+                            }
+                            Text { Layout.alignment: Qt.AlignHCenter; text: "Performance"; color: "#7b8ba3"; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        }
+                    }
+
+                    // Bottleneck
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 28; radius: 6
+                        color: "#1a1c26"
+                        visible: appController.hwScorer && appController.hwScorer.bottleneck !== ""
+
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 6
+                            Text { text: "\u26A0"; font.pixelSize: 11; color: "#f59e0b" }
+                            Text { text: appController.hwScorer ? appController.hwScorer.bottleneck : ""; font.pixelSize: 10; color: "#fbbf24"; font.weight: Font.DemiBold }
+                        }
+                    }
+                }
+            }
+
+            // ── Right column: 2x2 stat tiles ──
+            GridLayout {
                 Layout.fillWidth: true
-            }
-        }
+                Layout.preferredHeight: 260
+                columns: 2
+                rowSpacing: 16
+                columnSpacing: 16
 
-        // ── Stat Cards ──
-        Flow {
-            Layout.fillWidth: true
-            spacing: 14
-
-            StatCard {
-                cardTitle: "Free RAM"
-                value: appController.systemMonitor ? Math.round(100 - appController.systemMonitor.ramUsage) : 50
-                subtitle: appController.systemMonitor
-                       ? (appController.systemMonitor.ramTotalGb - appController.systemMonitor.ramUsedGb).toFixed(1) + " GB free"
-                       : "-- GB free"
-                accentStart: "#6366f1"
-                accentEnd: "#818cf8"
-            }
-            StatCard {
-                cardTitle: "Uptime"
-                value: {
-                    var mins = appController.systemMonitor ? appController.systemMonitor.uptimeMinutes : 0
-                    return Math.min(Math.round((mins / 1440.0) * 100), 100)
+                StatCard {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    cardTitle: "CPU Usage"
+                    value: appController.cpuUsage
+                    subtitle: appController.cpuName || "Detecting..."
+                    accentStart: "#06b6d4"
+                    accentEnd: "#22d3ee"
                 }
-                subtitle: appController.systemMonitor ? appController.systemMonitor.uptimeText : "--"
-                accentStart: "#8b5cf6"
-                accentEnd: "#a78bfa"
-                overrideText: appController.systemMonitor ? appController.systemMonitor.uptimeMinutes + "" : "0"
-                overrideLabel: "min"
-            }
-            StatCard {
-                cardTitle: "Memory"
-                value: appController.systemMonitor ? Math.round(appController.systemMonitor.ramUsage) : 0
-                subtitle: appController.systemMonitor
-                       ? appController.systemMonitor.ramUsedGb.toFixed(1) + " / " + appController.systemMonitor.ramTotalGb.toFixed(1) + " GB"
-                       : "-- / -- GB"
-                accentStart: "#06b6d4"
-                accentEnd: "#22d3ee"
-            }
-            StatCard {
-                cardTitle: "Storage"
-                value: appController.systemMonitor ? Math.round(appController.systemMonitor.storageUsage) : 0
-                subtitle: appController.systemMonitor
-                       ? appController.systemMonitor.storageUsedGb.toFixed(0) + " / " + appController.systemMonitor.storageTotalGb.toFixed(0) + " GB"
-                       : "-- / -- GB"
-                accentStart: "#22c55e"
-                accentEnd: "#4ade80"
+
+                StatCard {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    cardTitle: "Memory"
+                    value: appController.ramUsage
+                    subtitle: appController.totalRam || "Detecting..."
+                    accentStart: "#8b5cf6"
+                    accentEnd: "#a78bfa"
+                }
+
+                StatCard {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    cardTitle: "GPU Load"
+                    value: appController.gpuUsage
+                    subtitle: appController.gpuName || "Detecting..."
+                    accentStart: "#10b981"
+                    accentEnd: "#34d399"
+                }
+
+                StatCard {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    cardTitle: "Disk Activity"
+                    value: appController.diskUsage
+                    subtitle: appController.diskModel || "Detecting..."
+                    accentStart: "#f59e0b"
+                    accentEnd: "#fbbf24"
+                }
             }
         }
 
-        // ── CPU Graph + System Details ──
+        // ═══════ MIDDLE ROW: Live graph + Hardware info ═══════
         RowLayout {
             Layout.fillWidth: true
             spacing: 16
 
+            // ── Live CPU Graph (wide) ──
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 220
-                radius: 14
-                color: "#0d1117"
-                border.color: "#1e293b"
-                border.width: 1
+                Layout.preferredHeight: 200
+                radius: 16
+                color: "#12172b"
+                border.color: "#1c2333"; border.width: 1
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -142,55 +194,43 @@ Flickable {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Text {
-                            text: "CPU Usage"
-                            color: "#f1f5f9"
-                            font.pixelSize: 14
-                            font.weight: Font.Bold
-                        }
+                        Text { text: "CPU Usage History"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.DemiBold }
                         Item { Layout.fillWidth: true }
                         Rectangle {
-                            width: cpuLabel.width + 16; height: 24; radius: 8
-                            color: "#1e1b4b"
-                            border.color: "#312e81"
-                            border.width: 1
-                            Text {
-                                id: cpuLabel
-                                anchors.centerIn: parent
-                                text: Math.round(appController.systemMonitor ? appController.systemMonitor.cpuUsage : 0) + "%"
-                                color: "#a5b4fc"
-                                font.pixelSize: 11
-                                font.weight: Font.Bold
-                            }
+                            width: 48; height: 20; radius: 4
+                            color: "#0d2818"; border.color: "#166534"; border.width: 1
+                            Text { anchors.centerIn: parent; text: "Live"; color: "#22c55e"; font.pixelSize: 9; font.weight: Font.Bold }
                         }
                     }
 
                     Canvas {
-                        id: cpuCanvas
+                        id: cpuGraph
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+
                         property var history: []
                         property int maxPoints: 60
 
                         Connections {
-                            target: appController.systemMonitor || null
+                            target: appController
                             function onCpuUsageChanged() {
-                                cpuCanvas.history.push(appController.systemMonitor.cpuUsage)
-                                if (cpuCanvas.history.length > cpuCanvas.maxPoints)
-                                    cpuCanvas.history.shift()
-                                cpuCanvas.requestPaint()
+                                cpuGraph.history.push(appController.cpuUsage)
+                                if (cpuGraph.history.length > cpuGraph.maxPoints)
+                                    cpuGraph.history.shift()
+                                cpuGraph.requestPaint()
                             }
                         }
 
                         onPaint: {
                             var ctx = getContext("2d")
-                            var w = width, h = height
                             ctx.reset()
+                            var w = width, h = height
                             if (history.length < 2) return
 
-                            ctx.strokeStyle = "#1e293b"
+                            // Grid lines
+                            ctx.strokeStyle = "#1c2333"
                             ctx.lineWidth = 1
-                            for (var g = 0; g < 5; g++) {
+                            for (var g = 0; g < 4; g++) {
                                 var gy = h * g / 4
                                 ctx.beginPath()
                                 ctx.moveTo(0, gy)
@@ -198,48 +238,47 @@ Flickable {
                                 ctx.stroke()
                             }
 
+                            // Fill gradient
                             var grad = ctx.createLinearGradient(0, 0, 0, h)
-                            grad.addColorStop(0, "rgba(99, 102, 241, 0.25)")
-                            grad.addColorStop(1, "rgba(99, 102, 241, 0.0)")
-
-                            ctx.beginPath()
-                            var step = w / (maxPoints - 1)
-                            var startIdx = Math.max(0, history.length - maxPoints)
-                            var xOff = (maxPoints - history.length + startIdx) * step
-
-                            ctx.moveTo(xOff, h - (history[startIdx] / 100) * h)
-                            for (var i = startIdx + 1; i < history.length; i++) {
-                                var x = xOff + (i - startIdx) * step
-                                var y = h - (history[i] / 100) * h
-                                ctx.lineTo(x, y)
-                            }
-                            ctx.lineTo(xOff + (history.length - 1 - startIdx) * step, h)
-                            ctx.lineTo(xOff, h)
-                            ctx.closePath()
+                            grad.addColorStop(0, "rgba(6,182,212,0.25)")
+                            grad.addColorStop(1, "rgba(6,182,212,0.0)")
                             ctx.fillStyle = grad
+                            ctx.beginPath()
+                            ctx.moveTo(0, h)
+                            for (var i = 0; i < history.length; i++) {
+                                var x = i * w / (maxPoints - 1)
+                                var y = h - (history[i] / 100) * h
+                                if (i === 0) ctx.lineTo(x, y)
+                                else ctx.lineTo(x, y)
+                            }
+                            ctx.lineTo((history.length - 1) * w / (maxPoints - 1), h)
+                            ctx.closePath()
                             ctx.fill()
 
-                            var lineGrad = ctx.createLinearGradient(0, 0, w, 0)
-                            lineGrad.addColorStop(0, "#6366f1")
-                            lineGrad.addColorStop(1, "#8b5cf6")
-
+                            // Line
                             ctx.beginPath()
-                            ctx.moveTo(xOff, h - (history[startIdx] / 100) * h)
-                            for (i = startIdx + 1; i < history.length; i++) {
-                                x = xOff + (i - startIdx) * step
-                                y = h - (history[i] / 100) * h
-                                ctx.lineTo(x, y)
-                            }
-                            ctx.strokeStyle = lineGrad
+                            ctx.strokeStyle = "#06b6d4"
                             ctx.lineWidth = 2
+                            ctx.lineJoin = "round"
+                            for (var j = 0; j < history.length; j++) {
+                                var lx = j * w / (maxPoints - 1)
+                                var ly = h - (history[j] / 100) * h
+                                if (j === 0) ctx.moveTo(lx, ly)
+                                else ctx.lineTo(lx, ly)
+                            }
                             ctx.stroke()
 
+                            // Glow dot at end
                             if (history.length > 0) {
-                                var lastX = xOff + (history.length - 1 - startIdx) * step
-                                var lastY = h - (history[history.length - 1] / 100) * h
+                                var ex = (history.length - 1) * w / (maxPoints - 1)
+                                var ey = h - (history[history.length - 1] / 100) * h
                                 ctx.beginPath()
-                                ctx.arc(lastX, lastY, 3, 0, Math.PI * 2)
-                                ctx.fillStyle = "#a5b4fc"
+                                ctx.arc(ex, ey, 4, 0, Math.PI * 2)
+                                ctx.fillStyle = "#22d3ee"
+                                ctx.fill()
+                                ctx.beginPath()
+                                ctx.arc(ex, ey, 8, 0, Math.PI * 2)
+                                ctx.fillStyle = "rgba(34,211,238,0.2)"
                                 ctx.fill()
                             }
                         }
@@ -247,268 +286,186 @@ Flickable {
                 }
             }
 
+            // ── Hardware Info Panel (compact) ──
             Rectangle {
-                Layout.preferredWidth: 280
-                Layout.preferredHeight: 220
-                radius: 14
-                color: "#0d1117"
-                border.color: "#1e293b"
-                border.width: 1
+                Layout.preferredWidth: 340
+                Layout.preferredHeight: 200
+                radius: 16
+                color: "#12172b"
+                border.color: "#1c2333"; border.width: 1
 
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 18
-                    spacing: 12
+                    spacing: 10
 
-                    Text {
-                        text: "System Details"
-                        color: "#f1f5f9"
-                        font.pixelSize: 14
-                        font.weight: Font.Bold
-                    }
+                    Text { text: "Hardware"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.DemiBold }
 
-                    DetailRow { label: "CPU"; value: appController.cpuName || "Detecting..." }
-                    DetailRow { label: "GPU"; value: appController.gpuName || "Detecting..." }
-                    DetailRow { label: "RAM"; value: appController.totalRam || "Detecting..." }
-                    DetailRow { label: "Uptime"; value: appController.systemMonitor ? appController.systemMonitor.uptimeText : "--" }
+                    GridLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        columns: 2
+                        columnSpacing: 12
+                        rowSpacing: 6
 
-                    Item { Layout.fillHeight: true }
-                }
-            }
-        }
-
-        // ── Hardware Info ──
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: hwCol.height + 32
-            radius: 14
-            color: "#0d1117"
-            border.color: "#1e293b"
-            border.width: 1
-
-            ColumnLayout {
-                id: hwCol
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: 18
-                spacing: 10
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text {
-                        text: "Hardware Information"
-                        color: "#f1f5f9"
-                        font.pixelSize: 14
-                        font.weight: Font.Bold
-                    }
-                    Item { Layout.fillWidth: true }
-                    Rectangle {
-                        width: 50; height: 22; radius: 6
-                        color: "#052e16"
-                        border.color: "#166534"
-                        border.width: 1
-                        Text { anchors.centerIn: parent; text: "Live"; color: "#22c55e"; font.pixelSize: 9; font.weight: Font.Bold }
-                    }
-                }
-
-                GridLayout {
-                    Layout.fillWidth: true
-                    columns: 3
-                    columnSpacing: 20
-                    rowSpacing: 8
-
-                    HwInfoItem { label: "CPU"; value: appController.cpuName || "Detecting..." }
-                    HwInfoItem { label: "GPU"; value: appController.gpuName || "Detecting..." }
-                    HwInfoItem { label: "RAM"; value: appController.totalRam || "Detecting..." }
-                    HwInfoItem { label: "Storage"; value: appController.diskModel || "Detecting..." }
-                    HwInfoItem { label: "OS"; value: appController.osVersion || "Detecting..." }
-                    HwInfoItem {
-                        label: "Status"
-                        value: appController.isAdmin ? "Administrator" : "Standard User"
-                        valueColor: appController.isAdmin ? "#22c55e" : "#f59e0b"
+                        HwLabel { text: "CPU" }
+                        HwValue { text: appController.cpuName || "—" }
+                        HwLabel { text: "GPU" }
+                        HwValue { text: appController.gpuName || "—" }
+                        HwLabel { text: "RAM" }
+                        HwValue { text: appController.totalRam || "—" }
+                        HwLabel { text: "Storage" }
+                        HwValue { text: appController.diskModel || "—" }
+                        HwLabel { text: "OS" }
+                        HwValue { text: appController.osVersion || "—" }
                     }
                 }
             }
         }
 
-        // ── Game Profiles ──
-        ColumnLayout {
+        // ═══════ BOTTOM ROW: Quick Actions + Game Profiles side by side ═══════
+        RowLayout {
             Layout.fillWidth: true
-            spacing: 14
+            spacing: 16
 
-            Text {
-                text: "Game Optimization Profiles"
-                color: "#f1f5f9"
-                font.pixelSize: 16
-                font.weight: Font.Bold
-            }
-
-            Flow {
+            // ── Quick Actions Grid ──
+            Rectangle {
                 Layout.fillWidth: true
-                spacing: 14
+                Layout.preferredHeight: actionsCol.height + 36
+                radius: 16
+                color: "#12172b"
+                border.color: "#1c2333"; border.width: 1
 
-                GameProfileCard {
-                    gameName: "Counter-Strike 2"
-                    gameDesc: "Max FPS, low latency, competitive settings"
-                    gameIcon: "CS2"
-                    gradStart: "#f59e0b"
-                    gradEnd: "#ef4444"
-                    onOptimize: {
-                        optimized = !optimized
-                        if (optimized) appController.selectedCategory = "Gaming"
+                ColumnLayout {
+                    id: actionsCol
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 18
+                    spacing: 10
+
+                    Text { text: "Quick Actions"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.DemiBold }
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 3
+                        rowSpacing: 8
+                        columnSpacing: 8
+
+                        ActionBtn { label: "\u26A1 Apply Recommended"; accent: "#06b6d4"; onClicked: appController.applyAllGaming() }
+                        ActionBtn { label: "\u21BA Restore All";       accent: "#f43f5e"; onClicked: appController.restoreAll() }
+                        ActionBtn { label: "\u2713 Verify Tweaks";     accent: "#10b981"; onClicked: appController.verifyAllTweaks() }
+                        ActionBtn { label: "\u25C6 Run Benchmark";     accent: "#f59e0b"; onClicked: appController.runBaseline() }
+                        ActionBtn { label: "\u25CE Set CS2 Path";      accent: "#8b5cf6"; onClicked: cs2PathDialog.open() }
+                        ActionBtn { label: "\u2726 Clear Temp";        accent: "#7b8ba3"; onClicked: appController.clearTempFiles() }
+                        ActionBtn { label: "\u25C9 Flush DNS";         accent: "#06b6d4"; onClicked: appController.flushDns() }
                     }
                 }
-                GameProfileCard {
-                    gameName: "Fortnite"
-                    gameDesc: "Balanced FPS and visual quality"
-                    gameIcon: "FN"
-                    gradStart: "#6366f1"
-                    gradEnd: "#8b5cf6"
-                    onOptimize: optimized = !optimized
-                }
-                GameProfileCard {
-                    gameName: "Valorant"
-                    gameDesc: "Low latency, disable overlays, boost network"
-                    gameIcon: "VAL"
-                    gradStart: "#ef4444"
-                    gradEnd: "#dc2626"
-                    onOptimize: optimized = !optimized
-                }
-                GameProfileCard {
-                    gameName: "Apex Legends"
-                    gameDesc: "Smooth FPS, reduce input lag"
-                    gameIcon: "APEX"
-                    gradStart: "#dc2626"
-                    gradEnd: "#f59e0b"
-                    onOptimize: optimized = !optimized
+            }
+
+            // ── Game Profiles Column ──
+            Rectangle {
+                Layout.preferredWidth: 360
+                Layout.preferredHeight: actionsCol.height + 36
+                radius: 16
+                color: "#12172b"
+                border.color: "#1c2333"; border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 18
+                    spacing: 10
+
+                    Text { text: "Game Profiles"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.DemiBold }
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 2
+                        rowSpacing: 8
+                        columnSpacing: 8
+
+                        GameProfileCard {
+                            Layout.fillWidth: true
+                            gameName: "CS2"
+                            gameDesc: "Max FPS, competitive"
+                            gradStart: "#f59e0b"; gradEnd: "#ef4444"
+                            onOptimize: {
+                                optimized = !optimized
+                                if (optimized) appController.selectedCategory = "Gaming"
+                            }
+                        }
+                        GameProfileCard {
+                            Layout.fillWidth: true
+                            gameName: "Fortnite"
+                            gameDesc: "Balanced FPS"
+                            gradStart: "#06b6d4"; gradEnd: "#0ea5e9"
+                            onOptimize: optimized = !optimized
+                        }
+                        GameProfileCard {
+                            Layout.fillWidth: true
+                            gameName: "Valorant"
+                            gameDesc: "Low latency"
+                            gradStart: "#ef4444"; gradEnd: "#dc2626"
+                            onOptimize: optimized = !optimized
+                        }
+                        GameProfileCard {
+                            Layout.fillWidth: true
+                            gameName: "Apex"
+                            gameDesc: "Smooth FPS"
+                            gradStart: "#dc2626"; gradEnd: "#f59e0b"
+                            onOptimize: optimized = !optimized
+                        }
+                    }
                 }
             }
         }
 
-        // ── Quick Actions ──
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: qaCol.height + 32
-            radius: 14
-            color: "#0d1117"
-            border.color: "#1e293b"
-            border.width: 1
-
-            ColumnLayout {
-                id: qaCol
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: 18
-                spacing: 12
-
-                Text {
-                    text: "Quick Actions"
-                    color: "#f1f5f9"
-                    font.pixelSize: 14
-                    font.weight: Font.Bold
-                }
-
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: 8
-
-                    ActionPill { text: "\u26A1 Apply Recommended"; accent: "#6366f1"; onClicked: appController.applyAllGaming() }
-                    ActionPill { text: "\u21BA Restore All"; accent: "#ef4444"; onClicked: appController.restoreAll() }
-                    ActionPill { text: "\u2713 Verify Tweaks"; accent: "#22c55e"; onClicked: appController.verifyAllTweaks() }
-                    ActionPill { text: "\u25C6 Run Benchmark"; onClicked: appController.runBaseline() }
-                    ActionPill { text: "\u25CE Set CS2 Path"; onClicked: cs2PathDialog.open() }
-                    ActionPill { text: "\u2726 Clear Temp Files"; onClicked: appController.clearTempFiles() }
-                    ActionPill { text: "\u25C9 Flush DNS"; onClicked: appController.flushDns() }
-                }
-            }
-        }
-
-        Item { height: 20 }
+        Item { height: 16 }
     }
 
     // ── Inline Components ──
-
-    component MiniStatBadge: Rectangle {
-        property string label: ""
-        property string value: ""
-        property color accent: "#6366f1"
-
-        width: badgeRow.width + 20
-        height: 30
-        radius: 8
-        color: "#0d1117"
-        border.color: "#1e293b"
-        border.width: 1
-
-        Row {
-            id: badgeRow
-            anchors.centerIn: parent
-            spacing: 6
-            Rectangle {
-                width: 5; height: 5; radius: 3
-                color: parent.parent.accent
-                anchors.verticalCenter: parent.verticalCenter
-            }
-            Text { text: parent.parent.label; color: "#64748b"; font.pixelSize: 9; font.weight: Font.Bold; anchors.verticalCenter: parent.verticalCenter }
-            Text { text: parent.parent.value; color: "#e2e8f0"; font.pixelSize: 10; font.weight: Font.Bold; anchors.verticalCenter: parent.verticalCenter }
-        }
+    component HwLabel: Text {
+        color: "#4a5568"
+        font.pixelSize: 10
+        font.weight: Font.Bold
+        Layout.preferredWidth: 50
     }
 
-    component DetailRow: RowLayout {
-        property string label: ""
-        property string value: ""
+    component HwValue: Text {
+        color: "#c5d0de"
+        font.pixelSize: 11
+        elide: Text.ElideRight
         Layout.fillWidth: true
-        Text { text: parent.label; color: "#64748b"; font.pixelSize: 10; font.weight: Font.DemiBold; Layout.preferredWidth: 50 }
-        Text {
-            text: parent.value
-            color: "#cbd5e1"
-            font.pixelSize: 11
-            elide: Text.ElideRight
-            Layout.fillWidth: true
-        }
     }
 
-    component HwInfoItem: ColumnLayout {
+    component ActionBtn: Rectangle {
         property string label: ""
-        property string value: ""
-        property color valueColor: "#cbd5e1"
-        spacing: 2
-        Layout.fillWidth: true
-        Text { text: parent.label; color: "#64748b"; font.pixelSize: 9; font.weight: Font.Bold }
-        Text { text: parent.value; color: parent.valueColor; font.pixelSize: 11; elide: Text.ElideRight; Layout.fillWidth: true }
-    }
-
-    component ActionPill: Rectangle {
-        property string text: ""
-        property color accent: "#6366f1"
+        property color accent: "#06b6d4"
         signal clicked()
 
-        width: pillText.width + 24
-        height: 32
+        Layout.fillWidth: true
+        height: 36
         radius: 8
-        color: pillHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#111827"
-        border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.25)
+        color: abHover.containsMouse ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#0f1423"
+        border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.2)
         border.width: 1
 
         Text {
-            id: pillText
             anchors.centerIn: parent
-            text: parent.text
-            color: "#a5b4fc"
+            text: parent.label
+            color: parent.accent
             font.pixelSize: 11
             font.weight: Font.DemiBold
         }
 
         MouseArea {
-            id: pillHover
+            id: abHover
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: parent.clicked()
         }
 
-        Behavior on color { ColorAnimation { duration: 150 } }
+        Behavior on color { ColorAnimation { duration: 120 } }
     }
 }

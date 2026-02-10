@@ -1,122 +1,96 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
 
-/// Game Optimization Profile Card
+/// Compact game profile card — fits in a 2-column grid
 Rectangle {
     id: card
-    width: 220
-    height: 260
-    radius: 16
-    color: "#0d1117"
-    border.color: hoverArea.containsMouse ? "#6366f1" : "#1e293b"
+    height: 100
+    radius: 12
+    color: "#12172b"
+    border.color: hoverArea.containsMouse ? "#06b6d4" : "#1c2333"
     border.width: 1
     clip: true
 
     property string gameName: "Game"
-    property string gameDesc: "Optimize for competitive play"
-    property color gradStart: "#6366f1"
-    property color gradEnd: "#8b5cf6"
-    property string gameIcon: "G"
+    property string gameDesc: "Optimize"
+    property color gradStart: "#06b6d4"
+    property color gradEnd: "#0ea5e9"
     property bool optimized: false
 
     signal optimize()
 
-    // Header gradient
+    Behavior on border.color { ColorAnimation { duration: 150 } }
+
+    // Left accent stripe
     Rectangle {
-        id: headerBg
-        anchors.top: parent.top
         anchors.left: parent.left
-        anchors.right: parent.right
-        height: 110
-        radius: 16
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 4; radius: 2
         gradient: Gradient {
             GradientStop { position: 0.0; color: card.gradStart }
             GradientStop { position: 1.0; color: card.gradEnd }
         }
-
-        // Bottom corners fix
-        Rectangle {
-            anchors.bottom: parent.bottom
-            width: parent.width
-            height: 16
-            color: "#0d1117"
-        }
-
-        // Game icon large
-        Text {
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -8
-            text: card.gameIcon
-            font.pixelSize: 22
-            font.weight: Font.Black
-            font.letterSpacing: 1
-            color: "#ffffff"
-            opacity: 0.9
-        }
-
-        // Subtle pattern overlay
-        Rectangle {
-            anchors.fill: parent
-            radius: 16
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "transparent" }
-                GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.3) }
-            }
-        }
     }
 
-    ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.top: headerBg.bottom
-        anchors.topMargin: -4
+    RowLayout {
+        anchors.fill: parent
         anchors.leftMargin: 16
-        anchors.rightMargin: 16
-        anchors.bottomMargin: 14
-        spacing: 8
+        anchors.rightMargin: 14
+        spacing: 12
 
-        Text {
-            text: card.gameName
-            color: "#e2e8f0"
-            font.pixelSize: 15
-            font.weight: Font.Bold
-        }
-
-        Text {
-            text: card.gameDesc
-            color: "#64748b"
-            font.pixelSize: 11
-            wrapMode: Text.WordWrap
-            Layout.fillWidth: true
-        }
-
-        Item { Layout.fillHeight: true }
-
-        // Optimize button
+        // Icon circle
         Rectangle {
-            Layout.fillWidth: true
-            height: 34
-            radius: 10
-            color: card.optimized ? "#0d2818" : "transparent"
-            border.color: card.optimized ? "#10b981" : "#6366f1"
-            border.width: 1
-
-            Gradient {
-                id: optimizeBtnGrad
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Qt.rgba(0.388, 0.400, 0.945, 0.15) }
-                GradientStop { position: 1.0; color: Qt.rgba(0.545, 0.361, 0.965, 0.15) }
+            width: 36; height: 36; radius: 18
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.rgba(card.gradStart.r, card.gradStart.g, card.gradStart.b, 0.2) }
+                GradientStop { position: 1.0; color: Qt.rgba(card.gradEnd.r, card.gradEnd.g, card.gradEnd.b, 0.1) }
             }
-            gradient: card.optimized ? null : optimizeBtnGrad
+            border.color: Qt.rgba(card.gradStart.r, card.gradStart.g, card.gradStart.b, 0.3)
+            border.width: 1
 
             Text {
                 anchors.centerIn: parent
-                text: card.optimized ? "✓ Optimized" : "Optimize"
-                color: card.optimized ? "#10b981" : "#a5b4fc"
-                font.pixelSize: 12
-                font.weight: Font.DemiBold
+                text: card.gameName.charAt(0)
+                font.pixelSize: 14
+                font.weight: Font.Bold
+                color: card.gradStart
+            }
+        }
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 3
+
+            Text {
+                text: card.gameName
+                color: "#c5d0de"
+                font.pixelSize: 13
+                font.weight: Font.Bold
+            }
+            Text {
+                text: card.gameDesc
+                color: "#3d4a5c"
+                font.pixelSize: 10
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
+        }
+
+        // Toggle button
+        Rectangle {
+            width: optLabel.width + 16; height: 28; radius: 6
+            color: card.optimized ? "#0d2818" : "transparent"
+            border.color: card.optimized ? "#166534" : Qt.rgba(card.gradStart.r, card.gradStart.g, card.gradStart.b, 0.4)
+            border.width: 1
+
+            Text {
+                id: optLabel
+                anchors.centerIn: parent
+                text: card.optimized ? "\u2713" : "Go"
+                color: card.optimized ? "#22c55e" : card.gradStart
+                font.pixelSize: 10
+                font.weight: Font.Bold
             }
 
             MouseArea {
@@ -132,10 +106,8 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         propagateComposedEvents: true
-        onClicked: mouse.accepted = false
-        onPressed: mouse.accepted = false
-        onReleased: mouse.accepted = false
+        onClicked: function(mouse) { mouse.accepted = false }
+        onPressed: function(mouse) { mouse.accepted = false }
+        onReleased: function(mouse) { mouse.accepted = false }
     }
-
-    Behavior on border.color { ColorAnimation { duration: 200 } }
 }

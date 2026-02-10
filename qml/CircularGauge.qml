@@ -1,21 +1,22 @@
 import QtQuick 2.15
 
+/// Circular gauge with glow effect, used in stat cards and score display
 Canvas {
     id: gauge
     width: 100
     height: 100
 
     property real value: 0
-    property real lineWidth: 8
-    property color trackColor: "#1e293b"
-    property color startColor: "#6366f1"
-    property color endColor: "#8b5cf6"
-    property color glowColor: "#6366f1"
+    property real lineWidth: 7
+    property color trackColor: "#1c2333"
+    property color startColor: "#06b6d4"
+    property color endColor: "#22d3ee"
+    property color glowColor: "#06b6d4"
     property bool showText: true
     property string label: ""
     property real animatedValue: 0
 
-    Behavior on animatedValue { NumberAnimation { duration: 800; easing.type: Easing.OutCubic } }
+    Behavior on animatedValue { NumberAnimation { duration: 700; easing.type: Easing.OutCubic } }
     onValueChanged: animatedValue = value
     onAnimatedValueChanged: requestPaint()
     onWidthChanged: requestPaint()
@@ -31,6 +32,7 @@ Canvas {
         var fullAngle = 2 * Math.PI
         var endAngle = startAngle + fullAngle * (animatedValue / 100)
 
+        // Track
         ctx.beginPath()
         ctx.arc(cx, cy, r, 0, fullAngle)
         ctx.strokeStyle = trackColor
@@ -38,6 +40,7 @@ Canvas {
         ctx.lineCap = "round"
         ctx.stroke()
 
+        // Value arc
         if (animatedValue > 0) {
             var gradient = ctx.createConicalGradient(cx, cy, startAngle)
             gradient.addColorStop(0, startColor)
@@ -45,7 +48,7 @@ Canvas {
 
             ctx.save()
             ctx.shadowColor = glowColor
-            ctx.shadowBlur = 10
+            ctx.shadowBlur = 8
             ctx.beginPath()
             ctx.arc(cx, cy, r, startAngle, endAngle)
             ctx.strokeStyle = gradient
@@ -58,7 +61,7 @@ Canvas {
 
     Column {
         anchors.centerIn: parent
-        spacing: 2
+        spacing: 1
         visible: showText
 
         Text {
@@ -66,14 +69,14 @@ Canvas {
             text: Math.round(gauge.animatedValue) + "%"
             font.pixelSize: gauge.width * 0.22
             font.weight: Font.Bold
-            color: "#f1f5f9"
+            color: "#f0f6ff"
         }
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             visible: gauge.label !== ""
             text: gauge.label
             font.pixelSize: gauge.width * 0.11
-            color: "#64748b"
+            color: "#4a5568"
         }
     }
 }

@@ -1,253 +1,62 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
 
-/// Hardware Score Overview Card with dual circular gauges
+/// Score overview card — kept as standalone for potential reuse
 Rectangle {
     id: scoreCard
-    implicitHeight: scoreCol.height + 32
+    implicitHeight: 200
     radius: 16
-    color: "#0d1117"
-    border.color: "#1e293b"
-    border.width: 1
+    color: "#12172b"
+    border.color: "#1c2333"; border.width: 1
 
     ColumnLayout {
-        id: scoreCol
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
+        anchors.fill: parent
         anchors.margins: 20
-        spacing: 16
+        spacing: 14
 
-        // Header
         RowLayout {
             Layout.fillWidth: true
-            Text {
-                text: "System Score"
-                color: "#e2e8f0"
-                font.pixelSize: 17
-                font.weight: Font.Bold
-            }
+            Text { text: "System Score"; color: "#7b8ba3"; font.pixelSize: 14; font.weight: Font.DemiBold }
             Item { Layout.fillWidth: true }
             Rectangle {
-                width: tierLabel.width + 16; height: 26; radius: 10
+                width: tierL.width + 14; height: 24; radius: 6
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: "#6366f1" }
-                    GradientStop { position: 1.0; color: "#8b5cf6" }
+                    GradientStop { position: 0.0; color: "#06b6d4" }
+                    GradientStop { position: 1.0; color: "#0ea5e9" }
                 }
-                opacity: 0.9
-                Text {
-                    id: tierLabel
-                    anchors.centerIn: parent
-                    text: appController.hwScorer ? appController.hwScorer.tier : "Unknown"
-                    color: "#ffffff"
-                    font.pixelSize: 11
-                    font.weight: Font.Bold
-                }
+                Text { id: tierL; anchors.centerIn: parent; text: appController.hwScorer ? appController.hwScorer.tier : "—"; color: "#fff"; font.pixelSize: 10; font.weight: Font.Bold }
             }
         }
 
-        // Gauges row
         RowLayout {
             Layout.fillWidth: true
+            Layout.fillHeight: true
             spacing: 20
-            Layout.alignment: Qt.AlignHCenter
 
-            // Gaming Score
             ColumnLayout {
-                spacing: 6
                 Layout.alignment: Qt.AlignHCenter
-
+                spacing: 4
                 CircularGauge {
                     Layout.alignment: Qt.AlignHCenter
-                    width: 100; height: 100
+                    width: 80; height: 80
                     value: appController.hwScorer ? appController.hwScorer.gamingScore : 0
-                    startColor: "#6366f1"
-                    endColor: "#8b5cf6"
-                    glowColor: "#6366f1"
-                    label: ""
+                    startColor: "#06b6d4"; endColor: "#22d3ee"; glowColor: "#06b6d4"; label: ""
                 }
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: "Gaming Score"
-                    color: "#94a3b8"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                }
+                Text { Layout.alignment: Qt.AlignHCenter; text: "Gaming"; color: "#4a5568"; font.pixelSize: 10; font.weight: Font.DemiBold }
             }
 
-            // Performance Score
             ColumnLayout {
-                spacing: 6
                 Layout.alignment: Qt.AlignHCenter
-
+                spacing: 4
                 CircularGauge {
                     Layout.alignment: Qt.AlignHCenter
-                    width: 100; height: 100
+                    width: 80; height: 80
                     value: appController.hwScorer ? appController.hwScorer.performanceScore : 0
-                    startColor: "#8b5cf6"
-                    endColor: "#10b981"
-                    glowColor: "#8b5cf6"
-                    label: ""
+                    startColor: "#f59e0b"; endColor: "#fbbf24"; glowColor: "#f59e0b"; label: ""
                 }
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: "Performance Score"
-                    color: "#94a3b8"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                }
+                Text { Layout.alignment: Qt.AlignHCenter; text: "Performance"; color: "#4a5568"; font.pixelSize: 10; font.weight: Font.DemiBold }
             }
-        }
-
-        // Bottleneck indicator
-        Rectangle {
-            Layout.fillWidth: true
-            height: bnRow.height + 16
-            radius: 10
-            color: "#111827"
-            visible: appController.hwScorer && appController.hwScorer.bottleneck !== ""
-
-            RowLayout {
-                id: bnRow
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.margins: 12
-                spacing: 8
-
-                Text { text: "⚠"; font.pixelSize: 14 }
-                Text {
-                    text: "Bottleneck: " + (appController.hwScorer ? appController.hwScorer.bottleneck : "")
-                    color: "#f59e0b"
-                    font.pixelSize: 12
-                    font.weight: Font.DemiBold
-                    Layout.fillWidth: true
-                    wrapMode: Text.Wrap
-                }
-            }
-        }
-
-        // Sub-scores
-        GridLayout {
-            Layout.fillWidth: true
-            columns: 2
-            columnSpacing: 12
-            rowSpacing: 8
-
-            SubScoreBar { barLabel: "CPU"; barValue: appController.hwScorer ? appController.hwScorer.cpuScore : 0; barColor: "#6366f1" }
-            SubScoreBar { barLabel: "GPU"; barValue: appController.hwScorer ? appController.hwScorer.gpuScore : 0; barColor: "#8b5cf6" }
-            SubScoreBar { barLabel: "RAM"; barValue: appController.hwScorer ? appController.hwScorer.ramScore : 0; barColor: "#a78bfa" }
-            SubScoreBar { barLabel: "Storage"; barValue: appController.hwScorer ? appController.hwScorer.storageScore : 0; barColor: "#10b981" }
-        }
-
-        // Insights
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 6
-            visible: appController.hwScorer && appController.hwScorer.insights.length > 0
-
-            Text {
-                text: "Insights"
-                color: "#e2e8f0"
-                font.pixelSize: 13
-                font.weight: Font.Bold
-            }
-
-            Repeater {
-                model: appController.hwScorer ? appController.hwScorer.insights : []
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: insightRow.height + 12
-                    radius: 8
-                    color: {
-                        var s = modelData.severity || "info"
-                        if (s === "good") return "#0d1f17"
-                        if (s === "warning") return "#1f1a0d"
-                        if (s === "critical") return "#1f0d0d"
-                        return "#111827"
-                    }
-                    border.color: {
-                        var s = modelData.severity || "info"
-                        if (s === "good") return "#10b981"
-                        if (s === "warning") return "#f59e0b"
-                        if (s === "critical") return "#ef4444"
-                        return "#1e293b"
-                    }
-                    border.width: 1
-
-                    RowLayout {
-                        id: insightRow
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.margins: 10
-                        spacing: 8
-
-                        Text {
-                            text: {
-                                var s = modelData.severity || "info"
-                                if (s === "good") return "✓"
-                                if (s === "warning") return "⚠"
-                                if (s === "critical") return "✕"
-                                return "ℹ"
-                            }
-                            font.pixelSize: 12
-                        }
-                        Text {
-                            text: modelData.text || ""
-                            color: "#cbd5e1"
-                            font.pixelSize: 11
-                            wrapMode: Text.Wrap
-                            Layout.fillWidth: true
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // ── SubScoreBar component ──
-    component SubScoreBar: RowLayout {
-        property string barLabel: ""
-        property int barValue: 0
-        property color barColor: "#6366f1"
-
-        Layout.fillWidth: true
-        spacing: 8
-
-        Text {
-            text: barLabel
-            color: "#64748b"
-            font.pixelSize: 11
-            Layout.preferredWidth: 50
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            height: 10
-            radius: 5
-            color: "#111827"
-
-            Rectangle {
-                width: parent.width * Math.min(barValue / 100.0, 1.0)
-                height: parent.height
-                radius: 5
-                color: barColor
-
-                Behavior on width { NumberAnimation { duration: 800; easing.type: Easing.OutCubic } }
-            }
-        }
-
-        Text {
-            text: barValue.toString()
-            color: "#cbd5e1"
-            font.pixelSize: 11
-            font.weight: Font.Bold
-            Layout.preferredWidth: 28
-            horizontalAlignment: Text.AlignRight
         }
     }
 }
