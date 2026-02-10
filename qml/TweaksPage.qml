@@ -148,6 +148,8 @@ Item {
                 tweakCategory: model.category
                 tweakApplied: model.applied
                 tweakRecommended: model.recommended
+                tweakRisk: model.risk || "safe"
+                tweakLearnMore: model.learnMore || ""
                 onToggled: appController.toggleTweak(model.index)
             }
 

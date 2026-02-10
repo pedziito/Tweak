@@ -10,9 +10,11 @@
 struct Tweak
 {
     QString id;
-    QString category;       // Gaming | Latency | FPS | Network | Power | Services
+    QString category;       // Gaming | Latency | FPS | Network | Power | Services | Memory | Visual | Privacy | Startup
     QString name;
     QString description;
+    QString learnMore;      // Extended explanation shown on "Learn More"
+    QString risk = "safe";  // "safe" | "advanced"
     bool recommended = false;
     bool applied = false;
     bool requiresAdmin = false;

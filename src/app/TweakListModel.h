@@ -16,7 +16,9 @@ public:
         CategoryRole,
         RecommendedRole,
         AppliedRole,
-        RequiresAdminRole
+        RequiresAdminRole,
+        RiskRole,
+        LearnMoreRole
     };
 
     explicit TweakListModel(QList<Tweak> &tweaks, QObject *parent = nullptr);

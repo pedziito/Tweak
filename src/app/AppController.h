@@ -12,6 +12,9 @@
 #include "app/SettingsManager.h"
 #include "app/BenchmarkEngine.h"
 #include "app/SystemMonitor.h"
+#include "app/HardwareScorer.h"
+#include "app/GameBenchmark.h"
+#include "app/ConfigManager.h"
 
 class AppController : public QObject
 {
@@ -55,6 +58,15 @@ class AppController : public QObject
 
     // System Monitor
     Q_PROPERTY(SystemMonitor* systemMonitor READ systemMonitor CONSTANT)
+
+    // Hardware Scorer
+    Q_PROPERTY(HardwareScorer* hwScorer READ hwScorer CONSTANT)
+
+    // Game Benchmark
+    Q_PROPERTY(GameBenchmark* gameBenchmark READ gameBenchmark CONSTANT)
+
+    // Config Manager
+    Q_PROPERTY(ConfigManager* configManager READ configManager CONSTANT)
 
 public:
     explicit AppController(QObject *parent = nullptr);
@@ -100,6 +112,15 @@ public:
     // System Monitor
     SystemMonitor* systemMonitor();
 
+    // Hardware Scorer
+    HardwareScorer* hwScorer();
+
+    // Game Benchmark
+    GameBenchmark* gameBenchmark();
+
+    // Config Manager
+    ConfigManager* configManager();
+
     // Actions
     Q_INVOKABLE void refreshHardware();
     Q_INVOKABLE void applyRecommended();
@@ -115,6 +136,15 @@ public:
     Q_INVOKABLE void restoreAll();
     Q_INVOKABLE void clearTempFiles();
     Q_INVOKABLE void flushDns();
+
+    // Game benchmark actions
+    Q_INVOKABLE void runGameBenchmark();
+
+    // Config actions
+    Q_INVOKABLE void saveConfiguration(const QString &name);
+    Q_INVOKABLE QStringList loadConfiguration(const QString &name);
+    Q_INVOKABLE void deleteConfiguration(const QString &name);
+    Q_INVOKABLE QStringList appliedTweakIds() const;
 
 signals:
     void hardwareChanged();
@@ -138,5 +168,8 @@ private:
     QVariantList     m_startupSuggestions;
     BenchmarkEngine  m_benchmark;
     SystemMonitor    m_systemMonitor;
+    HardwareScorer   m_scorer;
+    GameBenchmark    m_gameBenchmark;
+    ConfigManager    m_configManager;
     QString          m_filterText;
 };

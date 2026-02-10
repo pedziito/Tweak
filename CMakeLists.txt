@@ -23,6 +23,9 @@ qt_add_executable(TweakApp
     src/app/SettingsManager.cpp
     src/app/BenchmarkEngine.cpp
     src/app/SystemMonitor.cpp
+    src/app/HardwareScorer.cpp
+    src/app/GameBenchmark.cpp
+    src/app/ConfigManager.cpp
 )
 
 qt_add_qml_module(TweakApp
@@ -43,6 +46,8 @@ qt_add_qml_module(TweakApp
         qml/CategoryFilter.qml
         qml/Cs2PathDialog.qml
         qml/PerformanceGraph.qml
+        qml/GameBenchmarkPage.qml
+        qml/ScoreCard.qml
 )
 
 target_include_directories(TweakApp PRIVATE src)

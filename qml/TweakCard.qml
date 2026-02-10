@@ -16,7 +16,9 @@ Rectangle {
     property bool tweakEnabled: true
     property bool tweakApplied: false
     property bool tweakRecommended: false
-    property string tweakRisk: "low"
+    property string tweakRisk: "safe"
+    property string tweakLearnMore: ""
+    property bool showLearnMore: false
     signal toggled(bool checked)
 
     Behavior on border.color { ColorAnimation { duration: 200 } }
@@ -75,6 +77,7 @@ Rectangle {
                             case "Services": return "#15252d"
                             case "Visual":   return "#2d2d15"
                             case "Privacy":  return "#152d15"
+                            case "Memory":   return "#15152d"
                             default:         return "#1a1230"
                         }
                     }
@@ -95,6 +98,7 @@ Rectangle {
                                 case "Services": return "#06b6d4"
                                 case "Visual":   return "#fbbf24"
                                 case "Privacy":  return "#34d399"
+                                case "Memory":   return "#818cf8"
                                 default:         return "#8b7db0"
                             }
                         }
@@ -105,7 +109,7 @@ Rectangle {
 
                 // Risk badge
                 Rectangle {
-                    visible: card.tweakRisk === "high"
+                    visible: card.tweakRisk === "advanced"
                     radius: 8
                     color: "#2d1515"
                     implicitWidth: riskText.implicitWidth + 14
@@ -114,8 +118,8 @@ Rectangle {
                     Text {
                         id: riskText
                         anchors.centerIn: parent
-                        text: "⚠ High Risk"
-                        color: "#ef4444"
+                        text: "⚠ Advanced"
+                        color: "#f59e0b"
                         font.pixelSize: 9
                         font.weight: Font.DemiBold
                     }
@@ -128,6 +132,36 @@ Rectangle {
                 font.pixelSize: 12
                 wrapMode: Text.Wrap
                 Layout.fillWidth: true
+            }
+
+            // Learn More expandable
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 4
+                visible: card.tweakLearnMore !== ""
+
+                Text {
+                    text: card.showLearnMore ? "▾ Hide details" : "▸ Learn more"
+                    color: "#7c3aed"
+                    font.pixelSize: 10
+                    font.weight: Font.DemiBold
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: card.showLearnMore = !card.showLearnMore
+                    }
+                }
+
+                Text {
+                    visible: card.showLearnMore
+                    text: card.tweakLearnMore
+                    color: "#6b5b95"
+                    font.pixelSize: 11
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                    font.italic: true
+                }
             }
 
             RowLayout {

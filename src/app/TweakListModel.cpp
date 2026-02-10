@@ -24,6 +24,8 @@ QVariant TweakListModel::data(const QModelIndex &index, int role) const
     case RecommendedRole:   return t.recommended;
     case AppliedRole:       return t.applied;
     case RequiresAdminRole: return t.requiresAdmin;
+    case RiskRole:          return t.risk;
+    case LearnMoreRole:     return t.learnMore;
     default: return {};
     }
 }
@@ -37,7 +39,9 @@ QHash<int, QByteArray> TweakListModel::roleNames() const
         {CategoryRole,      "category"},
         {RecommendedRole,   "recommended"},
         {AppliedRole,       "applied"},
-        {RequiresAdminRole, "requiresAdmin"}
+        {RequiresAdminRole, "requiresAdmin"},
+        {RiskRole,          "risk"},
+        {LearnMoreRole,     "learnMore"}
     };
 }
 

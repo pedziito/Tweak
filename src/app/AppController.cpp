@@ -15,6 +15,9 @@ AppController::AppController(QObject *parent)
     , m_settings(this)
     , m_benchmark(this)
     , m_systemMonitor(this)
+    , m_scorer(this)
+    , m_gameBenchmark(this)
+    , m_configManager(this)
 {
     // Restore persisted CS2 path
     const QString savedCs2 = m_settings.cs2Path();
@@ -24,6 +27,12 @@ AppController::AppController(QObject *parent)
     m_engine.updateRecommendations(m_hwInfo);
     m_model.refresh();
     refreshStartupSuggestions();
+
+    // Score hardware
+    m_scorer.score(m_hwInfo);
+
+    // Initialize game benchmark with hardware info
+    m_gameBenchmark.setHardware(m_hwInfo, &m_scorer);
 
     // Start system monitor
     m_systemMonitor.start();
@@ -121,6 +130,8 @@ void AppController::refreshHardware()
     m_hwInfo = m_detector.detect();
     m_engine.updateRecommendations(m_hwInfo);
     m_model.refresh();
+    m_scorer.score(m_hwInfo);
+    m_gameBenchmark.setHardware(m_hwInfo, &m_scorer);
     emit hardwareChanged();
     emit tweaksChanged();
 }
@@ -199,3 +210,56 @@ bool         AppController::benchmarkHasBaseline() const { return m_benchmark.ha
 void AppController::runBaseline()    { m_benchmark.runBaseline(); }
 void AppController::runAfterTweaks() { m_benchmark.runAfterTweaks(); }
 void AppController::resetBenchmark() { m_benchmark.reset(); }
+
+// ---------------------------------------------------------------------------
+// Hardware Scorer
+// ---------------------------------------------------------------------------
+HardwareScorer *AppController::hwScorer() { return &m_scorer; }
+
+// ---------------------------------------------------------------------------
+// Game Benchmark
+// ---------------------------------------------------------------------------
+GameBenchmark *AppController::gameBenchmark() { return &m_gameBenchmark; }
+
+void AppController::runGameBenchmark()
+{
+    m_gameBenchmark.runEstimation();
+}
+
+// ---------------------------------------------------------------------------
+// Config Manager
+// ---------------------------------------------------------------------------
+ConfigManager *AppController::configManager() { return &m_configManager; }
+
+void AppController::saveConfiguration(const QString &name)
+{
+    m_configManager.saveConfig(name, appliedTweakIds());
+}
+
+QStringList AppController::loadConfiguration(const QString &name)
+{
+    const QStringList ids = m_configManager.loadConfig(name);
+    // Restore defaults first, then apply the loaded config tweaks
+    m_engine.restoreDefaults();
+    for (const QString &id : ids) {
+        m_engine.toggleTweak(id);
+    }
+    m_model.refresh();
+    emit tweaksChanged();
+    return ids;
+}
+
+void AppController::deleteConfiguration(const QString &name)
+{
+    m_configManager.deleteConfig(name);
+}
+
+QStringList AppController::appliedTweakIds() const
+{
+    QStringList ids;
+    for (const Tweak &t : m_engine.tweaks()) {
+        if (t.applied)
+            ids.append(t.id);
+    }
+    return ids;
+}

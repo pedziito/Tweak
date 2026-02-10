@@ -73,6 +73,16 @@ Flickable {
             }
         }
 
+        // ── System Score Overview ──
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 16
+
+            ScoreCard {
+                Layout.fillWidth: true
+            }
+        }
+
         // ── Stat Cards Row ──
         Flow {
             Layout.fillWidth: true
@@ -433,7 +443,7 @@ Flickable {
                     ActionPill { text: "🚀  Apply All Gaming Tweaks"; onClicked: appController.applyAllGaming() }
                     ActionPill { text: "🔄  Restore All Tweaks"; accent: "#ef4444"; onClicked: appController.restoreAll() }
                     ActionPill { text: "📊  Run Benchmark"; onClicked: appController.runBaseline() }
-                    ActionPill { text: "🎮  Set CS2 Path"; onClicked: appController.openCs2Dialog = true }
+                    ActionPill { text: "🎮  Set CS2 Path"; onClicked: cs2PathDialog.open() }
                     ActionPill { text: "🧹  Clear Temp Files"; onClicked: appController.clearTempFiles() }
                     ActionPill { text: "💾  Flush DNS"; onClicked: appController.flushDns() }
                 }

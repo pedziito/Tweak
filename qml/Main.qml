@@ -66,6 +66,12 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
+
+            // Page 3: Game FPS Estimator
+            GameBenchmarkPage {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
     }
 

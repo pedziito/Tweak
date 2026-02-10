@@ -9,7 +9,7 @@ Rectangle {
     color: "#110c1f"
     border.width: 0
 
-    property int currentPage: 0  // 0=Home, 1=Tweaks, 2=Performance
+    property int currentPage: 0  // 0=Home, 1=Tweaks, 2=Performance, 3=Game Benchmark
 
     // Right border accent
     Rectangle {
@@ -190,6 +190,13 @@ Rectangle {
             icon: "📊"
             active: sidebar.currentPage === 2
             onClicked: sidebar.currentPage = 2
+        }
+        NavButton {
+            Layout.fillWidth: true
+            text: "Game Estimator"
+            icon: "🎯"
+            active: sidebar.currentPage === 3
+            onClicked: sidebar.currentPage = 3
         }
 
         Item { Layout.fillHeight: true }
