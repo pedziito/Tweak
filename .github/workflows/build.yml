@@ -24,7 +24,7 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2019_64
-          modules: qtquick3d
+          modules: qtwebengine qtwebchannel
           cache: true
 
       - name: Setup MSVC
