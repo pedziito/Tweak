@@ -35,6 +35,12 @@ qt_add_resources(TweakApp "web"
         web/index.html
 )
 
+qt_add_resources(TweakApp "data"
+    PREFIX "/"
+    FILES
+        data/users.json
+)
+
 target_include_directories(TweakApp PRIVATE src)
 
 target_link_libraries(TweakApp PRIVATE

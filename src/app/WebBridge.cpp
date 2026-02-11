@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QCoreApplication>
 #include <QThread>
+#include <QFile>
 
 WebBridge::WebBridge(AppController *controller, QObject *parent)
     : QObject(parent), m_ctrl(controller)
@@ -93,6 +94,29 @@ QJsonArray WebBridge::getCategories()
     for (const auto &c : m_ctrl->categories())
         arr.append(c);
     return arr;
+}
+
+bool WebBridge::login(const QString &username, const QString &password)
+{
+    QFile file(QStringLiteral(":/data/users.json"));
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    if (!doc.isArray())
+        return false;
+
+    const QJsonArray users = doc.array();
+    for (const auto &val : users) {
+        QJsonObject u = val.toObject();
+        if (u.value(QStringLiteral("username")).toString() == username &&
+            u.value(QStringLiteral("password")).toString() == password) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int  WebBridge::getAppliedCount()     { return m_ctrl->appliedCount(); }

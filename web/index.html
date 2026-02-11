@@ -10,48 +10,97 @@
 /* ── Reset & Base ── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0a0e1a;--bg2:#0c1120;--bg3:#111827;--border:#1e293b;
-  --cyan:#06b6d4;--cyan2:#0891b2;--cyan-glow:rgba(6,182,212,.15);
+  --bg:#060a14;--bg2:#0b1022;--bg3:#111827;--bg4:#0d1328;
+  --border:#1a2240;--border2:#1e2d4f;
+  --cyan:#06b6d4;--cyan2:#0891b2;--cyan-glow:rgba(6,182,212,.12);
   --amber:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#8b5cf6;
-  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
-  --sidebar-w:260px;--radius:14px;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#4b5e80;
+  --sidebar-w:68px;--sidebar-w-open:260px;--radius:16px;
 }
 html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
-::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 
+/* ── SVG Icon defaults ── */
+.icon-svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
 /* ── Layout ── */
 #app{display:flex;height:100vh}
-.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;user-select:none}
-.sidebar-brand{padding:0 24px 28px;display:flex;align-items:center;gap:12px}
-.sidebar-brand .logo{width:36px;height:36px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff}
-.sidebar-brand h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sidebar-brand span{font-size:11px;color:var(--text3);display:block;margin-top:2px;-webkit-text-fill-color:var(--text3)}
-.nav-section{padding:0 16px;margin-bottom:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3)}
-.nav-items{list-style:none;padding:0 10px;margin-bottom:20px}
-.nav-items li{padding:10px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:13.5px;font-weight:500;color:var(--text2);transition:all .2s}
+
+/* ── Login Page ── */
+.login-page{display:flex;align-items:center;justify-content:center;width:100%;height:100vh;background:var(--bg);position:relative;overflow:hidden}
+.login-page::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(6,182,212,.08) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.login-page::after{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,.06) 0%,transparent 70%);bottom:-100px;left:-100px;pointer-events:none}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:48px 44px;width:400px;position:relative;z-index:1;box-shadow:0 25px 80px rgba(0,0,0,.5)}
+.login-box .login-logo{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:36px}
+.login-box .login-logo .logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff}
+.login-box .login-logo h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.login-box .field{margin-bottom:20px}
+.login-box .field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px}
+.login-box .field input{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.login-box .field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.1)}
+.login-box .field input::placeholder{color:var(--text3)}
+.login-box .login-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px}
+.login-box .login-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.login-box .login-btn:active{transform:translateY(0)}
+.login-error{color:var(--red);font-size:12px;text-align:center;margin-top:12px;min-height:18px}
+.login-box .login-footer{text-align:center;margin-top:24px;font-size:11px;color:var(--text3)}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:16px 0;
+  user-select:none;transition:all .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;z-index:10;position:relative;
+}
+.sidebar:hover{width:var(--sidebar-w-open);min-width:var(--sidebar-w-open)}
+.sidebar-brand{padding:0 0 24px;display:flex;align-items:center;gap:14px;height:56px;padding-left:16px;padding-right:16px}
+.sidebar-brand .logo{width:36px;height:36px;min-width:36px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
+.sidebar-brand .brand-text{white-space:nowrap;overflow:hidden;opacity:0;transition:opacity .2s .05s}
+.sidebar:hover .brand-text{opacity:1}
+.sidebar-brand h1{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-brand span{font-size:10px;color:var(--text3);display:block;margin-top:1px;-webkit-text-fill-color:var(--text3)}
+.nav-section{padding:0 20px;margin-bottom:6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text3);white-space:nowrap;overflow:hidden;opacity:0;height:0;transition:all .2s}
+.sidebar:hover .nav-section{opacity:1;height:auto;margin-bottom:6px}
+.nav-items{list-style:none;padding:0 10px;margin-bottom:16px}
+.nav-items li{padding:11px 12px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:14px;font-size:13.5px;font-weight:500;color:var(--text3);transition:all .2s;white-space:nowrap;position:relative;margin-bottom:2px}
 .nav-items li:hover{background:rgba(255,255,255,.04);color:var(--text)}
 .nav-items li.active{background:var(--cyan-glow);color:var(--cyan);font-weight:600}
-.nav-items li .icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
-.nav-items li .badge{margin-left:auto;background:var(--cyan);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
-.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
-.admin-badge{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-.admin-badge.is-admin{background:rgba(16,185,129,.12);color:var(--green)}
-.admin-badge.not-admin{background:rgba(239,68,68,.12);color:var(--red)}
+.nav-items li.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.nav-items li .nav-icon{width:22px;min-width:22px;display:flex;align-items:center;justify-content:center}
+.nav-items li .nav-label{overflow:hidden;opacity:0;transition:opacity .2s .05s}
+.sidebar:hover .nav-items li .nav-label{opacity:1}
+.nav-items li .badge{margin-left:auto;background:var(--cyan);color:#000;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;opacity:0;transition:opacity .2s}
+.sidebar:hover .nav-items li .badge{opacity:1}
+.sidebar-footer{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border)}
+.admin-badge{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.admin-badge .admin-label{opacity:0;overflow:hidden;transition:opacity .2s .05s}
+.sidebar:hover .admin-badge .admin-label{opacity:1}
+.admin-badge.is-admin{background:rgba(16,185,129,.1);color:var(--green)}
+.admin-badge.not-admin{background:rgba(239,68,68,.1);color:var(--red)}
 .admin-badge:hover{filter:brightness(1.2)}
+.user-info{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:4px;white-space:nowrap}
+.user-info .user-avatar{width:28px;height:28px;min-width:28px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.user-info .user-name{font-size:12px;font-weight:600;color:var(--text2);opacity:0;overflow:hidden;transition:opacity .2s .05s}
+.sidebar:hover .user-info .user-name{opacity:1}
+.logout-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);transition:all .2s;white-space:nowrap;border:none;background:none;width:100%}
+.logout-btn:hover{color:var(--red);background:rgba(239,68,68,.08)}
+.logout-btn .logout-label{opacity:0;overflow:hidden;transition:opacity .2s .05s}
+.sidebar:hover .logout-btn .logout-label{opacity:1}
 
 /* ── Main Area ── */
-.main{flex:1;overflow-y:auto;padding:28px 32px}
-.page-header{margin-bottom:24px}
-.page-header h2{font-size:26px;font-weight:700;margin-bottom:4px}
-.page-header p{color:var(--text2);font-size:14px}
+.main{flex:1;overflow-y:auto;padding:28px 36px;background:var(--bg)}
+.page-header{margin-bottom:28px}
+.page-header h2{font-size:28px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
+.page-header p{color:var(--text3);font-size:13px}
 
 /* ── Cards ── */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .25s}
-.card:hover{border-color:rgba(6,182,212,.25);box-shadow:0 0 20px rgba(6,182,212,.06)}
-.card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:all .3s ease}
+.card:hover{border-color:var(--border2);box-shadow:0 4px 24px rgba(0,0,0,.2)}
+.card-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px}
 
 /* ── Grid helpers ── */
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -60,53 +109,54 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 @media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}}
 
 /* ── Stat Cards ── */
-.stat-card{text-align:center;padding:24px 16px}
-.stat-card .value{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-card .label{font-size:12px;color:var(--text3);margin-top:4px}
+.stat-card{text-align:center;padding:28px 16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);border-radius:2px}
+.stat-card .value{font-size:34px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .label{font-size:11px;color:var(--text3);margin-top:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 
 /* ── Score Ring ── */
 .score-ring{position:relative;width:140px;height:140px;margin:0 auto 12px}
 .score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .score-ring .bg{fill:none;stroke:var(--border);stroke-width:8}
-.score-ring .fg{fill:none;stroke:var(--cyan);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
-.score-ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:var(--cyan)}
+.score-ring .fg{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+.score-ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:var(--cyan)}
 .score-label{text-align:center;font-size:14px;font-weight:600;color:var(--text2)}
 
 /* ── Monitor Bars ── */
-.monitor-bar{margin-bottom:16px}
-.monitor-bar .bar-header{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}
-.monitor-bar .bar-header .name{color:var(--text2)}
-.monitor-bar .bar-header .pct{color:var(--cyan);font-weight:700}
-.monitor-bar .track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.monitor-bar{margin-bottom:18px}
+.monitor-bar .bar-header{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
+.monitor-bar .bar-header .name{color:var(--text2);font-weight:500}
+.monitor-bar .bar-header .pct{color:var(--cyan);font-weight:700;font-size:14px}
+.monitor-bar .track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
 .monitor-bar .fill{height:100%;border-radius:3px;transition:width .5s ease;background:linear-gradient(90deg,var(--cyan),var(--purple))}
 
 /* ── Hardware Info ── */
-.hw-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.hw-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px}
 .hw-row:last-child{border-bottom:none}
-.hw-row .hw-label{color:var(--text3)}
+.hw-row .hw-label{color:var(--text3);font-weight:500}
 .hw-row .hw-value{color:var(--text);font-weight:600;text-align:right;max-width:60%}
 
 /* ── Tweaks Page ── */
-.filter-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
-.search-box{flex:1;min-width:200px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
-.search-box:focus{border-color:var(--cyan)}
+.filter-bar{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:200px;padding:11px 18px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;outline:none;transition:all .2s}
+.search-box:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.08)}
 .search-box::placeholder{color:var(--text3)}
-.cat-btn{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.cat-btn{padding:8px 18px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
 .cat-btn:hover{border-color:var(--cyan);color:var(--text)}
 .cat-btn.active{background:var(--cyan);color:#000;border-color:var(--cyan)}
-.cat-count{margin-left:5px;opacity:.7}
+.cat-count{margin-left:5px;opacity:.6}
 
 .tweak-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
-.tweak-card{display:flex;flex-direction:column;padding:18px 20px;min-height:140px}
-.tweak-card .tc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.tweak-card{display:flex;flex-direction:column;padding:20px 22px;min-height:140px}
+.tweak-card .tc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .tweak-card .tc-name{font-size:14.5px;font-weight:700;color:var(--text);flex:1;margin-right:10px}
-.tweak-card .tc-desc{font-size:12.5px;color:var(--text3);line-height:1.5;flex:1}
-.tweak-card .tc-bottom{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:12px}
-.tweak-card .tc-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
-.tweak-card .tc-badge.rec{background:rgba(16,185,129,.12);color:var(--green)}
-.tweak-card .tc-badge.risk-low{background:rgba(6,182,212,.12);color:var(--cyan)}
-.tweak-card .tc-badge.risk-medium{background:rgba(245,158,11,.12);color:var(--amber)}
-.tweak-card .tc-badge.risk-high{background:rgba(239,68,68,.12);color:var(--red)}
+.tweak-card .tc-desc{font-size:12.5px;color:var(--text3);line-height:1.6;flex:1}
+.tweak-card .tc-bottom{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px}
+.tweak-card .tc-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.tweak-card .tc-badge.rec{background:rgba(16,185,129,.1);color:var(--green)}
+.tweak-card .tc-badge.risk-low{background:rgba(6,182,212,.1);color:var(--cyan)}
+.tweak-card .tc-badge.risk-medium{background:rgba(245,158,11,.1);color:var(--amber)}
+.tweak-card .tc-badge.risk-high{background:rgba(239,68,68,.1);color:var(--red)}
 
 /* Toggle Switch */
 .toggle{position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer}
@@ -117,70 +167,103 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .toggle input:checked+.slider::before{transform:translateX(20px);background:#fff}
 
 /* ── Action Buttons ── */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-.btn-cyan{background:var(--cyan);color:#000}.btn-cyan:hover{background:var(--cyan2)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:12px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-cyan{background:var(--cyan);color:#000}.btn-cyan:hover{background:var(--cyan2);transform:translateY(-1px)}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}.btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
-.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}.btn-red:hover{background:rgba(239,68,68,.25)}
-.btn-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}.btn-green:hover{background:rgba(16,185,129,.25)}
+.btn-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}.btn-red:hover{background:rgba(239,68,68,.2)}
+.btn-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}.btn-green:hover{background:rgba(16,185,129,.2)}
 
 /* ── Batch Popup ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999}
-.batch-popup{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:32px;width:520px;max-height:80vh;overflow-y:auto}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:999}
+.batch-popup{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px;width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,.5)}
 .batch-popup h3{font-size:18px;font-weight:700;margin-bottom:16px}
-.batch-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.batch-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
 .batch-item:last-child{border-bottom:none}
-.batch-item .bi-icon{width:20px;text-align:center;font-size:14px}
+.batch-item .bi-icon{width:22px;text-align:center;font-size:14px}
 .batch-item .bi-icon.done{color:var(--green)}
 .batch-item .bi-icon.active{color:var(--cyan);animation:pulse 1s infinite}
 .batch-item .bi-icon.pending{color:var(--text3)}
 .batch-item .bi-name{flex:1;color:var(--text)}
-.batch-item .bi-status{font-size:11px;font-weight:600;text-transform:uppercase}
-.progress-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin:16px 0}
+.batch-item .bi-status{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.progress-bar{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin:16px 0}
 .progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px;transition:width .3s}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ── Quick Actions ── */
 .quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.qa-btn{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
-.qa-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-glow)}
+.qa-btn{padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px}
+.qa-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-glow);transform:translateY(-2px)}
+.qa-btn .icon-svg{width:18px;height:18px}
 
 /* ── Boost Page ── */
-.boost-card{padding:28px;text-align:center}
-.boost-card .boost-icon{font-size:40px;margin-bottom:12px}
-.boost-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
-.boost-card p{font-size:13px;color:var(--text3);margin-bottom:16px}
+.boost-card{padding:32px;text-align:center}
+.boost-card .boost-icon{margin-bottom:16px;display:flex;justify-content:center}
+.boost-card .boost-icon .icon-svg{width:44px;height:44px;color:var(--cyan)}
+.boost-card h3{font-size:17px;font-weight:700;margin-bottom:8px}
+.boost-card p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.5}
 
 /* ── Settings ── */
-.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
 .setting-row:last-child{border-bottom:none}
-.setting-row .sr-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.setting-row .sr-info h4{font-size:14px;font-weight:600;margin-bottom:3px}
 .setting-row .sr-info p{font-size:12px;color:var(--text3)}
 
 /* ── Score tier colors ── */
 .score-s{color:var(--green)}.score-a{color:var(--cyan)}.score-b{color:var(--amber)}.score-c{color:var(--red)}
 
 /* ── Toast notification ── */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 22px;font-size:13px;font-weight:600;color:var(--cyan);z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:slideUp .3s ease}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 24px;font-size:13px;font-weight:600;color:var(--cyan);z-index:1000;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:slideUp .3s ease}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:60px;color:var(--text3)}
+.empty-state .icon-svg{width:48px;height:48px;margin:0 auto 16px;opacity:.4}
 </style>
 </head>
 <body>
 <div id="app">
+
+  <!-- ═══════════ LOGIN PAGE ═══════════ -->
+  <div class="login-page" v-if="!loggedIn">
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="logo-icon">T</div>
+        <h1>Tweak</h1>
+      </div>
+      <form @submit.prevent="doLogin">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" v-model="loginUser" placeholder="Enter your username" autofocus>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" v-model="loginPass" placeholder="Enter your password">
+        </div>
+        <button class="login-btn" type="submit">Sign In</button>
+        <div class="login-error">{{loginError}}</div>
+      </form>
+      <div class="login-footer">Tweak v5.0.0 &mdash; PC Optimization Suite</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ APP ═══════════ -->
+  <template v-if="loggedIn">
+
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="logo">T</div>
-      <div>
+      <div class="brand-text">
         <h1>Tweak</h1>
-        <span>v5.0.0 &mdash; Vue Edition</span>
+        <span>v5.0.0</span>
       </div>
     </div>
 
     <div class="nav-section">Menu</div>
     <ul class="nav-items">
       <li v-for="p in pages" :key="p.id" :class="{active:page===p.id}" @click="page=p.id">
-        <span class="icon" v-html="p.icon"></span>
-        {{p.label}}
+        <span class="nav-icon" v-html="p.svg"></span>
+        <span class="nav-label">{{p.label}}</span>
         <span v-if="p.id==='tweaks' && appliedCount>0" class="badge">{{appliedCount}}</span>
       </li>
     </ul>
@@ -188,15 +271,26 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     <div class="nav-section">System</div>
     <ul class="nav-items">
       <li @click="page='settings'" :class="{active:page==='settings'}">
-        <span class="icon">&#9881;</span> Settings
+        <span class="nav-icon"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span class="nav-label">Settings</span>
       </li>
     </ul>
 
     <div class="sidebar-footer">
-      <div class="admin-badge" :class="isAdmin?'is-admin':'not-admin'" @click="!isAdmin && doRequestAdmin()">
-        <span v-html="isAdmin ? '&#9989;' : '&#9888;'"></span>
-        {{isAdmin ? 'Administrator' : 'Request Admin'}}
+      <div class="user-info">
+        <div class="user-avatar">{{currentUser.charAt(0).toUpperCase()}}</div>
+        <span class="user-name">{{currentUser}}</span>
       </div>
+      <div class="admin-badge" :class="isAdmin?'is-admin':'not-admin'" @click="!isAdmin && doRequestAdmin()">
+        <span class="nav-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <span class="admin-label">{{isAdmin ? 'Admin' : 'No Admin'}}</span>
+      </div>
+      <button class="logout-btn" @click="doLogout">
+        <span class="nav-icon"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span class="logout-label">Sign Out</span>
+      </button>
     </div>
   </aside>
 
@@ -210,7 +304,6 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         <p>System overview and performance scoring</p>
       </div>
 
-      <!-- Stat row -->
       <div class="grid-4" style="margin-bottom:20px">
         <div class="card stat-card">
           <div class="value">{{appliedCount}}</div>
@@ -236,8 +329,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <div class="card-title">Performance Score</div>
           <div class="score-ring">
             <svg viewBox="0 0 100 100">
+              <defs><linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs>
               <circle class="bg" cx="50" cy="50" r="42"/>
               <circle class="fg" cx="50" cy="50" r="42"
+                stroke="url(#scoreGrad)"
                 :stroke-dasharray="264"
                 :stroke-dashoffset="264 - (264 * (scores.performanceScore||0) / 100)"/>
             </svg>
@@ -262,7 +357,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
             <div class="bar-header"><span class="name">Storage</span><span class="pct">{{Math.round(monitor.storageUsage||0)}}%</span></div>
             <div class="track"><div class="fill" :style="{width:Math.round(monitor.storageUsage||0)+'%'}"></div></div>
           </div>
-          <div style="font-size:12px;color:var(--text3);margin-top:8px">
+          <div style="font-size:12px;color:var(--text3);margin-top:10px">
             RAM: {{(monitor.ramUsedGb||0).toFixed(1)}} / {{(monitor.ramTotalGb||0).toFixed(1)}} GB &nbsp;|&nbsp; Uptime: {{monitor.uptimeText||'—'}}
           </div>
         </div>
@@ -271,12 +366,12 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         <div class="card">
           <div class="card-title">Quick Actions</div>
           <div class="quick-actions">
-            <div class="qa-btn" @click="doApplyRecommended">&#9889; Apply Recommended</div>
-            <div class="qa-btn" @click="doRestoreAll">&#8634; Restore All</div>
-            <div class="qa-btn" @click="doClearTemp">&#128465; Clear Temp</div>
-            <div class="qa-btn" @click="doFlushDns">&#127760; Flush DNS</div>
-            <div class="qa-btn" @click="doVerifyAll">&#9989; Verify All</div>
-            <div class="qa-btn" @click="page='tweaks'">&#9881; All Tweaks</div>
+            <div class="qa-btn" @click="doApplyRecommended"><svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Apply Rec.</div>
+            <div class="qa-btn" @click="doRestoreAll"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Restore</div>
+            <div class="qa-btn" @click="doClearTemp"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear Temp</div>
+            <div class="qa-btn" @click="doFlushDns"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Flush DNS</div>
+            <div class="qa-btn" @click="doVerifyAll"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verify</div>
+            <div class="qa-btn" @click="page='tweaks'"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Tweaks</div>
           </div>
         </div>
       </div>
@@ -308,22 +403,20 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-cyan" @click="startBatchApply" :disabled="unappliedVisible.length===0">
-            &#9889; Apply Visible ({{unappliedVisible.length}})
+            Apply Visible ({{unappliedVisible.length}})
           </button>
-          <button class="btn btn-outline" @click="doRestoreAll">&#8634; Restore All</button>
+          <button class="btn btn-outline" @click="doRestoreAll">Restore All</button>
         </div>
       </div>
 
-      <!-- Filters -->
       <div class="filter-bar">
-        <input class="search-box" v-model="search" placeholder="&#128269; Search tweaks...">
+        <input class="search-box" v-model="search" placeholder="Search tweaks...">
         <button class="cat-btn" :class="{active:activeCat==='All'}" @click="activeCat='All'">All<span class="cat-count">{{tweaks.length}}</span></button>
         <button class="cat-btn" v-for="c in categories" :key="c" :class="{active:activeCat===c}" @click="activeCat=c">
           {{c}}<span class="cat-count">{{tweakCountByCat(c)}}</span>
         </button>
       </div>
 
-      <!-- Tweak Cards -->
       <div class="tweak-grid">
         <div class="card tweak-card" v-for="t in filteredTweaks" :key="t.row">
           <div class="tc-top">
@@ -336,15 +429,19 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <div class="tc-desc">{{t.description}}</div>
           <div class="tc-bottom">
             <span class="tc-badge" :class="'risk-'+t.risk">{{t.risk}}</span>
-            <span v-if="t.recommended" class="tc-badge rec">&#9733; Recommended</span>
-            <span v-if="t.requiresAdmin" style="font-size:10px;color:var(--amber)">&#128274; Admin</span>
-            <span v-if="t.verified" style="font-size:10px;color:var(--green)">&#9989;</span>
+            <span v-if="t.recommended" class="tc-badge rec">Recommended</span>
+            <span v-if="t.requiresAdmin" style="font-size:10px;color:var(--amber);display:flex;align-items:center;gap:3px">
+              <svg class="icon-svg" style="width:12px;height:12px" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Admin
+            </span>
+            <span v-if="t.verified" style="font-size:10px;color:var(--green);display:flex;align-items:center;gap:3px">
+              <svg class="icon-svg" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </span>
           </div>
         </div>
       </div>
 
-      <div v-if="filteredTweaks.length===0" style="text-align:center;padding:60px;color:var(--text3)">
-        <div style="font-size:40px;margin-bottom:12px">&#128269;</div>
+      <div v-if="filteredTweaks.length===0" class="empty-state">
+        <svg class="icon-svg" style="width:48px;height:48px;margin:0 auto 16px;display:block" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <p>No tweaks match your search</p>
       </div>
     </template>
@@ -358,44 +455,43 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
       <div class="grid-3" style="margin-bottom:20px">
         <div class="card boost-card">
-          <div class="boost-icon">&#127918;</div>
+          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg></div>
           <h3>Gaming Boost</h3>
           <p>Apply all gaming-related optimizations for maximum FPS</p>
           <button class="btn btn-cyan" @click="doApplyGaming">Apply Gaming Tweaks</button>
         </div>
         <div class="card boost-card">
-          <div class="boost-icon">&#9889;</div>
+          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <h3>Recommended</h3>
           <p>Apply all safe, recommended optimizations</p>
           <button class="btn btn-green" @click="doApplyRecommended">Apply Recommended</button>
         </div>
         <div class="card boost-card">
-          <div class="boost-icon">&#128165;</div>
+          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
           <h3>Full Boost</h3>
           <p>Apply ALL available tweaks (advanced users only)</p>
           <button class="btn btn-red" @click="startFullBatchApply">Apply All Tweaks</button>
         </div>
       </div>
 
-      <!-- Score Breakdown -->
       <div class="card" style="margin-bottom:20px">
         <div class="card-title">Score Breakdown</div>
         <div class="grid-4">
           <div style="text-align:center">
-            <div style="font-size:28px;font-weight:800;color:var(--cyan)">{{scores.cpuScore||0}}</div>
-            <div style="font-size:12px;color:var(--text3)">CPU Score</div>
+            <div style="font-size:28px;font-weight:900;color:var(--cyan)">{{scores.cpuScore||0}}</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">CPU Score</div>
           </div>
           <div style="text-align:center">
-            <div style="font-size:28px;font-weight:800;color:var(--purple)">{{scores.gpuScore||0}}</div>
-            <div style="font-size:12px;color:var(--text3)">GPU Score</div>
+            <div style="font-size:28px;font-weight:900;color:var(--purple)">{{scores.gpuScore||0}}</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">GPU Score</div>
           </div>
           <div style="text-align:center">
-            <div style="font-size:28px;font-weight:800;color:var(--green)">{{scores.ramScore||0}}</div>
-            <div style="font-size:12px;color:var(--text3)">RAM Score</div>
+            <div style="font-size:28px;font-weight:900;color:var(--green)">{{scores.ramScore||0}}</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">RAM Score</div>
           </div>
           <div style="text-align:center">
-            <div style="font-size:28px;font-weight:800;color:var(--amber)">{{scores.storageScore||0}}</div>
-            <div style="font-size:12px;color:var(--text3)">Storage Score</div>
+            <div style="font-size:28px;font-weight:900;color:var(--amber)">{{scores.storageScore||0}}</div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Storage Score</div>
           </div>
         </div>
       </div>
@@ -403,10 +499,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <div class="card">
         <div class="card-title">Maintenance</div>
         <div class="quick-actions">
-          <div class="qa-btn" @click="doClearTemp">&#128465; Clear Temp Files</div>
-          <div class="qa-btn" @click="doFlushDns">&#127760; Flush DNS Cache</div>
-          <div class="qa-btn" @click="doVerifyAll">&#9989; Verify All Tweaks</div>
-          <div class="qa-btn" @click="doRestoreAll">&#8634; Restore Defaults</div>
+          <div class="qa-btn" @click="doClearTemp"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear Temp Files</div>
+          <div class="qa-btn" @click="doFlushDns"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Flush DNS Cache</div>
+          <div class="qa-btn" @click="doVerifyAll"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verify All Tweaks</div>
+          <div class="qa-btn" @click="doRestoreAll"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Restore Defaults</div>
         </div>
       </div>
     </template>
@@ -420,7 +516,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
       <div class="grid-3">
         <div class="card boost-card" v-for="g in gameProfiles" :key="g.name">
-          <div class="boost-icon">{{g.icon}}</div>
+          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24" v-html="g.svgPath"></svg></div>
           <h3>{{g.name}}</h3>
           <p>{{g.desc}}</p>
           <button class="btn btn-outline" @click="applyGameProfile(g.cats)">Optimize for {{g.name}}</button>
@@ -433,7 +529,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         <div v-else>
           <div class="hw-row" v-for="t in appliedGamingTweaks" :key="t.row">
             <span class="hw-label">{{t.name}}</span>
-            <span class="hw-value" style="color:var(--green)">&#9989; Active</span>
+            <span class="hw-value" style="color:var(--green);display:flex;align-items:center;gap:4px">
+              <svg class="icon-svg" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Active
+            </span>
           </div>
         </div>
       </div>
@@ -454,7 +552,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
             <p>{{isAdmin ? 'Running with elevated privileges' : 'Some tweaks require administrator rights'}}</p>
           </div>
           <button class="btn" :class="isAdmin?'btn-green':'btn-outline'" @click="!isAdmin && doRequestAdmin()">
-            <span v-html="isAdmin ? '&#9989; Active' : 'Request Admin'"></span>
+            {{isAdmin ? 'Active' : 'Request Admin'}}
           </button>
         </div>
         <div class="setting-row">
@@ -473,6 +571,17 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Account</div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Logged in as</h4>
+            <p>{{currentUser}}</p>
+          </div>
+          <button class="btn btn-outline" @click="doLogout">Sign Out</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title">About</div>
         <div class="hw-row"><span class="hw-label">Version</span><span class="hw-value">5.0.0</span></div>
@@ -487,7 +596,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <!-- ═══════════ BATCH APPLY POPUP ═══════════ -->
   <div class="overlay" v-if="batchActive" @click.self="batchDone && closeBatch()">
     <div class="batch-popup">
-      <h3 v-html="batchDone ? '&#9989; Complete!' : '&#9889; Applying Tweaks...'"></h3>
+      <h3>{{batchDone ? 'Complete!' : 'Applying Tweaks...'}}</h3>
       <div class="progress-bar">
         <div class="fill" :style="{width: batchPct+'%'}"></div>
       </div>
@@ -497,9 +606,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <div style="max-height:320px;overflow-y:auto">
         <div class="batch-item" v-for="(b,i) in batchItems" :key="i">
           <span class="bi-icon" :class="b.state">
-            <span v-if="b.state==='done'">&#10003;</span>
-            <span v-else-if="b.state==='active'">&#9679;</span>
-            <span v-else>&#9675;</span>
+            <svg v-if="b.state==='done'" class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg v-else-if="b.state==='active'" class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+            <svg v-else class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg>
           </span>
           <span class="bi-name">{{b.name}}</span>
           <span class="bi-status" :style="{color: b.state==='done'?'var(--green)':b.state==='active'?'var(--cyan)':'var(--text3)'}">
@@ -513,19 +622,28 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     </div>
   </div>
 
+  </template><!-- end loggedIn -->
+
   <!-- Toast -->
   <div class="toast" v-if="toastMsg" @click="toastMsg=''">{{toastMsg}}</div>
 </div>
 
 <script>
-const {createApp, ref, computed, onMounted, reactive} = Vue;
+const {createApp, ref, computed, onMounted} = Vue;
 
 const app = createApp({
   setup(){
-    // ── State ──
-    const bridge = ref(null);
-    const page   = ref('dashboard');
-    const search = ref('');
+    // ── Auth State ──
+    const loggedIn    = ref(false);
+    const currentUser = ref('');
+    const loginUser   = ref('');
+    const loginPass   = ref('');
+    const loginError  = ref('');
+    const bridge      = ref(null);
+
+    // ── App State ──
+    const page      = ref('dashboard');
+    const search    = ref('');
     const activeCat = ref('All');
 
     const sysinfo    = ref({});
@@ -544,48 +662,87 @@ const app = createApp({
     const batchCurrent = ref(0);
     const batchTotal   = ref(0);
     const batchItems   = ref([]);
-    const batchPct     = computed(()=> batchTotal.value ? Math.round(batchCurrent.value/batchTotal.value*100) : 0);
+    const batchPct     = computed(function(){ return batchTotal.value ? Math.round(batchCurrent.value/batchTotal.value*100) : 0; });
 
-    // Pages
+    // SVG icon paths for nav
     const pages = [
-      {id:'dashboard', label:'Dashboard',     icon:'&#9632;'},
-      {id:'tweaks',    label:'Optimizations',  icon:'&#9881;'},
-      {id:'boost',     label:'Boost Up',       icon:'&#9889;'},
-      {id:'games',     label:'Games',          icon:'&#127918;'},
+      {id:'dashboard', label:'Dashboard', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'},
+      {id:'tweaks',    label:'Optimizations', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'},
+      {id:'boost',     label:'Boost Up', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>'},
+      {id:'games',     label:'Games', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>'},
     ];
 
-    // Game profiles
+    // Game profiles with SVG paths
+    var crosshair = '<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>';
+    var gamepad = '<line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>';
+    var targetSvg = '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>';
+    var zapSvg = '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>';
+    var boxSvg = '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
+    var starSvg = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>';
+
     const gameProfiles = [
-      {name:'CS2',         icon:'\u{1F3AF}', desc:'Counter-Strike 2 \u2014 max FPS, low latency',        cats:['Gaming','Network']},
-      {name:'Fortnite',    icon:'\u{1F3AE}', desc:'Fortnite \u2014 smooth builds, stable FPS',            cats:['Gaming','Network','Memory']},
-      {name:'Valorant',    icon:'\u{1F52B}', desc:'Valorant \u2014 competitive edge, low input lag',      cats:['Gaming','Network','Power']},
-      {name:'Apex Legends',icon:'\u{1F4A5}', desc:'Apex Legends \u2014 fast-paced battle royale boost',   cats:['Gaming','Network']},
-      {name:'Minecraft',   icon:'\u26CF',    desc:'Minecraft \u2014 chunk loading, render distance',      cats:['Gaming','Memory','Storage']},
-      {name:'General FPS', icon:'\u{1F31F}', desc:'Generic FPS optimization for any shooter',             cats:['Gaming','Network','Power','System']},
+      {name:'CS2',         svgPath:crosshair, desc:'Counter-Strike 2 \u2014 max FPS, low latency',        cats:['Gaming','Network']},
+      {name:'Fortnite',    svgPath:gamepad,   desc:'Fortnite \u2014 smooth builds, stable FPS',           cats:['Gaming','Network','Memory']},
+      {name:'Valorant',    svgPath:targetSvg, desc:'Valorant \u2014 competitive edge, low input lag',     cats:['Gaming','Network','Power']},
+      {name:'Apex Legends',svgPath:zapSvg,    desc:'Apex Legends \u2014 fast-paced battle royale boost',  cats:['Gaming','Network']},
+      {name:'Minecraft',   svgPath:boxSvg,    desc:'Minecraft \u2014 chunk loading, render distance',     cats:['Gaming','Memory','Storage']},
+      {name:'General FPS', svgPath:starSvg,   desc:'Generic FPS optimization for any shooter',            cats:['Gaming','Network','Power','System']},
     ];
 
     // ── Computed ──
-    const filteredTweaks = computed(()=>{
-      let list = tweaks.value;
-      if(activeCat.value!=='All') list = list.filter(t=>t.category===activeCat.value);
+    const filteredTweaks = computed(function(){
+      var list = tweaks.value;
+      if(activeCat.value!=='All') list = list.filter(function(t){ return t.category===activeCat.value; });
       if(search.value){
-        const q = search.value.toLowerCase();
-        list = list.filter(t=> t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
+        var q = search.value.toLowerCase();
+        list = list.filter(function(t){ return t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.category.toLowerCase().includes(q); });
       }
       return list;
     });
 
-    const unappliedVisible = computed(()=> filteredTweaks.value.filter(t=>!t.applied));
-    const appliedGamingTweaks = computed(()=> tweaks.value.filter(t=>t.applied && t.category==='Gaming'));
+    const unappliedVisible = computed(function(){ return filteredTweaks.value.filter(function(t){ return !t.applied; }); });
+    const appliedGamingTweaks = computed(function(){ return tweaks.value.filter(function(t){ return t.applied && t.category==='Gaming'; }); });
 
-    function tweakCountByCat(c){ return tweaks.value.filter(t=>t.category===c).length; }
+    function tweakCountByCat(c){ return tweaks.value.filter(function(t){ return t.category===c; }).length; }
 
-    // ── Toast helper ──
-    let toastTimer = null;
+    // ── Toast ──
+    var toastTimer = null;
     function showToast(msg){
       toastMsg.value = msg;
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(()=>{ toastMsg.value = ''; }, 3000);
+      toastTimer = setTimeout(function(){ toastMsg.value = ''; }, 3000);
+    }
+
+    // ── Auth ──
+    function doLogin(){
+      loginError.value = '';
+      if(!loginUser.value || !loginPass.value){
+        loginError.value = 'Please enter username and password';
+        return;
+      }
+      if(bridge.value){
+        bridge.value.login(loginUser.value, loginPass.value, function(result){
+          if(result === true || result === 'true'){
+            loggedIn.value = true;
+            currentUser.value = loginUser.value;
+            loginPass.value = '';
+            refreshAll();
+          } else {
+            loginError.value = 'Invalid username or password';
+          }
+        });
+      } else {
+        loginError.value = 'Backend not available';
+      }
+    }
+
+    function doLogout(){
+      loggedIn.value = false;
+      currentUser.value = '';
+      loginUser.value = '';
+      loginPass.value = '';
+      loginError.value = '';
+      page.value = 'dashboard';
     }
 
     // ── Data Loaders ──
@@ -608,19 +765,16 @@ const app = createApp({
     }
 
     // ── Actions ──
-    function toggleTweak(row){
-      if(!bridge.value) return;
-      bridge.value.toggleTweak(row);
-    }
+    function toggleTweak(row){ if(bridge.value) bridge.value.toggleTweak(row); }
     function doApplyRecommended(){ if(bridge.value){ bridge.value.applyRecommended(); showToast('Applying recommended tweaks...'); }}
     function doApplyGaming(){ if(bridge.value){ bridge.value.applyAllGaming(); showToast('Applying gaming tweaks...'); }}
     function doRestoreAll(){ if(bridge.value){ bridge.value.restoreAll(); showToast('Restoring all defaults...'); }}
     function doClearTemp(){ if(bridge.value){ bridge.value.clearTempFiles(); showToast('Clearing temp files...'); }}
     function doFlushDns(){ if(bridge.value){ bridge.value.flushDns(); showToast('Flushing DNS cache...'); }}
     function doVerifyAll(){ if(bridge.value){ bridge.value.verifyAllTweaks(); showToast('Verifying all tweaks...'); }}
-    function doRequestAdmin(){ if(bridge.value){ bridge.value.requestAdmin(); }}
+    function doRequestAdmin(){ if(bridge.value) bridge.value.requestAdmin(); }
 
-    // Batch apply
+    // Batch
     function startBatchApply(){
       var rows = unappliedVisible.value.map(function(t){ return t.row; });
       if(rows.length===0) return;
@@ -640,7 +794,6 @@ const app = createApp({
         var tw = tweaks.value.find(function(t){ return t.row===r; });
         return {name: tw ? tw.name : 'Tweak #'+r, state:'pending'};
       });
-      // Mark first as active
       if(batchItems.value.length > 0) batchItems.value[0].state = 'active';
       bridge.value.applyBatch(rows);
     }
@@ -656,7 +809,6 @@ const app = createApp({
       new QWebChannel(qt.webChannelTransport, function(channel){
         bridge.value = channel.objects.bridge;
 
-        // Signals
         bridge.value.tweaksChanged.connect(function(){ refreshTweaks(); });
         bridge.value.monitorUpdated.connect(function(){
           bridge.value.getMonitorData(function(d){ monitor.value = d; });
@@ -664,7 +816,6 @@ const app = createApp({
         bridge.value.batchProgress.connect(function(cur, total, name, status){
           batchCurrent.value = cur;
           batchTotal.value = total;
-          // Update items
           for(var i = 0; i < batchItems.value.length; i++){
             if(i < cur) batchItems.value[i].state = 'done';
             else if(i === cur) batchItems.value[i].state = 'active';
@@ -679,13 +830,11 @@ const app = createApp({
           }
           refreshTweaks();
         });
-
-        // Initial load
-        refreshAll();
       });
     });
 
     return {
+      loggedIn, currentUser, loginUser, loginPass, loginError, doLogin, doLogout,
       bridge, page, pages, search, activeCat,
       sysinfo, monitor, scores, tweaks, categories,
       isAdmin, appliedCount, recommendedCount,

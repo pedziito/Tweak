@@ -27,6 +27,9 @@ public:
     Q_INVOKABLE int         getRecommendedCount();
     Q_INVOKABLE bool        getIsAdmin();
 
+    // ── Auth ──
+    Q_INVOKABLE bool login(const QString &username, const QString &password);
+
     // ── Actions (called from JS) ──
     Q_INVOKABLE void toggleTweak(int row);
     Q_INVOKABLE void applyAllGaming();
