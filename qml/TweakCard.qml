@@ -130,7 +130,7 @@ Rectangle {
                         Text {
                             id: riskText
                             anchors.centerIn: parent
-                            text: "\u26A0 Advanced"
+                            text: "Advanced"
                             color: "#fbbf24"
                             font.pixelSize: 9
                             font.weight: Font.Bold
@@ -143,7 +143,7 @@ Rectangle {
                         width: verText.width + 10; height: 20; radius: 4
                         color: "#0d2818"
                         border.color: "#166534"; border.width: 1
-                        Text { id: verText; anchors.centerIn: parent; text: "\u2713 Verified"; color: "#22c55e"; font.pixelSize: 9; font.weight: Font.Bold }
+                        Text { id: verText; anchors.centerIn: parent; text: "Verified"; color: "#22c55e"; font.pixelSize: 9; font.weight: Font.Bold }
                     }
 
                     // Recommended badge
@@ -152,7 +152,7 @@ Rectangle {
                         width: recText.width + 10; height: 20; radius: 4
                         color: "#1c1917"
                         border.color: "#854d0e"; border.width: 1
-                        Text { id: recText; anchors.centerIn: parent; text: "\u2605 Recommended"; color: "#fbbf24"; font.pixelSize: 9; font.weight: Font.Bold }
+                        Text { id: recText; anchors.centerIn: parent; text: "Recommended"; color: "#fbbf24"; font.pixelSize: 9; font.weight: Font.Bold }
                     }
                 }
 
@@ -204,7 +204,7 @@ Rectangle {
             visible: card.tweakLearnMore !== ""
 
             Text {
-                text: card.showLearnMore ? "\u25BE Hide details" : "\u25B8 Learn more"
+                text: card.showLearnMore ? "Hide details" : "Learn more"
                 color: "#06b6d4"
                 font.pixelSize: 10
                 font.weight: Font.DemiBold

@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-/// Hone-style tweaks page — underline category tabs + clean optimization list
 Item {
     id: tweaksPage
     signal restartRequested()
@@ -22,14 +21,11 @@ Item {
                 spacing: 3
                 Text {
                     text: appController.tweakModel.rowCount() + " Optimizations"
-                    color: "#f0f6ff"
-                    font.pixelSize: 14
-                    font.weight: Font.Bold
+                    color: "#f0f6ff"; font.pixelSize: 14; font.weight: Font.Bold
                 }
                 Text {
-                    text: appController.appliedCount + " active  \u00B7  " + appController.recommendedCount + " recommended"
-                    color: "#4a5568"
-                    font.pixelSize: 11
+                    text: appController.appliedCount + " active  /  " + appController.recommendedCount + " recommended"
+                    color: "#4a5568"; font.pixelSize: 11
                 }
             }
 
@@ -39,25 +35,21 @@ Item {
             Rectangle {
                 width: 240; height: 36; radius: 8
                 color: "#0c1120"
-                border.color: searchField.activeFocus ? "#06b6d4" : "#141a2a"
-                border.width: 1
+                border.color: searchField.activeFocus ? "#06b6d4" : "#141a2a"; border.width: 1
 
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 10; anchors.rightMargin: 10
                     spacing: 6
-                    Text { text: "\u2315"; font.pixelSize: 14; color: "#4a5568" }
+                    Text { text: "Search"; font.pixelSize: 11; color: "#4a5568" }
                     TextInput {
                         id: searchField
                         Layout.fillWidth: true
-                        color: "#e0f7ff"
-                        font.pixelSize: 12
-                        clip: true
+                        color: "#e0f7ff"; font.pixelSize: 12; clip: true
                         Text {
                             anchors.fill: parent
                             text: "Search tweaks..."
-                            color: "#3d4a5c"
-                            font.pixelSize: 12
+                            color: "#3d4a5c"; font.pixelSize: 12
                             visible: !searchField.text && !searchField.activeFocus
                             verticalAlignment: Text.AlignVCenter
                         }
@@ -69,37 +61,20 @@ Item {
             // Action buttons
             Row {
                 spacing: 8
-
-                HeaderBtn { label: "\u2713 Verify All"; accent: "#22c55e"; onClicked: appController.verifyAllTweaks() }
-                HeaderBtn {
-                    label: "Apply Recommended"
-                    accent: "#06b6d4"
-                    filled: true
-                    onClicked: appController.applyAllGaming()
-                }
-                HeaderBtn {
-                    label: "Save & Apply"
-                    accent: "#22c55e"
-                    onClicked: {
-                        appController.saveConfiguration("current")
-                        tweaksPage.restartRequested()
-                    }
-                }
+                HeaderBtn { label: "Verify All"; accent: "#22c55e"; onClicked: appController.verifyAllTweaks() }
+                HeaderBtn { label: "Apply Recommended"; accent: "#06b6d4"; filled: true; onClicked: appController.applyAllGaming() }
+                HeaderBtn { label: "Save & Apply"; accent: "#22c55e"; onClicked: { appController.saveConfiguration("current"); tweaksPage.restartRequested() } }
                 HeaderBtn { label: "Restore All"; accent: "#f43f5e"; onClicked: appController.restoreAll() }
             }
         }
 
-        // ═══════ CATEGORY TABS (Hone-style underline) ═══════
+        // ═══════ CATEGORY TABS ═══════
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "transparent"
 
-            Rectangle {
-                anchors.bottom: parent.bottom
-                width: parent.width; height: 1
-                color: "#141a2a"
-            }
+            Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: "#141a2a" }
 
             Row {
                 anchors.verticalCenter: parent.verticalCenter
@@ -110,8 +85,7 @@ Item {
 
                     delegate: Rectangle {
                         width: catTabText.implicitWidth + 28
-                        height: 38
-                        color: "transparent"
+                        height: 38; color: "transparent"
 
                         property bool isActive: appController.selectedCategory === modelData
 
@@ -128,10 +102,8 @@ Item {
                         Rectangle {
                             anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width - 8
-                            height: 2; radius: 1
-                            color: "#06b6d4"
-                            visible: isActive
+                            width: parent.width - 8; height: 2; radius: 1
+                            color: "#06b6d4"; visible: isActive
                         }
 
                         MouseArea {
@@ -146,7 +118,7 @@ Item {
             }
         }
 
-        // ═══════ TWEAK CARDS LIST ═══════
+        // ═══════ TWEAK CARDS LIST (filtered by category + search) ═══════
         ListView {
             id: tweakList
             Layout.fillWidth: true
@@ -175,6 +147,16 @@ Item {
                 tweakLearnMore: model.learnMore || ""
                 tweakStatus: model.status || "stable"
                 onToggled: appController.toggleTweak(model.index)
+
+                // Category + search filtering
+                visible: {
+                    var catOk = (appController.selectedCategory === "All" || model.category === appController.selectedCategory)
+                    if (!catOk) return false
+                    var q = searchField.text.toLowerCase()
+                    if (q === "") return true
+                    return model.name.toLowerCase().indexOf(q) !== -1 || model.description.toLowerCase().indexOf(q) !== -1
+                }
+                height: visible ? implicitHeight : 0
             }
 
             // Empty state
@@ -185,21 +167,14 @@ Item {
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "\u2699"
-                    font.pixelSize: 36
-                    color: "#1c2333"
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
                     text: "No tweaks match your filter"
-                    color: "#3d4a5c"
-                    font.pixelSize: 13
+                    color: "#3d4a5c"; font.pixelSize: 13
                 }
             }
         }
     }
 
-    // ── Inline Button Component ──
+    // Header button component
     component HeaderBtn: Rectangle {
         property string label: ""
         property color accent: "#06b6d4"
@@ -224,8 +199,7 @@ Item {
             anchors.centerIn: parent
             text: parent.label
             color: parent.filled ? "#ffffff" : parent.accent
-            font.pixelSize: 11
-            font.weight: Font.DemiBold
+            font.pixelSize: 11; font.weight: Font.DemiBold
         }
 
         MouseArea {

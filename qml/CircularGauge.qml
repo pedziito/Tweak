@@ -1,6 +1,6 @@
 import QtQuick 2.15
 
-/// Circular gauge with glow effect, used in stat cards and score display
+/// Circular gauge — clean colored arc, no glow
 Canvas {
     id: gauge
     width: 100
@@ -11,7 +11,7 @@ Canvas {
     property color trackColor: "#1c2333"
     property color startColor: "#06b6d4"
     property color endColor: "#22d3ee"
-    property color glowColor: "#06b6d4"
+    property color glowColor: "#06b6d4"   // kept for API compat, unused
     property bool showText: true
     property string label: ""
     property real animatedValue: 0
@@ -27,7 +27,7 @@ Canvas {
         ctx.reset()
         var cx = width / 2
         var cy = height / 2
-        var r = Math.min(cx, cy) - lineWidth / 2 - 4
+        var r = Math.min(cx, cy) - lineWidth / 2 - 2
         var startAngle = -Math.PI / 2
         var fullAngle = 2 * Math.PI
         var endAngle = startAngle + fullAngle * (animatedValue / 100)
@@ -40,22 +40,14 @@ Canvas {
         ctx.lineCap = "round"
         ctx.stroke()
 
-        // Value arc
+        // Value arc — no shadow, just a clean colored stroke
         if (animatedValue > 0) {
-            var gradient = ctx.createConicalGradient(cx, cy, startAngle)
-            gradient.addColorStop(0, startColor)
-            gradient.addColorStop(animatedValue / 100, endColor)
-
-            ctx.save()
-            ctx.shadowColor = glowColor
-            ctx.shadowBlur = 8
             ctx.beginPath()
             ctx.arc(cx, cy, r, startAngle, endAngle)
-            ctx.strokeStyle = gradient
+            ctx.strokeStyle = endColor
             ctx.lineWidth = lineWidth
             ctx.lineCap = "round"
             ctx.stroke()
-            ctx.restore()
         }
     }
 
