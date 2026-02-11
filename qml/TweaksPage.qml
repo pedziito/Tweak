@@ -6,128 +6,125 @@ Item {
     id: tweaksPage
     signal restartRequested()
 
+    property string activeTab: "General"
+    property string activeSubCat: "All"
+
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 28
-        spacing: 0
+        anchors.fill: parent; spacing: 0
 
-        // ═══════ HEADER BAR ═══════
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.bottomMargin: 16
-            spacing: 16
-
-            ColumnLayout {
-                spacing: 3
-                Text {
-                    text: appController.tweakModel.rowCount() + " Optimizations"
-                    color: "#f0f6ff"; font.pixelSize: 14; font.weight: Font.Bold
-                }
-                Text {
-                    text: appController.appliedCount + " active  /  " + appController.recommendedCount + " recommended"
-                    color: "#4a5568"; font.pixelSize: 11
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            // Search
-            Rectangle {
-                width: 240; height: 36; radius: 8
-                color: "#0c1120"
-                border.color: searchField.activeFocus ? "#06b6d4" : "#141a2a"; border.width: 1
-
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: 10; anchors.rightMargin: 10
-                    spacing: 6
-                    Text { text: "Search"; font.pixelSize: 11; color: "#4a5568" }
-                    TextInput {
-                        id: searchField
-                        Layout.fillWidth: true
-                        color: "#e0f7ff"; font.pixelSize: 12; clip: true
-                        Text {
-                            anchors.fill: parent
-                            text: "Search tweaks..."
-                            color: "#3d4a5c"; font.pixelSize: 12
-                            visible: !searchField.text && !searchField.activeFocus
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        onTextChanged: appController.filterText = text
-                    }
-                }
-            }
-
-            // Action buttons
-            Row {
-                spacing: 8
-                HeaderBtn { label: "Verify All"; accent: "#22c55e"; onClicked: appController.verifyAllTweaks() }
-                HeaderBtn { label: "Apply Recommended"; accent: "#06b6d4"; filled: true; onClicked: appController.applyAllGaming() }
-                HeaderBtn { label: "Save & Apply"; accent: "#22c55e"; onClicked: { appController.saveConfiguration("current"); tweaksPage.restartRequested() } }
-                HeaderBtn { label: "Restore All"; accent: "#f43f5e"; onClicked: appController.restoreAll() }
-            }
-        }
-
-        // ═══════ CATEGORY TABS ═══════
+        // ═══════ TOP TABS (Basic / General / Advanced / Saved) ═══════
         Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 40
-            color: "transparent"
-
+            Layout.fillWidth: true; Layout.preferredHeight: 46; color: "transparent"
             Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: "#141a2a" }
 
-            Row {
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 0
+            RowLayout {
+                anchors.fill: parent; anchors.leftMargin: 28; anchors.rightMargin: 28; spacing: 0
 
-                Repeater {
-                    model: appController.categories
-
-                    delegate: Rectangle {
-                        width: catTabText.implicitWidth + 28
-                        height: 38; color: "transparent"
-
-                        property bool isActive: appController.selectedCategory === modelData
-
-                        Text {
-                            id: catTabText
-                            anchors.centerIn: parent
-                            text: modelData
-                            color: isActive ? "#22d3ee" : catTabMouse.containsMouse ? "#c5d0de" : "#4a5568"
-                            font.pixelSize: 12
-                            font.weight: isActive ? Font.Bold : Font.Normal
-                            Behavior on color { ColorAnimation { duration: 150 } }
+                Row {
+                    spacing: 0
+                    Repeater {
+                        model: ["Basic", "General", "Advanced", "Saved"]
+                        delegate: Rectangle {
+                            width: tabLabel.implicitWidth + 32; height: 44; color: "transparent"
+                            property bool isActive: tweaksPage.activeTab === modelData
+                            Text {
+                                id: tabLabel; anchors.centerIn: parent
+                                text: modelData
+                                color: isActive ? "#f59e0b" : tabMouse.containsMouse ? "#c5d0de" : "#5a6a7c"
+                                font.pixelSize: 13; font.weight: isActive ? Font.Bold : Font.Normal
+                            }
+                            Rectangle {
+                                anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 12; height: 2; radius: 1; color: "#f59e0b"; visible: isActive
+                            }
+                            MouseArea {
+                                id: tabMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                onClicked: { tweaksPage.activeTab = modelData; tweaksPage.activeSubCat = "All" }
+                            }
                         }
+                    }
+                }
 
-                        Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            width: parent.width - 8; height: 2; radius: 1
-                            color: "#06b6d4"; visible: isActive
-                        }
+                Item { Layout.fillWidth: true }
 
-                        MouseArea {
-                            id: catTabMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: appController.selectedCategory = modelData
+                // Search + menu icons
+                Row {
+                    spacing: 12; anchors.verticalCenter: parent.verticalCenter
+
+                    Rectangle {
+                        width: 240; height: 34; radius: 8
+                        color: "#0c1120"; border.color: searchField.activeFocus ? "#06b6d4" : "#141a2a"; border.width: 1
+                        RowLayout {
+                            anchors.fill: parent; anchors.leftMargin: 10; anchors.rightMargin: 10; spacing: 6
+                            Canvas {
+                                width: 14; height: 14; anchors.verticalCenter: parent.verticalCenter
+                                onPaint: {
+                                    var ctx = getContext("2d"); ctx.reset()
+                                    ctx.strokeStyle = "#4a5568"; ctx.lineWidth = 1.5; ctx.lineCap = "round"
+                                    ctx.beginPath(); ctx.arc(6, 6, 5, 0, Math.PI * 2); ctx.stroke()
+                                    ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(13, 13); ctx.stroke()
+                                }
+                                Component.onCompleted: requestPaint()
+                            }
+                            TextInput {
+                                id: searchField; Layout.fillWidth: true
+                                color: "#e0f7ff"; font.pixelSize: 12; clip: true
+                                Text {
+                                    anchors.fill: parent; text: "Search optimizations..."
+                                    color: "#3d4a5c"; font.pixelSize: 12; visible: !searchField.text && !searchField.activeFocus
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onTextChanged: appController.filterText = text
+                            }
                         }
                     }
                 }
             }
         }
 
-        // ═══════ TWEAK CARDS LIST (filtered by category + search) ═══════
-        ListView {
-            id: tweakList
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.topMargin: 4
-            model: appController.tweakModel
-            spacing: 0
-            clip: true
-            boundsBehavior: Flickable.StopAtBounds
+        // ═══════ SUB-CATEGORY FILTERS ═══════
+        Rectangle {
+            Layout.fillWidth: true; Layout.preferredHeight: 42; color: "transparent"
+            Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: "#0f1520" }
+
+            Row {
+                anchors.verticalCenter: parent.verticalCenter; anchors.left: parent.left; anchors.leftMargin: 28
+                spacing: 0
+                Repeater {
+                    model: {
+                        var cats = ["All"]
+                        if (appController.categories) {
+                            for (var i = 0; i < appController.categories.length; i++) {
+                                if (appController.categories[i] !== "All") cats.push(appController.categories[i])
+                            }
+                        }
+                        return cats
+                    }
+                    delegate: Rectangle {
+                        width: scLabel.implicitWidth + 24; height: 32; color: "transparent"
+                        property bool isActive: tweaksPage.activeSubCat === modelData
+                        Text {
+                            id: scLabel; anchors.centerIn: parent; text: modelData
+                            color: isActive ? "#f59e0b" : scMouse.containsMouse ? "#c5d0de" : "#5a6a7c"
+                            font.pixelSize: 12; font.weight: isActive ? Font.DemiBold : Font.Normal
+                        }
+                        MouseArea {
+                            id: scMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                tweaksPage.activeSubCat = modelData
+                                appController.selectedCategory = modelData === "All" ? "All" : modelData
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ═══════ 3-COLUMN GRID OF TWEAK CARDS ═══════
+        Flickable {
+            Layout.fillWidth: true; Layout.fillHeight: true
+            contentWidth: width; contentHeight: gridFlow.implicitHeight + 40
+            clip: true; boundsBehavior: Flickable.StopAtBounds
 
             ScrollBar.vertical: ScrollBar {
                 policy: ScrollBar.AsNeeded
@@ -135,77 +132,57 @@ Item {
                 background: Rectangle { color: "transparent" }
             }
 
-            delegate: TweakCard {
-                width: tweakList.width
-                tweakName: model.name
-                tweakDesc: model.description
-                tweakCategory: model.category
-                tweakApplied: model.applied
-                tweakRecommended: model.recommended
-                tweakVerified: model.verified || false
-                tweakRisk: model.risk || "safe"
-                tweakLearnMore: model.learnMore || ""
-                tweakStatus: model.status || "stable"
-                onToggled: appController.toggleTweak(model.index)
+            Flow {
+                id: gridFlow
+                anchors.left: parent.left; anchors.right: parent.right
+                anchors.top: parent.top; anchors.margins: 28
+                spacing: 14
 
-                // Category + search filtering
-                visible: {
-                    var catOk = (appController.selectedCategory === "All" || model.category === appController.selectedCategory)
-                    if (!catOk) return false
-                    var q = searchField.text.toLowerCase()
-                    if (q === "") return true
-                    return model.name.toLowerCase().indexOf(q) !== -1 || model.description.toLowerCase().indexOf(q) !== -1
+                Repeater {
+                    model: appController.tweakModel
+
+                    delegate: TweakCard {
+                        width: (gridFlow.width - 28) / 3
+                        tweakName: model.name
+                        tweakDesc: model.description
+                        tweakCategory: model.category
+                        tweakApplied: model.applied
+                        tweakRecommended: model.recommended
+                        tweakVerified: model.verified || false
+                        tweakRisk: model.risk || "safe"
+                        tweakLearnMore: model.learnMore || ""
+                        tweakStatus: model.status || "stable"
+                        onToggled: appController.toggleTweak(model.index)
+
+                        visible: {
+                            // Tab filtering
+                            var tabOk = true
+                            if (tweaksPage.activeTab === "Basic") {
+                                var basicCats = ["System", "Privacy", "Visual"]
+                                tabOk = basicCats.indexOf(model.category) !== -1
+                            } else if (tweaksPage.activeTab === "General") {
+                                tabOk = true // show all
+                            } else if (tweaksPage.activeTab === "Advanced") {
+                                tabOk = (model.risk === "advanced") || (model.status === "experimental") || (model.status === "testing")
+                            } else if (tweaksPage.activeTab === "Saved") {
+                                tabOk = model.applied
+                            }
+                            if (!tabOk) return false
+
+                            // Sub-category filtering
+                            var catOk = (tweaksPage.activeSubCat === "All" || model.category === tweaksPage.activeSubCat)
+                            if (!catOk) return false
+
+                            // Search filtering
+                            var q = searchField.text.toLowerCase()
+                            if (q === "") return true
+                            return model.name.toLowerCase().indexOf(q) !== -1 || model.description.toLowerCase().indexOf(q) !== -1
+                        }
+                        height: visible ? implicitHeight : 0
+                        opacity: visible ? 1 : 0
+                    }
                 }
-                height: visible ? implicitHeight : 0
             }
-
-            // Empty state
-            Column {
-                anchors.centerIn: parent
-                spacing: 10
-                visible: tweakList.count === 0
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "No tweaks match your filter"
-                    color: "#3d4a5c"; font.pixelSize: 13
-                }
-            }
-        }
-    }
-
-    // Header button component
-    component HeaderBtn: Rectangle {
-        property string label: ""
-        property color accent: "#06b6d4"
-        property bool filled: false
-        signal clicked()
-
-        width: hbText.width + 24; height: 34; radius: 8
-        color: filled ? "transparent" : "transparent"
-        border.color: filled ? "transparent" : Qt.rgba(accent.r, accent.g, accent.b, 0.3)
-        border.width: filled ? 0 : 1
-
-        gradient: filled ? fillGrad : null
-        Gradient {
-            id: fillGrad
-            orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: "#06b6d4" }
-            GradientStop { position: 1.0; color: "#0ea5e9" }
-        }
-
-        Text {
-            id: hbText
-            anchors.centerIn: parent
-            text: parent.label
-            color: parent.filled ? "#ffffff" : parent.accent
-            font.pixelSize: 11; font.weight: Font.DemiBold
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: parent.clicked()
         }
     }
 }
