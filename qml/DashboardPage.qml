@@ -73,7 +73,18 @@ Flickable {
 
                         Row {
                             spacing: 6
-                            Rectangle { width: 6; height: 6; radius: 3; color: "#22c55e"; anchors.verticalCenter: parent.verticalCenter }
+                            Canvas {
+                                width: 16; height: 16; anchors.verticalCenter: parent.verticalCenter
+                                onPaint: {
+                                    var ctx = getContext("2d"); ctx.reset()
+                                    ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                    // Monitor icon
+                                    ctx.beginPath(); ctx.roundedRect(1, 1, 14, 10, 2, 2); ctx.stroke()
+                                    ctx.beginPath(); ctx.moveTo(5, 13); ctx.lineTo(11, 13); ctx.stroke()
+                                    ctx.beginPath(); ctx.moveTo(8, 11); ctx.lineTo(8, 13); ctx.stroke()
+                                }
+                                Component.onCompleted: requestPaint()
+                            }
                             Text { text: "CPU USAGE"; color: "#7b8ba3"; font.pixelSize: 10; font.weight: Font.Bold }
                         }
 
@@ -312,7 +323,26 @@ Flickable {
                             anchors.centerIn: parent; spacing: 8
                             Row {
                                 Layout.alignment: Qt.AlignHCenter; spacing: 6
-                                Rectangle { width: 6; height: 6; radius: 3; color: "#06b6d4"; anchors.verticalCenter: parent.verticalCenter }
+                                Canvas {
+                                    width: 16; height: 16; anchors.verticalCenter: parent.verticalCenter
+                                    onPaint: {
+                                        var ctx = getContext("2d"); ctx.reset()
+                                        ctx.strokeStyle = "#06b6d4"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                        // GPU chip icon
+                                        ctx.beginPath(); ctx.roundedRect(3, 3, 10, 10, 1.5, 1.5); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(5, 3); ctx.lineTo(5, 1); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(8, 3); ctx.lineTo(8, 1); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(11, 3); ctx.lineTo(11, 1); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(5, 13); ctx.lineTo(5, 15); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(8, 13); ctx.lineTo(8, 15); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(11, 13); ctx.lineTo(11, 15); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(3, 6); ctx.lineTo(1, 6); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(3, 10); ctx.lineTo(1, 10); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(13, 6); ctx.lineTo(15, 6); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(13, 10); ctx.lineTo(15, 10); ctx.stroke()
+                                    }
+                                    Component.onCompleted: requestPaint()
+                                }
                                 Text { text: "GPU USAGE"; color: "#7b8ba3"; font.pixelSize: 10; font.weight: Font.Bold }
                             }
                             CircularGauge {
@@ -334,7 +364,21 @@ Flickable {
                             anchors.centerIn: parent; spacing: 8
                             Row {
                                 Layout.alignment: Qt.AlignHCenter; spacing: 6
-                                Rectangle { width: 6; height: 6; radius: 3; color: "#f59e0b"; anchors.verticalCenter: parent.verticalCenter }
+                                Canvas {
+                                    width: 16; height: 16; anchors.verticalCenter: parent.verticalCenter
+                                    onPaint: {
+                                        var ctx = getContext("2d"); ctx.reset()
+                                        ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                        // RAM stick icon
+                                        ctx.beginPath(); ctx.roundedRect(2, 3, 12, 10, 1.5, 1.5); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(5, 3); ctx.lineTo(5, 6); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(8, 3); ctx.lineTo(8, 6); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(11, 3); ctx.lineTo(11, 6); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(6, 13); ctx.lineTo(6, 15); ctx.stroke()
+                                        ctx.beginPath(); ctx.moveTo(10, 13); ctx.lineTo(10, 15); ctx.stroke()
+                                    }
+                                    Component.onCompleted: requestPaint()
+                                }
                                 Text { text: "RAM USAGE"; color: "#7b8ba3"; font.pixelSize: 10; font.weight: Font.Bold }
                             }
                             CircularGauge {
@@ -445,20 +489,20 @@ Flickable {
             }
 
             Rectangle {
-                Layout.preferredWidth: 320
-                implicitHeight: hwCol.implicitHeight + 36; Layout.minimumHeight: implicitHeight
+                Layout.preferredWidth: 340
+                implicitHeight: gpCol.implicitHeight + 36; Layout.minimumHeight: implicitHeight
                 radius: 14; color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
                 ColumnLayout {
-                    anchors.fill: parent; anchors.margins: 18; spacing: 10
+                    id: gpCol
+                    anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                    anchors.margins: 18; spacing: 8
                     Text { text: "Game Profiles"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.Bold }
-                    GridLayout {
-                        Layout.fillWidth: true; columns: 2; rowSpacing: 8; columnSpacing: 8
-                        GameProfileCard { Layout.fillWidth: true; gameName: "CS2"; gameDesc: "Max FPS"; gradStart: "#f59e0b"; gradEnd: "#ef4444"; onOptimize: optimized = !optimized }
-                        GameProfileCard { Layout.fillWidth: true; gameName: "Fortnite"; gameDesc: "Balanced"; gradStart: "#06b6d4"; gradEnd: "#0ea5e9"; onOptimize: optimized = !optimized }
-                        GameProfileCard { Layout.fillWidth: true; gameName: "Valorant"; gameDesc: "Low latency"; gradStart: "#ef4444"; gradEnd: "#dc2626"; onOptimize: optimized = !optimized }
-                        GameProfileCard { Layout.fillWidth: true; gameName: "Apex"; gameDesc: "Smooth"; gradStart: "#dc2626"; gradEnd: "#f59e0b"; onOptimize: optimized = !optimized }
-                    }
+                    // imagePath can be set to a local file like "file:///C:/images/cs2.png"
+                    GameProfileCard { Layout.fillWidth: true; gameName: "CS2"; gameDesc: "Max FPS"; gradStart: "#f59e0b"; gradEnd: "#ef4444"; onOptimize: optimized = !optimized }
+                    GameProfileCard { Layout.fillWidth: true; gameName: "Fortnite"; gameDesc: "Balanced"; gradStart: "#06b6d4"; gradEnd: "#0ea5e9"; onOptimize: optimized = !optimized }
+                    GameProfileCard { Layout.fillWidth: true; gameName: "Valorant"; gameDesc: "Low latency"; gradStart: "#ef4444"; gradEnd: "#dc2626"; onOptimize: optimized = !optimized }
+                    GameProfileCard { Layout.fillWidth: true; gameName: "Apex"; gameDesc: "Smooth FPS"; gradStart: "#dc2626"; gradEnd: "#f59e0b"; onOptimize: optimized = !optimized }
                 }
             }
         }

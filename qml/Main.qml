@@ -76,26 +76,25 @@ ApplicationWindow {
                 // Admin indicator
                 Rectangle {
                     Layout.alignment: Qt.AlignHCenter
-                    width: 38; height: 38; radius: 10
+                    width: 34; height: 34; radius: 8
                     color: appController.isAdmin ? "#0d2818" : "#1c1917"
                     border.color: appController.isAdmin ? "#166534" : "#854d0e"; border.width: 1
 
                     Canvas {
-                        anchors.centerIn: parent; width: 16; height: 16
+                        anchors.centerIn: parent; width: 14; height: 14
                         onPaint: {
                             var ctx = getContext("2d")
                             ctx.reset()
                             if (appController.isAdmin) {
-                                // Checkmark
-                                ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                ctx.beginPath(); ctx.moveTo(2, 9); ctx.lineTo(6, 13); ctx.lineTo(14, 3); ctx.stroke()
+                                ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                ctx.beginPath(); ctx.moveTo(2, 8); ctx.lineTo(5, 11); ctx.lineTo(12, 3); ctx.stroke()
                             } else {
-                                // Shield
-                                ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.5; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                ctx.beginPath(); ctx.moveTo(8, 1); ctx.lineTo(14, 4); ctx.lineTo(14, 9); ctx.quadraticCurveTo(14, 15, 8, 16)
-                                ctx.quadraticCurveTo(2, 15, 2, 9); ctx.lineTo(2, 4); ctx.closePath(); ctx.stroke()
-                                ctx.beginPath(); ctx.moveTo(8, 6); ctx.lineTo(8, 10); ctx.stroke()
-                                ctx.beginPath(); ctx.arc(8, 12.5, 0.8, 0, Math.PI * 2); ctx.fillStyle = "#f59e0b"; ctx.fill()
+                                ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                ctx.beginPath(); ctx.moveTo(7, 1); ctx.lineTo(12, 3.5); ctx.lineTo(12, 7.5)
+                                ctx.quadraticCurveTo(12, 13, 7, 14)
+                                ctx.quadraticCurveTo(2, 13, 2, 7.5); ctx.lineTo(2, 3.5); ctx.closePath(); ctx.stroke()
+                                ctx.beginPath(); ctx.moveTo(7, 5); ctx.lineTo(7, 8.5); ctx.stroke()
+                                ctx.beginPath(); ctx.arc(7, 10.5, 0.7, 0, Math.PI * 2); ctx.fillStyle = "#f59e0b"; ctx.fill()
                             }
                         }
                         Component.onCompleted: requestPaint()
@@ -104,20 +103,20 @@ ApplicationWindow {
 
                 // Tweak count
                 Rectangle {
-                    Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 8
-                    width: 38; height: 38; radius: 10
+                    Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 6
+                    width: 34; height: 34; radius: 8
                     color: "#0e1726"; border.color: "#164e63"; border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text: appController.appliedCount
-                        font.pixelSize: 13; font.weight: Font.Bold; color: "#22d3ee"
+                        font.pixelSize: 12; font.weight: Font.Bold; color: "#22d3ee"
                     }
                 }
 
                 Text {
-                    Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 6
-                    text: "v3.2"; color: "#2d3748"; font.pixelSize: 9
+                    Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 4
+                    text: "v3.3"; color: "#2d3748"; font.pixelSize: 9
                 }
             }
         }
