@@ -208,44 +208,60 @@ Flickable {
                     }
 
                     // Applied tweaks list (when tweaks are applied)
-                    ColumnLayout {
-                        anchors.fill: parent; anchors.margins: 16; spacing: 0
+                    Flickable {
+                        anchors.fill: parent; anchors.margins: 16
+                        contentHeight: appliedCol.implicitHeight; clip: true
                         visible: appController.appliedCount > 0
+                        boundsBehavior: Flickable.StopAtBounds
 
-                        Repeater {
-                            model: Math.min(6, appController.tweakModel.rowCount())
-                            delegate: Rectangle {
-                                Layout.fillWidth: true; implicitHeight: 44
-                                color: aOptHover.containsMouse ? "#111827" : "transparent"
-                                visible: appController.tweakModel.data(appController.tweakModel.index(index, 0), 262) || false
+                        ScrollBar.vertical: ScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            contentItem: Rectangle { implicitWidth: 3; radius: 2; color: "#06b6d4"; opacity: 0.4 }
+                            background: Rectangle { color: "transparent" }
+                        }
 
-                                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: "#141a2a" }
+                        ColumnLayout {
+                            id: appliedCol
+                            width: parent.width; spacing: 0
 
-                                RowLayout {
-                                    anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8; spacing: 10
-                                    Text {
-                                        text: appController.tweakModel.data(appController.tweakModel.index(index, 0), 258) || ""
-                                        color: "#c5d0de"; font.pixelSize: 12; Layout.fillWidth: true; elide: Text.ElideRight
-                                    }
-                                    Switch {
-                                        checked: true
-                                        indicator: Rectangle {
-                                            implicitWidth: 38; implicitHeight: 20; radius: 10
-                                            color: "#0d3a4a"; border.color: "#06b6d4"; border.width: 1
-                                            Rectangle {
-                                                x: parent.width - width - 3; anchors.verticalCenter: parent.verticalCenter
-                                                width: 14; height: 14; radius: 7; color: "#22d3ee"
-                                            }
+                            Repeater {
+                                model: appController.tweakModel.rowCount()
+                                delegate: Rectangle {
+                                    property bool isApplied: appController.tweakModel.data(appController.tweakModel.index(index, 0), 262) || false
+                                    Layout.fillWidth: true; implicitHeight: isApplied ? 44 : 0
+                                    visible: isApplied
+                                    color: aOptHover.containsMouse ? "#111827" : "transparent"
+
+                                    Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: "#141a2a"; visible: isApplied }
+
+                                    RowLayout {
+                                        anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8; spacing: 10
+                                        visible: isApplied
+                                        Text {
+                                            text: appController.tweakModel.data(appController.tweakModel.index(index, 0), 258) || ""
+                                            color: "#c5d0de"; font.pixelSize: 12; Layout.fillWidth: true; elide: Text.ElideRight
                                         }
-                                        onToggled: appController.toggleTweak(index)
+                                        Switch {
+                                            checked: true
+                                            indicator: Rectangle {
+                                                implicitWidth: 38; implicitHeight: 20; radius: 10
+                                                color: "#0d3a4a"; border.color: "#06b6d4"; border.width: 1
+                                                Rectangle {
+                                                    x: parent.width - width - 3; anchors.verticalCenter: parent.verticalCenter
+                                                    width: 14; height: 14; radius: 7; color: "#22d3ee"
+                                                }
+                                            }
+                                            onToggled: appController.toggleTweak(index)
+                                        }
                                     }
-                                }
 
-                                MouseArea {
-                                    id: aOptHover; anchors.fill: parent; hoverEnabled: true; propagateComposedEvents: true
-                                    onClicked: function(mouse) { mouse.accepted = false }
-                                    onPressed: function(mouse) { mouse.accepted = false }
-                                    onReleased: function(mouse) { mouse.accepted = false }
+                                    MouseArea {
+                                        id: aOptHover; anchors.fill: parent; hoverEnabled: true; propagateComposedEvents: true
+                                        visible: isApplied
+                                        onClicked: function(mouse) { mouse.accepted = false }
+                                        onPressed: function(mouse) { mouse.accepted = false }
+                                        onReleased: function(mouse) { mouse.accepted = false }
+                                    }
                                 }
                             }
                         }
