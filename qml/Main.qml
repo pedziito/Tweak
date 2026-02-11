@@ -53,18 +53,18 @@ ApplicationWindow {
                 // Nav icons — matching Hone sidebar order
                 SidebarIcon { iconType: "home";      tipText: "Home";          tabIdx: 0 }
                 SidebarIcon { iconType: "lightning";  tipText: "Optimizations"; tabIdx: 1 }
-                SidebarIcon { iconType: "boost";      tipText: "Boost-Up";     tabIdx: -1 }
+                SidebarIcon { iconType: "boost";      tipText: "Boost-Up";     tabIdx: 3 }
                 SidebarIcon { iconType: "gamepad";    tipText: "Games";         tabIdx: 2 }
                 SidebarIcon { iconType: "star";       tipText: "Favorites";     tabIdx: -1 }
 
                 Item { Layout.fillHeight: true }
 
-                SidebarIcon { iconType: "gear";       tipText: "Settings";      tabIdx: -1 }
+                SidebarIcon { iconType: "gear";       tipText: "Settings";      tabIdx: 4 }
 
                 // Version
                 Text {
                     Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 8
-                    text: "v4.0"; color: "#2d3748"; font.pixelSize: 8
+                    text: "v4.1"; color: "#2d3748"; font.pixelSize: 8
                 }
             }
         }
@@ -87,6 +87,8 @@ ApplicationWindow {
                                 case 0: return "Welcome to Tweak"
                                 case 1: return "Optimizations"
                                 case 2: return "Games"
+                                case 3: return "Boost-Up"
+                                case 4: return "Settings"
                                 default: return "Tweak"
                             }
                         }
@@ -145,6 +147,8 @@ ApplicationWindow {
                 DashboardPage { Layout.fillWidth: true; Layout.fillHeight: true }
                 TweaksPage { Layout.fillWidth: true; Layout.fillHeight: true; onRestartRequested: restartDialog.open() }
                 GameBenchmarkPage { Layout.fillWidth: true; Layout.fillHeight: true }
+                BoostPage { Layout.fillWidth: true; Layout.fillHeight: true }
+                SettingsPage { Layout.fillWidth: true; Layout.fillHeight: true }
             }
         }
     }

@@ -48,6 +48,8 @@ qt_add_qml_module(TweakApp
         qml/PerformanceGraph.qml
         qml/GameBenchmarkPage.qml
         qml/ScoreCard.qml
+        qml/BoostPage.qml
+        qml/SettingsPage.qml
 )
 
 target_include_directories(TweakApp PRIVATE src)
