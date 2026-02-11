@@ -1,11 +1,12 @@
 #include <QApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickStyle>
-#include <QIcon>
+#include <QWebEngineView>
+#include <QWebEngineProfile>
+#include <QWebChannel>
+#include <QFile>
+#include <QUrl>
 
 #include "app/AppController.h"
-#include "app/UacHelper.h"
+#include "app/WebBridge.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,27 +14,23 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName(QStringLiteral("Tweak"));
     QApplication::setOrganizationDomain(QStringLiteral("tweak.local"));
     QApplication::setApplicationName(QStringLiteral("Tweak"));
-    QApplication::setApplicationVersion(QStringLiteral("1.0.0"));
+    QApplication::setApplicationVersion(QStringLiteral("4.2.0"));
 
-    QQuickStyle::setStyle(QStringLiteral("Material"));
-
-    QQmlApplicationEngine engine;
-
+    // ── Backend ──
     AppController controller;
-    engine.rootContext()->setContextProperty(QStringLiteral("appController"), &controller);
 
-    const QUrl url(QStringLiteral("qrc:/Tweak/qml/Main.qml"));
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreated,
-        &app,
-        [url](QObject *obj, const QUrl &objUrl) {
-            if (!obj && url == objUrl) {
-                QCoreApplication::exit(-1);
-            }
-        },
-        Qt::QueuedConnection);
-    engine.load(url);
+    // ── WebChannel bridge ──
+    WebBridge bridge(&controller);
+    QWebChannel channel;
+    channel.registerObject(QStringLiteral("bridge"), &bridge);
+
+    // ── WebEngine view ──
+    QWebEngineView view;
+    view.page()->setWebChannel(&channel);
+    view.setUrl(QUrl(QStringLiteral("qrc:/web/index.html")));
+    view.setWindowTitle(QStringLiteral("Tweak — Gaming Optimizer"));
+    view.resize(1280, 800);
+    view.show();
 
     return app.exec();
 }
