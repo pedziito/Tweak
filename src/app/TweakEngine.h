@@ -15,6 +15,7 @@ struct Tweak
     QString description;
     QString learnMore;      // Extended explanation shown on "Learn More"
     QString risk = "safe";  // "safe" | "advanced"
+    QString status = "stable"; // "stable" | "testing" | "experimental" | "new"
     bool recommended = false;
     bool applied = false;
     bool verified = false;  // true if we confirmed the tweak is active on the system

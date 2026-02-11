@@ -6,8 +6,8 @@ Rectangle {
     id: card
     height: 100
     radius: 12
-    color: "#12172b"
-    border.color: hoverArea.containsMouse ? "#06b6d4" : "#1c2333"
+    color: "#0c1120"
+    border.color: hoverArea.containsMouse ? "#06b6d4" : "#141a2a"
     border.width: 1
     clip: true
 

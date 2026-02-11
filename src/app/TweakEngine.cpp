@@ -404,6 +404,7 @@ void TweakEngine::initializeTweaks()
                                       "Can reduce frame delivery latency by ~1ms on supported GPUs. "
                                       "Requires a restart to take effect.");
         t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
         t.requiresAdmin = true;
         t.actions.append(registryAction(
             QStringLiteral("HKLM"),
@@ -440,6 +441,7 @@ void TweakEngine::initializeTweaks()
         t.learnMore = QStringLiteral("By default Windows uses a 15.6ms timer tick. This allows apps to request 0.5ms resolution. "
                                       "Slightly increases power draw but notably improves frame pacing consistency.");
         t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
         t.requiresAdmin = true;
         t.actions.append(registryAction(
             QStringLiteral("HKLM"),
@@ -458,6 +460,7 @@ void TweakEngine::initializeTweaks()
         t.learnMore = QStringLiteral("HPET can add microseconds of overhead per timer query. Modern CPUs have invariant TSC "
                                       "which is faster and more accurate. Not recommended on very old CPUs without invariant TSC.");
         t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
         t.requiresAdmin = true;
         t.actions.append(registryAction(
             QStringLiteral("HKLM"),
@@ -1548,6 +1551,7 @@ void TweakEngine::initializeTweaks()
                                       "On Intel CPUs this can cost 5-30% performance. For a dedicated gaming PC that doesn't "
                                       "run untrusted code, disabling gives a massive FPS boost. Re-enable for daily browsing.");
         t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
         t.requiresAdmin = true;
         t.actions.append(registryAction(
             QStringLiteral("HKLM"),
@@ -1599,6 +1603,487 @@ void TweakEngine::initializeTweaks()
             QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
             QStringLiteral("ClearPageFileAtShutdown"),
             QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+
+    // ======= UNDER TESTING: ADVANCED NETWORK =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("tcp_timestamps_disable");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Disable TCP timestamps");
+        t.description = QStringLiteral("Removes TCP timestamp headers from packets, saving 12 bytes per packet. "
+                                        "Reduces overhead for high-PPS games like Fortnite and Valorant.");
+        t.learnMore = QStringLiteral("TCP timestamps add 12 bytes to every TCP packet header. In fast-paced games "
+                                      "sending 64+ packets per second, this overhead adds up. Disabling can slightly "
+                                      "reduce latency but may affect RTT estimation on high-latency connections.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("Tcp1323Opts"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("receive_side_scaling");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Enable Receive Side Scaling (RSS)");
+        t.description = QStringLiteral("Distributes network packet processing across multiple CPU cores. "
+                                        "Prevents network bottlenecks on high-speed connections.");
+        t.learnMore = QStringLiteral("RSS allows the NIC to distribute incoming packets across multiple CPU cores "
+                                      "instead of processing everything on core 0. This is critical for gigabit "
+                                      "connections and reduces DPC latency during online gaming.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("EnableRSS"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("direct_cache_access");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Enable Direct Cache Access (DCA)");
+        t.description = QStringLiteral("Allows the NIC to write directly to CPU cache instead of RAM. "
+                                        "Reduces memory latency for network packet processing.");
+        t.learnMore = QStringLiteral("DCA enables the network adapter to place packet data directly into the CPU's L3 cache, "
+                                      "bypassing main memory. This reduces packet processing latency and is beneficial for "
+                                      "latency-sensitive online gaming. Requires hardware support.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("EnableDCA"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("tcp_initial_rtt");
+        t.category = QStringLiteral("Network");
+        t.name = QStringLiteral("Optimize initial TCP retransmission timeout");
+        t.description = QStringLiteral("Sets the initial retransmission timeout to 2 seconds instead of 3. "
+                                        "Faster recovery from packet loss in online games.");
+        t.learnMore = QStringLiteral("The default initial retransmission timeout (RTO) in Windows is 3 seconds. "
+                                      "Reducing to 2 seconds means faster retransmission of lost packets, which is "
+                                      "critical for gaming where a 3-second freeze can mean death.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+            QStringLiteral("InitialRtt"),
+            QVariant::fromValue(static_cast<quint32>(2000))));
+        m_tweaks.append(t);
+    }
+
+    // ======= UNDER TESTING: ADVANCED GAMING =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_dynamic_tick");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Disable dynamic tick (force constant timer)");
+        t.description = QStringLiteral("Forces Windows to use a constant timer interrupt rate instead of dynamic. "
+                                        "Improves frame-time consistency in competitive games.");
+        t.learnMore = QStringLiteral("Windows dynamically adjusts its timer interrupt rate to save power. "
+                                      "This causes inconsistent scheduling intervals that manifest as micro-stutters. "
+                                      "Forcing a constant tick eliminates this variance at the cost of slightly higher power draw.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel"),
+            QStringLiteral("DisableDynamicTick"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_protected_event_logging");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Disable protected event logging");
+        t.description = QStringLiteral("Prevents Windows from encrypting and logging events during gameplay. "
+                                        "Reduces disk I/O and CPU usage during intense gaming sessions.");
+        t.learnMore = QStringLiteral("Protected event logging encrypts certain Windows events for security auditing. "
+                                      "This encryption process uses CPU cycles and generates disk writes. Disabling is safe "
+                                      "for home gaming PCs that don't require enterprise security compliance.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\EventLog\\ProtectedEventLogging"),
+            QStringLiteral("EnableProtectedEventLogging"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("optimize_gpu_preemption");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Set GPU preemption to DMA buffer level");
+        t.description = QStringLiteral("Changes GPU preemption granularity to DMA buffer level for lower input lag. "
+                                        "Prevents GPU from interrupting rendering mid-frame.");
+        t.learnMore = QStringLiteral("GPU preemption determines how often the GPU can be interrupted to handle other tasks. "
+                                      "DMA buffer level means the GPU completes its current buffer before switching, "
+                                      "which prevents frame tears and reduces input lag from context switching.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers\\Scheduler"),
+            QStringLiteral("EnablePreemption"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_dwm_animations");
+        t.category = QStringLiteral("Gaming");
+        t.name = QStringLiteral("Disable DWM composition transitions");
+        t.description = QStringLiteral("Removes the Desktop Window Manager fade transitions when switching apps. "
+                                        "Makes ALT-TAB instant and reduces DWM GPU overhead.");
+        t.learnMore = QStringLiteral("DWM (Desktop Window Manager) renders fade animations when switching between "
+                                      "fullscreen games and desktop. These transitions use GPU resources and add latency "
+                                      "to ALT-TAB. Disabling makes window switching instant.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\DWM"),
+            QStringLiteral("EnableAeroPeek"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\DWM"),
+            QStringLiteral("Composition"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= UNDER TESTING: ADVANCED LATENCY =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("csrss_high_priority");
+        t.category = QStringLiteral("Latency");
+        t.name = QStringLiteral("Set CSRSS to high priority");
+        t.description = QStringLiteral("Increases the priority of the Client-Server Runtime (csrss.exe). "
+                                        "Improves input processing speed and reduces mouse input lag.");
+        t.learnMore = QStringLiteral("CSRSS (Client-Server Runtime Subsystem) handles raw input from mouse and keyboard. "
+                                      "Setting it to high priority ensures your input is processed before other system tasks, "
+                                      "which can reduce perceived input lag by several milliseconds.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions"),
+            QStringLiteral("CpuPriorityClass"),
+            QVariant::fromValue(static_cast<quint32>(4))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\csrss.exe\\PerfOptions"),
+            QStringLiteral("IoPriority"),
+            QVariant::fromValue(static_cast<quint32>(3))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_dpc_watchdog");
+        t.category = QStringLiteral("Latency");
+        t.name = QStringLiteral("Extend DPC watchdog timeout");
+        t.description = QStringLiteral("Increases the DPC watchdog timeout to prevent false BSOD triggers "
+                                        "during heavy GPU load. Helps prevent crashes in demanding games.");
+        t.learnMore = QStringLiteral("The DPC Watchdog monitors Deferred Procedure Calls and triggers a BSOD if one "
+                                      "takes too long. Heavy GPU workloads can exceed the default timeout. Increasing it "
+                                      "prevents false-positive crashes. The BSOD code is DPC_WATCHDOG_VIOLATION.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel"),
+            QStringLiteral("DpcWatchdogProfileOffset"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_paging_combine");
+        t.category = QStringLiteral("Latency");
+        t.name = QStringLiteral("Disable page combining");
+        t.description = QStringLiteral("Prevents Windows from scanning and merging identical memory pages. "
+                                        "Removes a periodic CPU overhead source during gaming.");
+        t.learnMore = QStringLiteral("Page combining scans memory for identical pages and merges them to save RAM. "
+                                      "This scan runs periodically and uses CPU cycles. With 16GB+ RAM, the memory savings "
+                                      "are negligible while the CPU overhead causes micro-stutters.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
+            QStringLiteral("DisablePageCombining"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW: POWER =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_hibernate");
+        t.category = QStringLiteral("Power");
+        t.name = QStringLiteral("Disable hibernation");
+        t.description = QStringLiteral("Disables hibernate mode, freeing up disk space equal to your RAM size. "
+                                        "The hiberfil.sys file is deleted, recovering 8-32 GB.");
+        t.learnMore = QStringLiteral("Hibernate saves your RAM contents to disk (hiberfil.sys). This file is as large "
+                                      "as your total RAM. If you never use hibernate, disabling frees significant SSD space "
+                                      "and eliminates periodic disk writes from fast startup.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Power"),
+            QStringLiteral("HibernateEnabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_fast_startup");
+        t.category = QStringLiteral("Power");
+        t.name = QStringLiteral("Disable Fast Startup");
+        t.description = QStringLiteral("Prevents Windows from using hybrid shutdown. Ensures a clean boot every time "
+                                        "and fixes driver issues caused by stale kernel sessions.");
+        t.learnMore = QStringLiteral("Fast Startup saves the kernel session to disk at shutdown and reloads it at boot. "
+                                      "While faster, this can cause driver conflicts, stale caches, and issues with dual-boot. "
+                                      "A full cold boot ensures all drivers initialize cleanly.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power"),
+            QStringLiteral("HiberbootEnabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= UNDER TESTING: EXPERIMENTAL =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("force_contiguous_memory");
+        t.category = QStringLiteral("Memory");
+        t.name = QStringLiteral("Force contiguous memory allocation");
+        t.description = QStringLiteral("Enables contiguous memory allocation hints for GPU-bound workloads. "
+                                        "May improve VRAM mapping efficiency on some hardware.");
+        t.learnMore = QStringLiteral("This tweak modifies how Windows allocates physically contiguous memory regions. "
+                                      "GPU drivers benefit from contiguous allocations for DMA transfers. Results vary "
+                                      "significantly by hardware — test thoroughly on your specific setup.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("experimental");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
+            QStringLiteral("ContigLargePageMinimum"),
+            QVariant::fromValue(static_cast<quint32>(1))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_virtual_memory_pagefile");
+        t.category = QStringLiteral("Memory");
+        t.name = QStringLiteral("Disable automatic page file management");
+        t.description = QStringLiteral("Prevents Windows from auto-managing the pagefile size. "
+                                        "Set a fixed pagefile for predictable performance on 32GB+ systems.");
+        t.learnMore = QStringLiteral("Windows automatically grows and shrinks the pagefile, which causes random disk I/O. "
+                                      "On systems with 32GB+ RAM, a fixed small pagefile (or none) eliminates this overhead. "
+                                      "Some games require a pagefile, so test before fully disabling.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("experimental");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"),
+            QStringLiteral("PagingFiles"),
+            QStringLiteral("")));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW: SERVICES =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_xbox_services");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Xbox background services");
+        t.description = QStringLiteral("Stops XboxGipSvc, XblAuthManager, and XblGameSave from running. "
+                                        "Saves ~80MB RAM if you don't use Xbox features.");
+        t.learnMore = QStringLiteral("Xbox services run multiple background processes for controller management, "
+                                      "authentication, and game save syncing. If you don't use Xbox controllers or "
+                                      "Xbox Live features, disabling saves memory and reduces background CPU usage.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("XboxGipSvc"), QStringLiteral("4")));
+        t.actions.append(serviceAction(QStringLiteral("XblAuthManager"), QStringLiteral("4")));
+        t.actions.append(serviceAction(QStringLiteral("XblGameSave"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_bluetooth_services");
+        t.category = QStringLiteral("Services");
+        t.name = QStringLiteral("Disable Bluetooth support service");
+        t.description = QStringLiteral("Stops the Bluetooth service if you use wired peripherals only. "
+                                        "Eliminates a source of DPC latency spikes.");
+        t.learnMore = QStringLiteral("The Bluetooth driver stack generates periodic DPC interrupts for device discovery. "
+                                      "These interrupts can cause 100-500us latency spikes. If all your peripherals are wired, "
+                                      "disabling Bluetooth removes this interference completely.");
+        t.risk = QStringLiteral("advanced");
+        t.status = QStringLiteral("testing");
+        t.requiresAdmin = true;
+        t.actions.append(serviceAction(QStringLiteral("bthserv"), QStringLiteral("4")));
+        m_tweaks.append(t);
+    }
+
+    // ======= NEW: PRIVACY =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_wifi_sense");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable Wi-Fi Sense auto-connect");
+        t.description = QStringLiteral("Prevents Windows from automatically sharing Wi-Fi passwords and connecting "
+                                        "to suggested open hotspots. Improves security and privacy.");
+        t.learnMore = QStringLiteral("Wi-Fi Sense shares your Wi-Fi credentials with contacts and connects to open "
+                                      "hotspots automatically. This is a security risk and generates background network "
+                                      "traffic for credential syncing.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config"),
+            QStringLiteral("AutoConnectAllowedOEM"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_cloud_clipboard");
+        t.category = QStringLiteral("Privacy");
+        t.name = QStringLiteral("Disable cloud clipboard sync");
+        t.description = QStringLiteral("Stops Windows from syncing your clipboard contents to the cloud. "
+                                        "Prevents sensitive data from being uploaded to Microsoft servers.");
+        t.learnMore = QStringLiteral("Cloud clipboard syncs your copy-paste history across devices via Microsoft's servers. "
+                                      "This means every password or sensitive text you copy passes through the cloud. "
+                                      "Disabling keeps your clipboard local and private.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SOFTWARE\\Policies\\Microsoft\\Windows\\System"),
+            QStringLiteral("AllowCrossDeviceClipboard"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= UNDER TESTING: STORAGE =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_storage_sense");
+        t.category = QStringLiteral("Storage");
+        t.name = QStringLiteral("Disable Storage Sense auto-cleanup");
+        t.description = QStringLiteral("Prevents Windows from automatically deleting temporary files and old downloads. "
+                                        "Avoids surprise deletions of game mods or screenshots.");
+        t.learnMore = QStringLiteral("Storage Sense periodically scans and deletes files it considers temporary. "
+                                      "This can accidentally remove game screenshots, replay files, or mod caches. "
+                                      "Manual cleanup gives you full control over what gets deleted.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("testing");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy"),
+            QStringLiteral("01"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("optimize_trim_ssd");
+        t.category = QStringLiteral("Storage");
+        t.name = QStringLiteral("Ensure TRIM is enabled for SSDs");
+        t.description = QStringLiteral("Verifies and enables the TRIM command for NTFS volumes. "
+                                        "Maintains SSD write performance over time.");
+        t.learnMore = QStringLiteral("TRIM tells the SSD which blocks are no longer in use so it can erase them proactively. "
+                                      "Without TRIM, SSD write speeds degrade over time as the drive runs out of "
+                                      "pre-erased blocks. This is critical for maintaining consistent game load times.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.requiresAdmin = true;
+        t.actions.append(registryAction(
+            QStringLiteral("HKLM"),
+            QStringLiteral("SYSTEM\\CurrentControlSet\\Control\\FileSystem"),
+            QStringLiteral("DisableDeleteNotification"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+
+    // ======= UNDER TESTING: VISUAL =======
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_lock_screen_ads");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Disable lock screen tips and ads");
+        t.description = QStringLiteral("Removes Microsoft's promotional content from the Windows lock screen. "
+                                        "Faster lock screen rendering and cleaner appearance.");
+        t.learnMore = QStringLiteral("Windows displays 'fun facts' and suggestions on the lock screen, which are "
+                                      "essentially advertisements. These require network requests to fetch content "
+                                      "and images, slowing down the lock screen display.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("new");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("RotatingLockScreenOverlayEnabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"),
+            QStringLiteral("SubscribedContent-338387Enabled"),
+            QVariant::fromValue(static_cast<quint32>(0))));
+        m_tweaks.append(t);
+    }
+    {
+        Tweak t;
+        t.id = QStringLiteral("disable_snap_assist");
+        t.category = QStringLiteral("Visual");
+        t.name = QStringLiteral("Disable Snap Assist suggestions");
+        t.description = QStringLiteral("Removes the snap layout suggestions shown when dragging windows. "
+                                        "Prevents accidental window snapping during drag operations.");
+        t.learnMore = QStringLiteral("Snap Assist shows a flyout with layout suggestions when you drag a window. "
+                                      "This overlay uses GPU resources to render and can interfere with moving windowed "
+                                      "games. Disabling makes window management more predictable.");
+        t.risk = QStringLiteral("safe");
+        t.status = QStringLiteral("testing");
+        t.actions.append(registryAction(
+            QStringLiteral("HKCU"),
+            QStringLiteral("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"),
+            QStringLiteral("SnapAssist"),
+            QVariant::fromValue(static_cast<quint32>(0))));
         m_tweaks.append(t);
     }
 }

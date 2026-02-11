@@ -12,14 +12,14 @@ Dialog {
     width: 540
     standardButtons: Dialog.Ok | Dialog.Cancel
 
-    Material.background: "#12172b"
+    Material.background: "#0c1120"
     Material.foreground: "#c5d0de"
     Material.accent: "#06b6d4"
 
     background: Rectangle {
         radius: 16
-        color: "#12172b"
-        border.color: "#1c2333"
+        color: "#0c1120"
+        border.color: "#141a2a"
         border.width: 1
     }
 

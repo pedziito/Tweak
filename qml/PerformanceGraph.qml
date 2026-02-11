@@ -45,7 +45,7 @@ Rectangle {
 
                 Row {
                     spacing: 5
-                    Rectangle { width: 10; height: 10; radius: 3; color: "#1c2333"; anchors.verticalCenter: parent.verticalCenter }
+                    Rectangle { width: 10; height: 10; radius: 3; color: "#141a2a"; anchors.verticalCenter: parent.verticalCenter }
                     Text { text: "Before"; color: "#4a5568"; font.pixelSize: 10 }
                 }
                 Row {
@@ -125,8 +125,8 @@ Rectangle {
                 width: benchList.width
                 height: barCol.height + 24
                 radius: 12
-                color: "#12172b"
-                border.color: "#1c2333"; border.width: 1
+                color: "#0c1120"
+                border.color: "#141a2a"; border.width: 1
 
                 ColumnLayout {
                     id: barCol
@@ -159,10 +159,10 @@ Rectangle {
                         spacing: 8
                         Text { text: "Before"; color: "#3d4a5c"; font.pixelSize: 9; Layout.preferredWidth: 40 }
                         Rectangle {
-                            Layout.fillWidth: true; height: 14; radius: 4; color: "#0f1423"
+                            Layout.fillWidth: true; height: 14; radius: 4; color: "#0b0f17"
                             Rectangle {
                                 width: Math.max(4, parent.width * Math.min((modelData.before || 0) / 200, 1))
-                                height: parent.height; radius: 4; color: "#1c2333"
+                                height: parent.height; radius: 4; color: "#141a2a"
                             }
                         }
                         Text { text: (modelData.before || 0).toFixed(1) + "ms"; color: "#4a5568"; font.pixelSize: 9; Layout.preferredWidth: 50; horizontalAlignment: Text.AlignRight }
@@ -175,7 +175,7 @@ Rectangle {
                         visible: (modelData.after || 0) > 0
                         Text { text: "After"; color: "#3d4a5c"; font.pixelSize: 9; Layout.preferredWidth: 40 }
                         Rectangle {
-                            Layout.fillWidth: true; height: 14; radius: 4; color: "#0f1423"
+                            Layout.fillWidth: true; height: 14; radius: 4; color: "#0b0f17"
                             Rectangle {
                                 width: Math.max(4, parent.width * Math.min((modelData.after || 0) / 200, 1))
                                 height: parent.height; radius: 4
@@ -200,7 +200,7 @@ Rectangle {
             spacing: 10
 
             Item { Layout.fillHeight: true }
-            Text { Layout.alignment: Qt.AlignHCenter; text: "\u25B2"; font.pixelSize: 42; color: "#1c2333" }
+            Text { Layout.alignment: Qt.AlignHCenter; text: "\u25B2"; font.pixelSize: 42; color: "#141a2a" }
             Text { Layout.alignment: Qt.AlignHCenter; text: "No benchmark data yet"; color: "#3d4a5c"; font.pixelSize: 14 }
             Text { Layout.alignment: Qt.AlignHCenter; text: "Run a baseline to start"; color: "#2d3748"; font.pixelSize: 11 }
             Item { Layout.fillHeight: true }
@@ -216,7 +216,7 @@ Rectangle {
 
         width: pbText.width + 28; height: 36; radius: 8
         opacity: enabled ? 1.0 : 0.4
-        color: pbHover.containsMouse && enabled ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#12172b"
+        color: pbHover.containsMouse && enabled ? Qt.rgba(accent.r, accent.g, accent.b, 0.12) : "#0c1120"
         border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.35)
         border.width: 1
 

@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-/// Two-column tweaks page with inline category tabs and grid layout
+/// Hone-style tweaks page — underline category tabs + clean optimization list
 Item {
     id: tweaksPage
     signal restartRequested()
@@ -18,19 +18,18 @@ Item {
             Layout.bottomMargin: 16
             spacing: 16
 
-            // Title area
             ColumnLayout {
                 spacing: 3
                 Text {
-                    text: "Tweaks"
+                    text: appController.tweakModel.rowCount() + " Optimizations"
                     color: "#f0f6ff"
-                    font.pixelSize: 26
+                    font.pixelSize: 14
                     font.weight: Font.Bold
                 }
                 Text {
-                    text: appController.tweakModel.rowCount() + " tweaks  \u00B7  " + appController.appliedCount + " active"
+                    text: appController.appliedCount + " active  \u00B7  " + appController.recommendedCount + " recommended"
                     color: "#4a5568"
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                 }
             }
 
@@ -38,9 +37,9 @@ Item {
 
             // Search
             Rectangle {
-                width: 220; height: 36; radius: 8
-                color: "#12172b"
-                border.color: searchField.activeFocus ? "#06b6d4" : "#1c2333"
+                width: 240; height: 36; radius: 8
+                color: "#0c1120"
+                border.color: searchField.activeFocus ? "#06b6d4" : "#141a2a"
                 border.width: 1
 
                 RowLayout {
@@ -56,7 +55,7 @@ Item {
                         clip: true
                         Text {
                             anchors.fill: parent
-                            text: "Search..."
+                            text: "Search tweaks..."
                             color: "#3d4a5c"
                             font.pixelSize: 12
                             visible: !searchField.text && !searchField.activeFocus
@@ -67,11 +66,11 @@ Item {
                 }
             }
 
-            // Action buttons row
+            // Action buttons
             Row {
                 spacing: 8
 
-                HeaderBtn { label: "\u2713 Verify All";  accent: "#10b981"; onClicked: appController.verifyAllTweaks() }
+                HeaderBtn { label: "\u2713 Verify All"; accent: "#22c55e"; onClicked: appController.verifyAllTweaks() }
                 HeaderBtn {
                     label: "Apply Recommended"
                     accent: "#06b6d4"
@@ -80,27 +79,26 @@ Item {
                 }
                 HeaderBtn {
                     label: "Save & Apply"
-                    accent: "#10b981"
+                    accent: "#22c55e"
                     onClicked: {
                         appController.saveConfiguration("current")
                         tweaksPage.restartRequested()
                     }
                 }
-                HeaderBtn { label: "Restore"; accent: "#f43f5e"; onClicked: appController.restoreAll() }
+                HeaderBtn { label: "Restore All"; accent: "#f43f5e"; onClicked: appController.restoreAll() }
             }
         }
 
-        // ═══════ CATEGORY TABS (horizontal, underline style) ═══════
+        // ═══════ CATEGORY TABS (Hone-style underline) ═══════
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "transparent"
 
-            // Bottom line
             Rectangle {
                 anchors.bottom: parent.bottom
                 width: parent.width; height: 1
-                color: "#1c2333"
+                color: "#141a2a"
             }
 
             Row {
@@ -124,11 +122,9 @@ Item {
                             color: isActive ? "#22d3ee" : catTabMouse.containsMouse ? "#c5d0de" : "#4a5568"
                             font.pixelSize: 12
                             font.weight: isActive ? Font.Bold : Font.Normal
-
                             Behavior on color { ColorAnimation { duration: 150 } }
                         }
 
-                        // Active underline
                         Rectangle {
                             anchors.bottom: parent.bottom
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -155,9 +151,9 @@ Item {
             id: tweakList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.topMargin: 12
+            Layout.topMargin: 4
             model: appController.tweakModel
-            spacing: 8
+            spacing: 0
             clip: true
             boundsBehavior: Flickable.StopAtBounds
 
@@ -177,6 +173,7 @@ Item {
                 tweakVerified: model.verified || false
                 tweakRisk: model.risk || "safe"
                 tweakLearnMore: model.learnMore || ""
+                tweakStatus: model.status || "stable"
                 onToggled: appController.toggleTweak(model.index)
             }
 
@@ -211,7 +208,7 @@ Item {
 
         width: hbText.width + 24; height: 34; radius: 8
         color: filled ? "transparent" : "transparent"
-        border.color: filled ? "transparent" : Qt.rgba(accent.r, accent.g, accent.b, 0.4)
+        border.color: filled ? "transparent" : Qt.rgba(accent.r, accent.g, accent.b, 0.3)
         border.width: filled ? 0 : 1
 
         gradient: filled ? fillGrad : null

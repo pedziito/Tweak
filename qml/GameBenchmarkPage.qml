@@ -89,7 +89,7 @@ Flickable {
                     currentIndex: 0
                     implicitWidth: 130; implicitHeight: 34
 
-                    background: Rectangle { radius: 8; color: "#12172b"; border.color: resolutionCombo.pressed ? "#06b6d4" : "#1c2333"; border.width: 1 }
+                    background: Rectangle { radius: 8; color: "#0c1120"; border.color: resolutionCombo.pressed ? "#06b6d4" : "#141a2a"; border.width: 1 }
                     contentItem: Text { leftPadding: 10; text: resolutionCombo.displayText; color: "#c5d0de"; font.pixelSize: 12; font.weight: Font.DemiBold; verticalAlignment: Text.AlignVCenter }
 
                     popup: Popup {
@@ -97,14 +97,14 @@ Flickable {
                         width: resolutionCombo.width
                         implicitHeight: contentItem.implicitHeight + 8
                         padding: 4
-                        background: Rectangle { radius: 8; color: "#0f1423"; border.color: "#1c2333"; border.width: 1 }
+                        background: Rectangle { radius: 8; color: "#0b0f17"; border.color: "#141a2a"; border.width: 1 }
                         contentItem: ListView { clip: true; implicitHeight: contentHeight; model: resolutionCombo.popup.visible ? resolutionCombo.delegateModel : null; ScrollIndicator.vertical: ScrollIndicator {} }
                     }
 
                     delegate: ItemDelegate {
                         width: resolutionCombo.width; height: 30
                         contentItem: Text { text: modelData; color: resolutionCombo.currentIndex === index ? "#22d3ee" : "#7b8ba3"; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter; leftPadding: 10 }
-                        background: Rectangle { color: hovered ? "#1c2333" : "transparent"; radius: 4 }
+                        background: Rectangle { color: hovered ? "#141a2a" : "transparent"; radius: 4 }
                     }
 
                     onCurrentTextChanged: {
@@ -123,7 +123,7 @@ Flickable {
                     currentIndex: 1
                     implicitWidth: 130; implicitHeight: 34
 
-                    background: Rectangle { radius: 8; color: "#12172b"; border.color: qualityCombo.pressed ? "#06b6d4" : "#1c2333"; border.width: 1 }
+                    background: Rectangle { radius: 8; color: "#0c1120"; border.color: qualityCombo.pressed ? "#06b6d4" : "#141a2a"; border.width: 1 }
                     contentItem: Text { leftPadding: 10; text: qualityCombo.displayText; color: "#c5d0de"; font.pixelSize: 12; font.weight: Font.DemiBold; verticalAlignment: Text.AlignVCenter }
 
                     popup: Popup {
@@ -131,14 +131,14 @@ Flickable {
                         width: qualityCombo.width
                         implicitHeight: contentItem.implicitHeight + 8
                         padding: 4
-                        background: Rectangle { radius: 8; color: "#0f1423"; border.color: "#1c2333"; border.width: 1 }
+                        background: Rectangle { radius: 8; color: "#0b0f17"; border.color: "#141a2a"; border.width: 1 }
                         contentItem: ListView { clip: true; implicitHeight: contentHeight; model: qualityCombo.popup.visible ? qualityCombo.delegateModel : null; ScrollIndicator.vertical: ScrollIndicator {} }
                     }
 
                     delegate: ItemDelegate {
                         width: qualityCombo.width; height: 30
                         contentItem: Text { text: modelData; color: qualityCombo.currentIndex === index ? "#22d3ee" : "#7b8ba3"; font.pixelSize: 11; verticalAlignment: Text.AlignVCenter; leftPadding: 10 }
-                        background: Rectangle { color: hovered ? "#1c2333" : "transparent"; radius: 4 }
+                        background: Rectangle { color: hovered ? "#141a2a" : "transparent"; radius: 4 }
                     }
 
                     onCurrentTextChanged: {
@@ -153,7 +153,7 @@ Flickable {
             // Current settings pill
             Rectangle {
                 width: settingsLbl.width + 20; height: 30; radius: 8
-                color: "#12172b"; border.color: "#1c2333"; border.width: 1
+                color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
                 Text {
                     id: settingsLbl
@@ -227,8 +227,8 @@ Flickable {
                     Layout.minimumWidth: 260
                     height: 170
                     radius: 14
-                    color: "#12172b"
-                    border.color: "#1c2333"; border.width: 1
+                    color: "#0c1120"
+                    border.color: "#141a2a"; border.width: 1
 
                     property var game: modelData
 
@@ -306,7 +306,7 @@ Flickable {
 
                             // FPS bar
                             Rectangle {
-                                Layout.fillWidth: true; height: 6; radius: 3; color: "#0f1423"
+                                Layout.fillWidth: true; height: 6; radius: 3; color: "#0b0f17"
                                 Rectangle {
                                     width: parent.width * Math.min((game.avgFps || 0) / 400, 1.0)
                                     height: parent.height; radius: 3
@@ -337,7 +337,7 @@ Flickable {
                 Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 56; height: 56; radius: 14
-                    color: "#1c2333"
+                    color: "#141a2a"
                     Text { anchors.centerIn: parent; text: "\u25B6"; font.pixelSize: 24; color: "#06b6d4" }
                 }
                 Text { anchors.horizontalCenter: parent.horizontalCenter; text: "No estimation data yet"; color: "#3d4a5c"; font.pixelSize: 13 }
@@ -356,7 +356,7 @@ Flickable {
         property color accentColor: "#3d4a5c"
 
         height: 80; radius: 12
-        color: "#12172b"; border.color: "#1c2333"; border.width: 1
+        color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
         RowLayout {
             anchors.fill: parent

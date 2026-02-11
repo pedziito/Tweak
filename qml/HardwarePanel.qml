@@ -6,8 +6,8 @@ Rectangle {
     Layout.fillWidth: true
     implicitHeight: hwCol.implicitHeight + 36
     radius: 16
-    color: "#12172b"
-    border.color: "#1c2333"; border.width: 1
+    color: "#0c1120"
+    border.color: "#141a2a"; border.width: 1
 
     ColumnLayout {
         id: hwCol
@@ -59,9 +59,9 @@ Rectangle {
             Text { text: "SSD / NVMe";  color: "#4a5568"; font.pixelSize: 10 }
             Row {
                 spacing: 8
-                Rectangle { width: 8; height: 8; radius: 4; color: appController.hasSsd ? "#10b981" : "#1c2333"; anchors.verticalCenter: parent.verticalCenter }
+                Rectangle { width: 8; height: 8; radius: 4; color: appController.hasSsd ? "#10b981" : "#141a2a"; anchors.verticalCenter: parent.verticalCenter }
                 Text { text: "SSD"; color: "#c5d0de"; font.pixelSize: 10 }
-                Rectangle { width: 8; height: 8; radius: 4; color: appController.hasNvme ? "#06b6d4" : "#1c2333"; anchors.verticalCenter: parent.verticalCenter }
+                Rectangle { width: 8; height: 8; radius: 4; color: appController.hasNvme ? "#06b6d4" : "#141a2a"; anchors.verticalCenter: parent.verticalCenter }
                 Text { text: "NVMe"; color: "#c5d0de"; font.pixelSize: 10 }
             }
         }

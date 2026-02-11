@@ -6,8 +6,8 @@ Rectangle {
     id: scoreCard
     implicitHeight: 200
     radius: 16
-    color: "#12172b"
-    border.color: "#1c2333"; border.width: 1
+    color: "#0c1120"
+    border.color: "#141a2a"; border.width: 1
 
     ColumnLayout {
         anchors.fill: parent

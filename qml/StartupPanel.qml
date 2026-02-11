@@ -6,8 +6,8 @@ Rectangle {
     Layout.fillWidth: true
     implicitHeight: 80
     radius: 16
-    color: "#12172b"
-    border.color: "#1c2333"; border.width: 1
+    color: "#0c1120"
+    border.color: "#141a2a"; border.width: 1
 
     Text {
         anchors.centerIn: parent
