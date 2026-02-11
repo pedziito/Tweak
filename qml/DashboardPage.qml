@@ -417,7 +417,7 @@ Flickable {
             }
         }
 
-        // ═══════ BOTTOM: Hardware + Score + Game Profiles ═══════
+        // ═══════ BOTTOM ROW 1: Hardware + Score ═══════
         RowLayout {
             Layout.fillWidth: true
             spacing: 14
@@ -451,7 +451,7 @@ Flickable {
             }
 
             Rectangle {
-                Layout.fillWidth: true
+                Layout.preferredWidth: 280
                 implicitHeight: hwCol.implicitHeight + 36; Layout.minimumHeight: implicitHeight
                 radius: 14; color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
@@ -487,18 +487,23 @@ Flickable {
                     }
                 }
             }
+        }
 
-            Rectangle {
-                Layout.fillWidth: true
-                implicitHeight: gpCol.implicitHeight + 36; Layout.minimumHeight: implicitHeight
-                radius: 14; color: "#0c1120"; border.color: "#141a2a"; border.width: 1
+        // ═══════ BOTTOM ROW 2: Game Profiles (full width, 4 columns) ═══════
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: gpCol.implicitHeight + 36
+            radius: 14; color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
-                ColumnLayout {
-                    id: gpCol
-                    anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
-                    anchors.margins: 18; spacing: 8
-                    Text { text: "Game Profiles"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.Bold }
-                    // imagePath can be set to a local file like "file:///C:/images/cs2.png"
+            ColumnLayout {
+                id: gpCol
+                anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                anchors.margins: 18; spacing: 10
+
+                Text { text: "Game Profiles"; color: "#7b8ba3"; font.pixelSize: 12; font.weight: Font.Bold }
+
+                RowLayout {
+                    Layout.fillWidth: true; spacing: 10
                     GameProfileCard { Layout.fillWidth: true; gameName: "CS2"; gameDesc: "Max FPS"; gradStart: "#f59e0b"; gradEnd: "#ef4444"; onOptimize: optimized = !optimized }
                     GameProfileCard { Layout.fillWidth: true; gameName: "Fortnite"; gameDesc: "Balanced"; gradStart: "#06b6d4"; gradEnd: "#0ea5e9"; onOptimize: optimized = !optimized }
                     GameProfileCard { Layout.fillWidth: true; gameName: "Valorant"; gameDesc: "Low latency"; gradStart: "#ef4444"; gradEnd: "#dc2626"; onOptimize: optimized = !optimized }

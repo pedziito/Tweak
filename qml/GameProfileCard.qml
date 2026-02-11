@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Dialogs
 
 Rectangle {
     id: card
@@ -21,6 +22,13 @@ Rectangle {
 
     Behavior on border.color { ColorAnimation { duration: 150 } }
 
+    FileDialog {
+        id: imageDialog
+        title: "Choose image for " + card.gameName
+        nameFilters: ["Image files (*.png *.jpg *.jpeg *.bmp *.webp)"]
+        onAccepted: card.imagePath = selectedFile
+    }
+
     // Left accent stripe
     Rectangle {
         anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
@@ -32,13 +40,15 @@ Rectangle {
         anchors.leftMargin: 12; anchors.rightMargin: 8
         spacing: 8
 
-        // Game image or letter circle
+        // Game image or letter circle — click to change
         Rectangle {
-            width: 32; height: 32; radius: 6
+            width: 36; height: 36; radius: 8
             color: Qt.rgba(card.gradStart.r, card.gradStart.g, card.gradStart.b, 0.15)
-            border.color: Qt.rgba(card.gradStart.r, card.gradStart.g, card.gradStart.b, 0.3)
+            border.color: imgHover.containsMouse ? card.gradStart : Qt.rgba(card.gradStart.r, card.gradStart.g, card.gradStart.b, 0.3)
             border.width: 1
             clip: true
+
+            Behavior on border.color { ColorAnimation { duration: 150 } }
 
             Image {
                 anchors.fill: parent
@@ -51,8 +61,33 @@ Rectangle {
                 anchors.centerIn: parent
                 visible: card.imagePath === ""
                 text: card.gameName.charAt(0)
-                font.pixelSize: 13; font.weight: Font.Bold
+                font.pixelSize: 14; font.weight: Font.Bold
                 color: card.gradStart
+            }
+
+            // Hover overlay with pencil hint
+            Rectangle {
+                anchors.fill: parent; radius: 8
+                color: Qt.rgba(0, 0, 0, 0.5)
+                visible: imgHover.containsMouse
+
+                Canvas {
+                    anchors.centerIn: parent; width: 14; height: 14
+                    onPaint: {
+                        var ctx = getContext("2d"); ctx.reset()
+                        ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                        // Pencil icon
+                        ctx.beginPath(); ctx.moveTo(10, 2); ctx.lineTo(12, 4); ctx.lineTo(5, 11); ctx.lineTo(2, 12); ctx.lineTo(3, 9); ctx.closePath(); ctx.stroke()
+                        ctx.beginPath(); ctx.moveTo(8.5, 3.5); ctx.lineTo(10.5, 5.5); ctx.stroke()
+                    }
+                    Component.onCompleted: requestPaint()
+                }
+            }
+
+            MouseArea {
+                id: imgHover
+                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                onClicked: imageDialog.open()
             }
         }
 
