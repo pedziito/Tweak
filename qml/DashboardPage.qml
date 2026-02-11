@@ -451,7 +451,7 @@ Flickable {
             }
 
             Rectangle {
-                Layout.preferredWidth: 240
+                Layout.fillWidth: true
                 implicitHeight: hwCol.implicitHeight + 36; Layout.minimumHeight: implicitHeight
                 radius: 14; color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
@@ -489,7 +489,7 @@ Flickable {
             }
 
             Rectangle {
-                Layout.preferredWidth: 340
+                Layout.fillWidth: true
                 implicitHeight: gpCol.implicitHeight + 36; Layout.minimumHeight: implicitHeight
                 radius: 14; color: "#0c1120"; border.color: "#141a2a"; border.width: 1
 
@@ -525,6 +525,7 @@ Flickable {
         Layout.fillWidth: true
         height: 130; radius: 14
         color: "#0c1120"; border.color: "#141a2a"; border.width: 1
+        clip: true
 
         ColumnLayout {
             anchors.fill: parent; anchors.margins: 16; spacing: 6

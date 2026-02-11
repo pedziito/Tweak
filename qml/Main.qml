@@ -73,44 +73,50 @@ ApplicationWindow {
 
                 Item { Layout.fillHeight: true }
 
-                // Admin indicator
-                Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    width: 34; height: 34; radius: 8
-                    color: appController.isAdmin ? "#0d2818" : "#1c1917"
-                    border.color: appController.isAdmin ? "#166534" : "#854d0e"; border.width: 1
+                // Spacer before bottom section
+                Item { Layout.preferredHeight: 4 }
 
-                    Canvas {
-                        anchors.centerIn: parent; width: 14; height: 14
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            if (appController.isAdmin) {
-                                ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                ctx.beginPath(); ctx.moveTo(2, 8); ctx.lineTo(5, 11); ctx.lineTo(12, 3); ctx.stroke()
-                            } else {
-                                ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                                ctx.beginPath(); ctx.moveTo(7, 1); ctx.lineTo(12, 3.5); ctx.lineTo(12, 7.5)
-                                ctx.quadraticCurveTo(12, 13, 7, 14)
-                                ctx.quadraticCurveTo(2, 13, 2, 7.5); ctx.lineTo(2, 3.5); ctx.closePath(); ctx.stroke()
-                                ctx.beginPath(); ctx.moveTo(7, 5); ctx.lineTo(7, 8.5); ctx.stroke()
-                                ctx.beginPath(); ctx.arc(7, 10.5, 0.7, 0, Math.PI * 2); ctx.fillStyle = "#f59e0b"; ctx.fill()
+                // Admin indicator
+                Item {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: 34; Layout.preferredHeight: 34
+                    Rectangle {
+                        anchors.fill: parent; radius: 8; clip: true
+                        color: appController.isAdmin ? "#0d2818" : "#1c1917"
+                        border.color: appController.isAdmin ? "#166534" : "#854d0e"; border.width: 1
+                        Canvas {
+                            anchors.centerIn: parent; width: 14; height: 14
+                            onPaint: {
+                                var ctx = getContext("2d"); ctx.reset()
+                                if (appController.isAdmin) {
+                                    ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                    ctx.beginPath(); ctx.moveTo(2, 8); ctx.lineTo(5, 11); ctx.lineTo(12, 3); ctx.stroke()
+                                } else {
+                                    ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 1.4; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                                    ctx.beginPath(); ctx.moveTo(7, 1); ctx.lineTo(12, 3.5); ctx.lineTo(12, 7.5)
+                                    ctx.quadraticCurveTo(12, 13, 7, 14)
+                                    ctx.quadraticCurveTo(2, 13, 2, 7.5); ctx.lineTo(2, 3.5); ctx.closePath(); ctx.stroke()
+                                    ctx.beginPath(); ctx.moveTo(7, 5); ctx.lineTo(7, 8.5); ctx.stroke()
+                                    ctx.beginPath(); ctx.arc(7, 10.5, 0.7, 0, Math.PI * 2); ctx.fillStyle = "#f59e0b"; ctx.fill()
+                                }
                             }
+                            Component.onCompleted: requestPaint()
                         }
-                        Component.onCompleted: requestPaint()
                     }
                 }
 
                 // Tweak count
-                Rectangle {
+                Item {
                     Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 6
-                    width: 34; height: 34; radius: 8
-                    color: "#0e1726"; border.color: "#164e63"; border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: appController.appliedCount
-                        font.pixelSize: 12; font.weight: Font.Bold; color: "#22d3ee"
+                    Layout.preferredWidth: 34; Layout.preferredHeight: 34
+                    Rectangle {
+                        anchors.fill: parent; radius: 8; clip: true
+                        color: "#0e1726"; border.color: "#164e63"; border.width: 1
+                        Text {
+                            anchors.centerIn: parent
+                            text: appController.appliedCount
+                            font.pixelSize: 12; font.weight: Font.Bold; color: "#22d3ee"
+                        }
                     }
                 }
 
