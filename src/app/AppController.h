@@ -150,6 +150,11 @@ public:
     Q_INVOKABLE bool verifyTweak(int row);
     Q_INVOKABLE void verifyAllTweaks();
 
+    // Batch apply with progress
+    Q_INVOKABLE void batchApplyTweaks(QVariantList rowIndices);
+    Q_INVOKABLE QString tweakNameAt(int row) const;
+    Q_INVOKABLE QString tweakCategoryAt(int row) const;
+
 signals:
     void hardwareChanged();
     void tweaksChanged();
@@ -159,6 +164,8 @@ signals:
     void filterTextChanged();
     void benchmarkChanged();
     void benchmarkRunningChanged();
+    void batchProgress(int current, int total, QString name, QString status);
+    void batchComplete();
 
 private:
     void refreshStartupSuggestions();

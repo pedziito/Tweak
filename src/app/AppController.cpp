@@ -282,3 +282,30 @@ void AppController::verifyAllTweaks()
     m_model.refresh();
     emit tweaksChanged();
 }
+
+void AppController::batchApplyTweaks(QVariantList rowIndices)
+{
+    int total = rowIndices.size();
+    for (int i = 0; i < total; ++i) {
+        int row = rowIndices[i].toInt();
+        QString name = tweakNameAt(row);
+        emit batchProgress(i, total, name, QStringLiteral("applying"));
+        QCoreApplication::processEvents();
+        toggleTweak(row);
+        emit batchProgress(i + 1, total, name, QStringLiteral("done"));
+        QCoreApplication::processEvents();
+    }
+    emit batchComplete();
+}
+
+QString AppController::tweakNameAt(int row) const
+{
+    if (row < 0 || row >= m_model.rowCount()) return QString();
+    return m_model.data(m_model.index(row, 0), TweakListModel::NameRole).toString();
+}
+
+QString AppController::tweakCategoryAt(int row) const
+{
+    if (row < 0 || row >= m_model.rowCount()) return QString();
+    return m_model.data(m_model.index(row, 0), TweakListModel::CategoryRole).toString();
+}

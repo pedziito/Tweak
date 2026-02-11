@@ -120,6 +120,61 @@ Item {
             }
         }
 
+        // ═══════ APPLY ALL VISIBLE BUTTON ═══════
+        RowLayout {
+            Layout.fillWidth: true; Layout.leftMargin: 28; Layout.rightMargin: 28; spacing: 12
+
+            Rectangle {
+                width: applyAllLabel.width + 32; height: 38; radius: 10
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: "#06b6d4" }
+                    GradientStop { position: 1.0; color: "#0ea5e9" }
+                }
+                Text { id: applyAllLabel; anchors.centerIn: parent; text: "⚡ Apply All Visible"; color: "#fff"; font.pixelSize: 12; font.weight: Font.Bold }
+                MouseArea {
+                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        var rows = []
+                        for (var i = 0; i < appController.tweakModel.rowCount(); i++) {
+                            var idx = appController.tweakModel.index(i, 0)
+                            var applied = appController.tweakModel.data(idx, 262)
+                            if (applied) continue
+                            var cat = appController.tweakModel.data(idx, 260) || ""
+                            var risk = appController.tweakModel.data(idx, 264) || "safe"
+                            var status = appController.tweakModel.data(idx, 267) || "stable"
+                            var name = appController.tweakModel.data(idx, 258) || ""
+                            var desc = appController.tweakModel.data(idx, 259) || ""
+
+                            // Tab filtering
+                            var tabOk = true
+                            if (tweaksPage.activeTab === "Basic") {
+                                var basicCats = ["System", "Privacy", "Visual"]
+                                tabOk = basicCats.indexOf(cat) !== -1
+                            } else if (tweaksPage.activeTab === "Advanced") {
+                                tabOk = (risk === "advanced") || (status === "experimental") || (status === "testing")
+                            } else if (tweaksPage.activeTab === "Saved") {
+                                tabOk = false // skip; all applied already
+                            }
+                            if (!tabOk) continue
+
+                            // Sub-category filtering
+                            if (tweaksPage.activeSubCat !== "All" && cat !== tweaksPage.activeSubCat) continue
+
+                            // Search filtering
+                            var q = searchField.text.toLowerCase()
+                            if (q !== "" && name.toLowerCase().indexOf(q) === -1 && desc.toLowerCase().indexOf(q) === -1) continue
+
+                            rows.push(i)
+                        }
+                        if (rows.length > 0) root.openBatchApply(rows)
+                    }
+                }
+            }
+
+            Item { Layout.fillWidth: true }
+        }
+
         // ═══════ 3-COLUMN GRID OF TWEAK CARDS ═══════
         Flickable {
             Layout.fillWidth: true; Layout.fillHeight: true
