@@ -120,7 +120,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .score-ring .bg{fill:none;stroke:var(--border);stroke-width:8}
 .score-ring .fg{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
 .score-ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:var(--cyan)}
+.score-ring .val-unit{font-size:16px;font-weight:600;opacity:.6}
 .score-label{text-align:center;font-size:14px;font-weight:600;color:var(--text2)}
+.score-sub{text-align:center;font-size:11px;color:var(--text3);margin-top:4px}
+.gauge-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 16px}
 
 /* ── Monitor Bars ── */
 .monitor-bar{margin-bottom:18px}
@@ -201,6 +204,30 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .boost-card .boost-icon .icon-svg{width:44px;height:44px;color:var(--cyan)}
 .boost-card h3{font-size:17px;font-weight:700;margin-bottom:8px}
 .boost-card p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.5}
+
+/* ── Games / Pro Settings ── */
+.game-select-card{padding:24px;text-align:center;cursor:pointer;transition:all .25s;border:2px solid transparent}
+.game-select-card:hover{border-color:var(--cyan);transform:translateY(-3px);box-shadow:0 8px 32px rgba(6,182,212,.12)}
+.game-select-card .game-icon{width:48px;height:48px;margin:0 auto 14px;color:var(--cyan)}
+.game-select-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.game-select-card .game-desc{font-size:12px;color:var(--text3)}
+.game-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;margin-bottom:18px;transition:color .2s}
+.game-back:hover{color:var(--cyan)}
+.pro-player-card{padding:20px;margin-bottom:0}
+.pro-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.pro-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#000;flex-shrink:0}
+.pro-name{font-size:16px;font-weight:700}
+.pro-team{font-size:12px;color:var(--text3);margin-top:2px}
+.pro-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.pro-stat{padding:10px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--border)}
+.pro-stat .ps-label{font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.pro-stat .ps-value{font-size:14px;font-weight:700;color:var(--text)}
+.crosshair-box{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:12px;background:var(--bg);border:1px solid var(--border);margin-bottom:10px;cursor:pointer;transition:all .2s}
+.crosshair-box:hover{border-color:var(--cyan);background:var(--cyan-glow)}
+.crosshair-box .ch-player{font-size:13px;font-weight:600;color:var(--text);min-width:100px}
+.crosshair-box .ch-code{font-family:'Courier New',monospace;font-size:12px;color:var(--cyan);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crosshair-box .ch-copy{font-size:11px;color:var(--text3);font-weight:600;flex-shrink:0}
+.copied-flash{color:var(--green)!important}
 
 /* ── Settings ── */
 .setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
@@ -362,9 +389,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         </div>
       </div>
 
-      <div class="grid-3" style="margin-bottom:20px">
-        <!-- Score Ring -->
-        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px">
+      <div class="grid-4" style="margin-bottom:20px">
+        <!-- Performance Score Ring -->
+        <div class="card gauge-card">
           <div class="card-title">Performance Score</div>
           <div class="score-ring">
             <svg viewBox="0 0 100 100">
@@ -378,40 +405,61 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
             <div class="val">{{scores.performanceScore||0}}</div>
           </div>
           <div class="score-label">Tier: <strong :class="'score-'+((scores.tier||'c').charAt(0).toLowerCase())">{{scores.tier||'?'}}</strong></div>
-          <div v-if="scores.bottleneck" style="font-size:11px;color:var(--text3);margin-top:6px">Bottleneck: {{scores.bottleneck}}</div>
+          <div v-if="scores.bottleneck" class="score-sub">Bottleneck: {{scores.bottleneck}}</div>
         </div>
 
-        <!-- Monitor -->
-        <div class="card">
-          <div class="card-title">System Monitor</div>
-          <div class="monitor-bar">
-            <div class="bar-header"><span class="name">CPU</span><span class="pct">{{Math.round(monitor.cpuUsage||0)}}%</span></div>
-            <div class="track"><div class="fill" :style="{width:Math.round(monitor.cpuUsage||0)+'%'}"></div></div>
+        <!-- CPU Usage Ring -->
+        <div class="card gauge-card">
+          <div class="card-title">CPU Usage</div>
+          <div class="score-ring">
+            <svg viewBox="0 0 100 100">
+              <defs><linearGradient id="cpuGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs>
+              <circle class="bg" cx="50" cy="50" r="42"/>
+              <circle class="fg" cx="50" cy="50" r="42"
+                stroke="url(#cpuGrad)"
+                :stroke-dasharray="264"
+                :stroke-dashoffset="264 - (264 * Math.min(Math.round(monitor.cpuUsage||0),100) / 100)"/>
+            </svg>
+            <div class="val">{{Math.round(monitor.cpuUsage||0)}}<span class="val-unit">%</span></div>
           </div>
-          <div class="monitor-bar">
-            <div class="bar-header"><span class="name">RAM</span><span class="pct">{{Math.round(monitor.ramUsage||0)}}%</span></div>
-            <div class="track"><div class="fill" :style="{width:Math.round(monitor.ramUsage||0)+'%'}"></div></div>
-          </div>
-          <div class="monitor-bar">
-            <div class="bar-header"><span class="name">Storage</span><span class="pct">{{Math.round(monitor.storageUsage||0)}}%</span></div>
-            <div class="track"><div class="fill" :style="{width:Math.round(monitor.storageUsage||0)+'%'}"></div></div>
-          </div>
-          <div style="font-size:12px;color:var(--text3);margin-top:10px">
-            RAM: {{(monitor.ramUsedGb||0).toFixed(1)}} / {{(monitor.ramTotalGb||0).toFixed(1)}} GB &nbsp;|&nbsp; Uptime: {{monitor.uptimeText||'—'}}
-          </div>
+          <div class="score-label">{{sysinfo.cpuName||'CPU'}}</div>
+          <div class="score-sub">{{sysinfo.cpuCores||'?'}} cores / {{sysinfo.cpuThreads||'?'}} threads</div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="card">
-          <div class="card-title">Quick Actions</div>
-          <div class="quick-actions">
-            <div class="qa-btn" @click="doApplyRecommended"><svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Apply Rec.</div>
-            <div class="qa-btn" @click="doRestoreAll"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Restore</div>
-            <div class="qa-btn" @click="doClearTemp"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear Temp</div>
-            <div class="qa-btn" @click="doFlushDns"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Flush DNS</div>
-            <div class="qa-btn" @click="doVerifyAll"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verify</div>
-            <div class="qa-btn" @click="page='tweaks'"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Tweaks</div>
+        <!-- RAM Usage Ring -->
+        <div class="card gauge-card">
+          <div class="card-title">RAM Usage</div>
+          <div class="score-ring">
+            <svg viewBox="0 0 100 100">
+              <defs><linearGradient id="ramGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs>
+              <circle class="bg" cx="50" cy="50" r="42"/>
+              <circle class="fg" cx="50" cy="50" r="42"
+                stroke="url(#ramGrad)"
+                :stroke-dasharray="264"
+                :stroke-dashoffset="264 - (264 * Math.min(Math.round(monitor.ramUsage||0),100) / 100)"/>
+            </svg>
+            <div class="val" style="color:var(--purple)">{{Math.round(monitor.ramUsage||0)}}<span class="val-unit">%</span></div>
           </div>
+          <div class="score-label">{{(monitor.ramUsedGb||0).toFixed(1)}} / {{(monitor.ramTotalGb||0).toFixed(1)}} GB</div>
+          <div class="score-sub">{{sysinfo.ramType||''}} {{sysinfo.ramSpeedMhz ? '@ '+sysinfo.ramSpeedMhz+' MHz' : ''}}</div>
+        </div>
+
+        <!-- Storage Usage Ring -->
+        <div class="card gauge-card">
+          <div class="card-title">Storage Usage</div>
+          <div class="score-ring">
+            <svg viewBox="0 0 100 100">
+              <defs><linearGradient id="storGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs>
+              <circle class="bg" cx="50" cy="50" r="42"/>
+              <circle class="fg" cx="50" cy="50" r="42"
+                stroke="url(#storGrad)"
+                :stroke-dasharray="264"
+                :stroke-dashoffset="264 - (264 * Math.min(Math.round(monitor.storageUsage||0),100) / 100)"/>
+            </svg>
+            <div class="val" style="color:var(--amber)">{{Math.round(monitor.storageUsage||0)}}<span class="val-unit">%</span></div>
+          </div>
+          <div class="score-label">{{sysinfo.storageText||'Storage'}}</div>
+          <div class="score-sub">Uptime: {{monitor.uptimeText||'—'}}</div>
         </div>
       </div>
 
@@ -567,32 +615,92 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
     <!-- ═══════════ GAMES PAGE ═══════════ -->
     <template v-if="page==='games'">
-      <div class="page-header">
-        <h2>Games</h2>
-        <p>Game-specific optimization profiles</p>
-      </div>
 
-      <div class="grid-3">
-        <div class="card boost-card" v-for="g in gameProfiles" :key="g.name">
-          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24" v-html="g.svgPath"></svg></div>
-          <h3>{{g.name}}</h3>
-          <p>{{g.desc}}</p>
-          <button class="btn btn-outline" @click="applyGameProfile(g.cats)">Optimize for {{g.name}}</button>
+      <!-- Game Selection Grid -->
+      <template v-if="!selectedGame">
+        <div class="page-header">
+          <h2>Games</h2>
+          <p>Pro player settings, crosshair codes & optimization</p>
         </div>
-      </div>
 
-      <div class="card" style="margin-top:20px">
-        <div class="card-title">Applied Gaming Tweaks</div>
-        <div v-if="appliedGamingTweaks.length===0" style="color:var(--text3);font-size:13px;padding:12px 0">No gaming tweaks applied yet</div>
-        <div v-else>
-          <div class="hw-row" v-for="t in appliedGamingTweaks" :key="t.row">
-            <span class="hw-label">{{t.name}}</span>
-            <span class="hw-value" style="color:var(--green);display:flex;align-items:center;gap:4px">
-              <svg class="icon-svg" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Active
-            </span>
+        <div class="grid-3">
+          <div class="card game-select-card" v-for="g in gameProfiles" :key="g.name" @click="selectedGame=g">
+            <svg class="game-icon" viewBox="0 0 24 24" v-html="g.svgPath"></svg>
+            <h3>{{g.name}}</h3>
+            <div class="game-desc">{{g.pros.length}} pro players &middot; {{g.crosshairs?g.crosshairs.length:0}} crosshairs</div>
           </div>
         </div>
-      </div>
+      </template>
+
+      <!-- Game Detail View -->
+      <template v-else>
+        <div class="game-back" @click="selectedGame=null">
+          <svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Games
+        </div>
+
+        <div class="page-header" style="margin-bottom:18px">
+          <h2>{{selectedGame.name}}</h2>
+          <p>Pro player settings & crosshair codes</p>
+        </div>
+
+        <!-- Optimize Button -->
+        <div class="card" style="padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px">Optimize for {{selectedGame.name}}</div>
+            <div style="font-size:12px;color:var(--text3)">Apply recommended tweaks: {{selectedGame.cats.join(', ')}}</div>
+          </div>
+          <button class="btn btn-cyan" @click="applyGameProfile(selectedGame.cats)">
+            <svg class="icon-svg" style="width:16px;height:16px;margin-right:6px" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Optimize
+          </button>
+        </div>
+
+        <!-- Crosshair Codes -->
+        <div v-if="selectedGame.crosshairs && selectedGame.crosshairs.length" class="card" style="padding:20px;margin-bottom:20px">
+          <div class="card-title" style="margin-bottom:14px">Crosshair Codes</div>
+          <div class="crosshair-box" v-for="(ch,ci) in selectedGame.crosshairs" :key="ci" @click="copyCrosshair(ch.code,ci)">
+            <span class="ch-player">{{ch.player}}</span>
+            <span class="ch-code">{{ch.code}}</span>
+            <span class="ch-copy" :class="{'copied-flash':copiedIdx===ci}">{{copiedIdx===ci ? '✓ Copied' : 'Click to copy'}}</span>
+          </div>
+        </div>
+
+        <!-- Pro Player Settings -->
+        <div class="card-title" style="margin-bottom:12px;font-size:16px">Pro Player Settings</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+          <div class="card pro-player-card" v-for="p in selectedGame.pros" :key="p.name">
+            <div class="pro-header">
+              <div class="pro-avatar">{{p.name.charAt(0)}}</div>
+              <div>
+                <div class="pro-name">{{p.name}}</div>
+                <div class="pro-team">{{p.team}}</div>
+              </div>
+            </div>
+            <div class="pro-stats">
+              <div class="pro-stat" v-for="(val,key) in p.settings" :key="key">
+                <div class="ps-label">{{key}}</div>
+                <div class="ps-value">{{val}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Applied Gaming Tweaks -->
+        <div class="card" style="margin-top:20px">
+          <div class="card-title">Applied Gaming Tweaks</div>
+          <div v-if="appliedGamingTweaks.length===0" style="color:var(--text3);font-size:13px;padding:12px 0">No gaming tweaks applied yet</div>
+          <div v-else>
+            <div class="hw-row" v-for="t in appliedGamingTweaks" :key="t.row">
+              <span class="hw-label">{{t.name}}</span>
+              <span class="hw-value" style="color:var(--green);display:flex;align-items:center;gap:4px">
+                <svg class="icon-svg" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Active
+              </span>
+            </div>
+          </div>
+        </div>
+      </template>
+
     </template>
 
     <!-- ═══════════ SETTINGS ═══════════ -->
@@ -970,7 +1078,7 @@ const app = createApp({
       isAdmin, appliedCount, recommendedCount,
       filteredTweaks, unappliedVisible, appliedGamingTweaks,
       tweakCountByCat,
-      gameProfiles, toastMsg,
+      gameProfiles, selectedGame, copiedIdx, copyCrosshair, toastMsg,
       toggleTweak, doApplyRecommended, doApplyGaming, doRestoreAll,
       doClearTemp, doFlushDns, doVerifyAll, doRequestAdmin,
       startBatchApply, startFullBatchApply, applyGameProfile, closeBatch,
