@@ -75,6 +75,29 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .sidebar:hover .nav-items li .nav-label{opacity:1}
 .nav-items li .badge{margin-left:auto;background:var(--cyan);color:#000;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;opacity:0;transition:opacity .2s}
 .sidebar:hover .nav-items li .badge{opacity:1}
+
+/* ── Sidebar Sub-menu ── */
+.nav-items li .nav-expand{margin-left:auto;opacity:0;transition:all .2s;font-size:9px;color:var(--text3)}
+.sidebar:hover .nav-items li .nav-expand{opacity:1}
+.nav-items li.expanded .nav-expand{transform:rotate(180deg);color:var(--cyan)}
+.nav-sub{list-style:none;padding:0;max-height:0;overflow:hidden;transition:max-height .3s ease}
+.nav-sub.open{max-height:400px}
+.nav-sub li{padding:8px 12px 8px 48px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;border-radius:8px;margin:1px 0}
+.nav-sub li:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-sub li.active{color:var(--cyan);font-weight:600}
+.nav-sub li .sub-count{margin-left:auto;font-size:10px;opacity:.6}
+.nav-sub li .sub-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);margin-right:10px;flex-shrink:0;transition:background .2s}
+.nav-sub li.active .sub-dot{background:var(--cyan)}
+
+/* ── Save Credentials Checkbox ── */
+.save-creds{display:flex;align-items:center;gap:9px;margin-top:12px;margin-bottom:4px;cursor:pointer;user-select:none}
+.save-creds input{display:none}
+.save-creds .check-box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.save-creds input:checked~.check-box{background:var(--cyan);border-color:var(--cyan)}
+.save-creds input:checked~.check-box svg{opacity:1}
+.save-creds .check-box svg{width:12px;height:12px;stroke:#000;stroke-width:3;opacity:0;transition:opacity .15s}
+.save-creds .check-label{font-size:12px;color:var(--text3);transition:color .2s}
+.save-creds:hover .check-label{color:var(--text2)}
 .sidebar-footer{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border)}
 .admin-badge{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
 .admin-badge .admin-label{opacity:0;overflow:hidden;transition:opacity .2s .05s}
@@ -281,6 +304,11 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <label>Password</label>
           <input type="password" v-model="loginPass" placeholder="Enter your password">
         </div>
+        <label class="save-creds" @click.stop>
+          <input type="checkbox" v-model="saveCredentials" @change="onSaveCredsToggle">
+          <span class="check-box"><svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="check-label">Save Credentials</span>
+        </label>
         <button class="login-btn" type="submit" :disabled="authLoading">
           {{authLoading ? 'Signing in...' : 'Sign In'}}
         </button>
@@ -334,11 +362,29 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
     <div class="nav-section">Menu</div>
     <ul class="nav-items">
-      <li v-for="p in pages" :key="p.id" :class="{active:page===p.id}" @click="page=p.id">
+      <li v-for="p in pages" :key="p.id"
+          :class="{active: page===p.id, expanded: p.id==='tweaks' && tweaksExpanded}"
+          @click="handleNavClick(p)">
         <span class="nav-icon" v-html="p.svg"></span>
         <span class="nav-label">{{p.label}}</span>
         <span v-if="p.id==='tweaks' && appliedCount>0" class="badge">{{appliedCount}}</span>
+        <span v-if="p.id==='tweaks'" class="nav-expand">&#9660;</span>
       </li>
+      <!-- Optimizations sub-menu -->
+      <ul class="nav-sub" :class="{open: tweaksExpanded}">
+        <li :class="{active: page==='tweaks' && activeCat==='All'}" @click="page='tweaks';activeCat='All'">
+          <span class="sub-dot"></span>
+          <span>All</span>
+          <span class="sub-count">{{tweaks.length}}</span>
+        </li>
+        <li v-for="c in categories" :key="c"
+            :class="{active: page==='tweaks' && activeCat===c}"
+            @click="page='tweaks';activeCat=c">
+          <span class="sub-dot"></span>
+          <span>{{c}}</span>
+          <span class="sub-count">{{tweakCountByCat(c)}}</span>
+        </li>
+      </ul>
     </ul>
 
     <div class="nav-section">System</div>
@@ -872,10 +918,50 @@ const app = createApp({
     const hwidStatusMsg = ref('');
     const bridge      = ref(null);
 
+    // ── Save Credentials ──
+    const saveCredentials = ref(false);
+
+    // Load saved credentials on startup
+    (function(){
+      try {
+        var saved = localStorage.getItem('tweak_save_creds');
+        if(saved === 'true'){
+          saveCredentials.value = true;
+          var u = localStorage.getItem('tweak_cred_user');
+          var p = localStorage.getItem('tweak_cred_pass');
+          if(u) loginUser.value = u;
+          if(p) loginPass.value = p;
+        }
+      } catch(e){}
+    })();
+
+    function onSaveCredsToggle(){
+      try {
+        if(saveCredentials.value){
+          localStorage.setItem('tweak_save_creds', 'true');
+        } else {
+          localStorage.removeItem('tweak_save_creds');
+          localStorage.removeItem('tweak_cred_user');
+          localStorage.removeItem('tweak_cred_pass');
+        }
+      } catch(e){}
+    }
+
     // ── App State ──
     const page      = ref('dashboard');
     const search    = ref('');
     const activeCat = ref('All');
+    const tweaksExpanded = ref(false);
+
+    function handleNavClick(p){
+      if(p.id === 'tweaks'){
+        page.value = 'tweaks';
+        tweaksExpanded.value = !tweaksExpanded.value;
+      } else {
+        page.value = p.id;
+        tweaksExpanded.value = false;
+      }
+    }
 
     const sysinfo    = ref({});
     const monitor    = ref({});
@@ -1158,14 +1244,24 @@ const app = createApp({
     function doLogout(){
       loggedIn.value = false;
       currentUser.value = '';
-      loginUser.value = '';
-      loginPass.value = '';
+      // Keep credentials if save is on, clear otherwise
+      if(!saveCredentials.value){
+        loginUser.value = '';
+        loginPass.value = '';
+        try {
+          localStorage.removeItem('tweak_cred_user');
+          localStorage.removeItem('tweak_cred_pass');
+        } catch(e){}
+      } else {
+        loginPass.value = '';
+      }
       loginError.value = '';
       activateMsg.value = '';
       licenseKey.value = '';
       activateUser.value = '';
       activatePass.value = '';
       page.value = 'dashboard';
+      tweaksExpanded.value = false;
     }
 
     // ── Data Loaders ──
@@ -1239,12 +1335,26 @@ const app = createApp({
         // Fetch HWID for the activate tab
         bridge.value.getHwid(function(h){ hwidValue.value = h || '...'; });
 
+        // Auto-login if credentials are saved
+        if(saveCredentials.value && loginUser.value && loginPass.value){
+          authLoading.value = true;
+          bridge.value.loginLicense(loginUser.value, loginPass.value);
+        }
+
         // License login result
         bridge.value.loginResult.connect(function(success, message){
           authLoading.value = false;
           if(success){
             loggedIn.value = true;
             currentUser.value = loginUser.value;
+            // Save credentials if checkbox is checked
+            try {
+              if(saveCredentials.value){
+                localStorage.setItem('tweak_cred_user', loginUser.value);
+                localStorage.setItem('tweak_cred_pass', loginPass.value);
+                localStorage.setItem('tweak_save_creds', 'true');
+              }
+            } catch(e){}
             loginPass.value = '';
             loginError.value = '';
             refreshAll();
@@ -1313,8 +1423,9 @@ const app = createApp({
       loggedIn, currentUser, loginUser, loginPass, loginError, doLogin, doLogout,
       authTab, authLoading, licenseKey, activateUser, activatePass,
       activateMsg, activateSuccess, hwidValue, hwidStatus, hwidStatusMsg,
-      doActivate, onLoginUserInput,
+      doActivate, onLoginUserInput, saveCredentials, onSaveCredsToggle,
       bridge, page, pages, search, activeCat,
+      tweaksExpanded, handleNavClick,
       sysinfo, monitor, scores, tweaks, categories,
       isAdmin, appliedCount, recommendedCount,
       filteredTweaks, unappliedVisible, appliedGamingTweaks,
