@@ -247,12 +247,23 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .qa-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-glow);transform:translateY(-2px)}
 .qa-btn .icon-svg{width:18px;height:18px}
 
-/* ── Boost Page ── */
-.boost-card{padding:32px;text-align:center}
-.boost-card .boost-icon{margin-bottom:16px;display:flex;justify-content:center}
-.boost-card .boost-icon .icon-svg{width:44px;height:44px;color:var(--cyan)}
-.boost-card h3{font-size:17px;font-weight:700;margin-bottom:8px}
-.boost-card p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.5}
+/* ── Settings Switches ── */
+.switch-track{position:relative;width:44px;height:24px;background:var(--bg);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .25s;flex-shrink:0}
+.switch-track.on{background:var(--cyan);border-color:var(--cyan)}
+.switch-track .switch-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.switch-track.on .switch-thumb{transform:translateX(20px)}
+
+/* ── Backups Page ── */
+.backup-card{display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid var(--border)}
+.backup-card:last-child{border-bottom:none}
+.backup-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.backup-icon .icon-svg{width:20px;height:20px}
+.backup-info{flex:1;min-width:0}
+.backup-info h4{font-size:14px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.backup-info p{font-size:11px;color:var(--text3)}
+.backup-actions{display:flex;gap:8px;flex-shrink:0}
+.backup-empty{padding:48px 20px;text-align:center;color:var(--text3);font-size:13px}
+.backup-empty .icon-svg{width:48px;height:48px;margin:0 auto 16px;display:block;color:var(--border)}
 
 /* ── FPS / Delay Estimator ── */
 .fps-hw-bar{display:flex;gap:18px;align-items:center;padding:18px 24px;flex-wrap:wrap}
@@ -445,6 +456,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
     <div class="nav-section">System</div>
     <ul class="nav-items">
+      <li @click="page='backups'" :class="{active:page==='backups'}">
+        <span class="nav-icon"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></span>
+        <span class="nav-label">Backups</span>
+      </li>
       <li @click="page='settings'" :class="{active:page==='settings'}">
         <span class="nav-icon"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
         <span class="nav-label">Settings</span>
@@ -683,66 +698,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       </div>
     </template>
 
-    <!-- ═══════════ BOOST PAGE ═══════════ -->
-    <template v-if="page==='boost'">
-      <div class="page-header">
-        <h2>Boost Up</h2>
-        <p>One-click optimization profiles for maximum performance</p>
-      </div>
 
-      <div class="grid-3" style="margin-bottom:20px">
-        <div class="card boost-card">
-          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg></div>
-          <h3>Gaming Boost</h3>
-          <p>Apply all gaming-related optimizations for maximum FPS</p>
-          <button class="btn btn-cyan" @click="doApplyGaming">Apply Gaming Tweaks</button>
-        </div>
-        <div class="card boost-card">
-          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-          <h3>Recommended</h3>
-          <p>Apply all safe, recommended optimizations</p>
-          <button class="btn btn-green" @click="doApplyRecommended">Apply Recommended</button>
-        </div>
-        <div class="card boost-card">
-          <div class="boost-icon"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
-          <h3>Full Boost</h3>
-          <p>Apply ALL available tweaks (advanced users only)</p>
-          <button class="btn btn-red" @click="startFullBatchApply">Apply All Tweaks</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-title">Score Breakdown</div>
-        <div class="grid-4">
-          <div style="text-align:center">
-            <div style="font-size:28px;font-weight:900;color:var(--cyan)">{{scores.cpuScore||0}}</div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">CPU Score</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:28px;font-weight:900;color:var(--purple)">{{scores.gpuScore||0}}</div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">GPU Score</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:28px;font-weight:900;color:var(--green)">{{scores.ramScore||0}}</div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">RAM Score</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:28px;font-weight:900;color:var(--amber)">{{scores.storageScore||0}}</div>
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Storage Score</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Maintenance</div>
-        <div class="quick-actions">
-          <div class="qa-btn" @click="doClearTemp"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear Temp Files</div>
-          <div class="qa-btn" @click="doFlushDns"><svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Flush DNS Cache</div>
-          <div class="qa-btn" @click="doVerifyAll"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verify All Tweaks</div>
-          <div class="qa-btn" @click="doRestoreAll"><svg class="icon-svg" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Restore Defaults</div>
-        </div>
-      </div>
-    </template>
 
     <!-- ═══════════ FPS / DELAY ESTIMATOR ═══════════ -->
     <template v-if="page==='games'">
@@ -880,56 +836,163 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     </template>
 
     <!-- ═══════════ SETTINGS ═══════════ -->
+    <!-- ═══════════ BACKUPS PAGE ═══════════ -->
+    <template v-if="page==='backups'">
+      <div class="page-header">
+        <h2>Backups</h2>
+        <p>Opret og gendan restore points for dine tweaks</p>
+      </div>
+
+      <!-- Create new restore point -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Opret Restore Point</div>
+        <div style="display:flex;gap:12px;align-items:center;padding:8px 0">
+          <input type="text" v-model="backupName" placeholder="Giv et navn (f.eks. 'Før gaming tweaks')" style="flex:1;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none" @keyup.enter="createBackup">
+          <button class="btn btn-cyan" @click="createBackup" :disabled="!backupName.trim()">
+            <svg class="icon-svg" style="width:14px;height:14px;margin-right:6px;vertical-align:middle" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Opret
+          </button>
+        </div>
+      </div>
+
+      <!-- Restore points list -->
+      <div class="card">
+        <div class="card-title">Restore Points ({{backups.length}})</div>
+        <div v-if="backups.length===0" class="backup-empty">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <p>Ingen restore points endnu</p>
+          <p style="font-size:11px;margin-top:4px">Opret en backup ovenfor for at kunne gå tilbage til en tidligere tilstand</p>
+        </div>
+        <div v-for="(b,i) in backups" :key="b.id" class="backup-card">
+          <div class="backup-icon" :style="{background: i===0 ? 'rgba(6,182,212,.1)' : 'rgba(255,255,255,.03)'}">
+            <svg class="icon-svg" :style="{color: i===0 ? 'var(--cyan)' : 'var(--text3)'}" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </div>
+          <div class="backup-info">
+            <h4>{{b.name}}</h4>
+            <p>{{b.date}} &mdash; {{b.appliedCount}} tweaks applied af {{b.totalCount}}</p>
+          </div>
+          <div class="backup-actions">
+            <button class="btn btn-outline" style="font-size:11px;padding:8px 14px" @click="loadBackup(b)">Gendan</button>
+            <button class="btn btn-red" style="font-size:11px;padding:8px 14px" @click="deleteBackup(b.id)">Slet</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ═══════════ SETTINGS PAGE ═══════════ -->
     <template v-if="page==='settings'">
       <div class="page-header">
         <h2>Settings</h2>
-        <p>Application preferences and information</p>
+        <p>Applikationsindstillinger og præferencer</p>
       </div>
 
       <div class="card" style="margin-bottom:20px">
-        <div class="card-title">General</div>
+        <div class="card-title">Generelt</div>
         <div class="setting-row">
           <div class="sr-info">
             <h4>Administrator Mode</h4>
-            <p>{{isAdmin ? 'Running with elevated privileges' : 'Some tweaks require administrator rights'}}</p>
+            <p>{{isAdmin ? 'Kører med admin rettigheder' : 'Nogle tweaks kræver administrator'}}</p>
           </div>
-          <button class="btn" :class="isAdmin?'btn-green':'btn-outline'" @click="!isAdmin && doRequestAdmin()">
-            {{isAdmin ? 'Active' : 'Request Admin'}}
-          </button>
+          <div class="switch-track" :class="{on: isAdmin}" @click="!isAdmin && doRequestAdmin()">
+            <div class="switch-thumb"></div>
+          </div>
         </div>
         <div class="setting-row">
           <div class="sr-info">
-            <h4>Verify All Tweaks</h4>
-            <p>Check the real system state of all applied tweaks</p>
+            <h4>Auto-Save</h4>
+            <p>Gem ændringer automatisk når du toggler tweaks</p>
           </div>
-          <button class="btn btn-outline" @click="doVerifyAll">Verify</button>
+          <div class="switch-track" :class="{on: settAutoSave}" @click="settAutoSave=!settAutoSave; saveSettings()">
+            <div class="switch-thumb"></div>
+          </div>
         </div>
         <div class="setting-row">
           <div class="sr-info">
-            <h4>Restore All Defaults</h4>
-            <p>Undo every applied tweak and restore system defaults</p>
+            <h4>Bekræft før Restore</h4>
+            <p>Vis en bekræftelsesdialog før restore af defaults</p>
           </div>
-          <button class="btn btn-red" @click="doRestoreAll">Restore</button>
+          <div class="switch-track" :class="{on: settConfirmRestore}" @click="settConfirmRestore=!settConfirmRestore; saveSettings()">
+            <div class="switch-thumb"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Toast Notifikationer</h4>
+            <p>Vis popup-beskeder når tweaks ændres</p>
+          </div>
+          <div class="switch-track" :class="{on: settShowToasts}" @click="settShowToasts=!settShowToasts; saveSettings()">
+            <div class="switch-thumb"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Animations</h4>
+            <p>Aktiver animationer på tweak toggle</p>
+          </div>
+          <div class="switch-track" :class="{on: settAnimations}" @click="settAnimations=!settAnimations; saveSettings()">
+            <div class="switch-thumb"></div>
+          </div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom:20px">
-        <div class="card-title">Account</div>
+        <div class="card-title">Vedligeholdelse</div>
         <div class="setting-row">
           <div class="sr-info">
-            <h4>Logged in as</h4>
+            <h4>Verificer Alle Tweaks</h4>
+            <p>Tjek den rigtige systemstatus for alle tweaks</p>
+          </div>
+          <button class="btn btn-outline" @click="doVerifyAll">Verificer</button>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Gendan Alle Defaults</h4>
+            <p>Fortryd alle tweaks og gendan systemstandard</p>
+          </div>
+          <button class="btn btn-red" @click="doRestoreAll">Gendan</button>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Ryd Temp Filer</h4>
+            <p>Slet midlertidige filer for at frigøre plads</p>
+          </div>
+          <button class="btn btn-outline" @click="doClearTemp">Ryd</button>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Flush DNS Cache</h4>
+            <p>Nulstil DNS cache for bedre netværksforbindelse</p>
+          </div>
+          <button class="btn btn-outline" @click="doFlushDns">Flush</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Konto</div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Logget ind som</h4>
             <p>{{currentUser}}</p>
           </div>
-          <button class="btn btn-outline" @click="doLogout">Sign Out</button>
+          <button class="btn btn-outline" @click="doLogout">Log Ud</button>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <h4>Gem Login</h4>
+            <p>Husk loginoplysninger til næste gang</p>
+          </div>
+          <div class="switch-track" :class="{on: settSaveLogin}" @click="settSaveLogin=!settSaveLogin; saveSettings()">
+            <div class="switch-thumb"></div>
+          </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">About</div>
+        <div class="card-title">Om</div>
         <div class="hw-row"><span class="hw-label">Version</span><span class="hw-value">5.0.0</span></div>
         <div class="hw-row"><span class="hw-label">Framework</span><span class="hw-value">Qt 6 + Vue.js 3</span></div>
         <div class="hw-row"><span class="hw-label">Engine</span><span class="hw-value">Qt WebEngine + WebChannel</span></div>
-        <div class="hw-row"><span class="hw-label">Tweaks</span><span class="hw-value">{{tweaks.length}} available</span></div>
+        <div class="hw-row"><span class="hw-label">Tweaks</span><span class="hw-value">{{tweaks.length}} tilgængelige</span></div>
       </div>
     </template>
 
@@ -1263,6 +1326,89 @@ const app = createApp({
       savePopupActive.value = false;
     }
 
+    // ── Settings state ──
+    const settAutoSave      = ref(false);
+    const settConfirmRestore= ref(true);
+    const settShowToasts    = ref(true);
+    const settAnimations    = ref(true);
+    const settSaveLogin     = ref(true);
+
+    function loadSettings(){
+      try {
+        var s = JSON.parse(localStorage.getItem('tweak_settings')||'{}');
+        if(s.autoSave !== undefined) settAutoSave.value = s.autoSave;
+        if(s.confirmRestore !== undefined) settConfirmRestore.value = s.confirmRestore;
+        if(s.showToasts !== undefined) settShowToasts.value = s.showToasts;
+        if(s.animations !== undefined) settAnimations.value = s.animations;
+        if(s.saveLogin !== undefined) settSaveLogin.value = s.saveLogin;
+      } catch(e){}
+    }
+    function saveSettings(){
+      localStorage.setItem('tweak_settings', JSON.stringify({
+        autoSave: settAutoSave.value,
+        confirmRestore: settConfirmRestore.value,
+        showToasts: settShowToasts.value,
+        animations: settAnimations.value,
+        saveLogin: settSaveLogin.value,
+      }));
+    }
+    loadSettings();
+
+    // ── Backups state ──
+    const backups = ref([]);
+    const backupName = ref('');
+
+    function loadBackups(){
+      try { backups.value = JSON.parse(localStorage.getItem('tweak_backups')||'[]'); } catch(e){ backups.value = []; }
+    }
+    function persistBackups(){
+      localStorage.setItem('tweak_backups', JSON.stringify(backups.value));
+    }
+    loadBackups();
+
+    function createBackup(){
+      var name = backupName.value.trim();
+      if(!name) return;
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('da-DK',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + now.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});
+      var state = {};
+      var appliedCnt = 0;
+      tweaks.value.forEach(function(t){
+        state[t.id] = t.applied;
+        if(t.applied) appliedCnt++;
+      });
+      backups.value.unshift({
+        id: Date.now().toString(),
+        name: name,
+        date: dateStr,
+        appliedCount: appliedCnt,
+        totalCount: tweaks.value.length,
+        state: state
+      });
+      persistBackups();
+      backupName.value = '';
+      showToast('Restore point oprettet: ' + name);
+    }
+
+    function loadBackup(b){
+      if(!bridge.value) return;
+      // Toggle tweaks to match backup state
+      tweaks.value.forEach(function(t){
+        var desired = b.state[t.id] || false;
+        if(t.applied !== desired){
+          bridge.value.toggleTweak(t.row);
+        }
+      });
+      showToast('Gendannet: ' + b.name);
+      setTimeout(function(){ refreshTweaks(); initSavedState(); }, 500);
+    }
+
+    function deleteBackup(id){
+      backups.value = backups.value.filter(function(b){ return b.id !== id; });
+      persistBackups();
+      showToast('Restore point slettet');
+    }
+
     function discardTweakChanges(){
       // Revert tweaks to their saved state
       tweaks.value.forEach(function(t){
@@ -1283,7 +1429,6 @@ const app = createApp({
     const pages = [
       {id:'dashboard', label:'Dashboard', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'},
       {id:'tweaks',    label:'Optimizations', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'},
-      {id:'boost',     label:'Boost Up', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>'},
       {id:'games',     label:'FPS Estimator', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'},
     ];
 
@@ -1630,6 +1775,8 @@ const app = createApp({
       handleToggleTweak, tweakStatusClass, tweakStatusText,
       saveTweakChanges, discardTweakChanges, confirmRevertAll,
       savePopupActive, savePopupDone, savePopupItems, savePopupCurrent, savePopupTotal, savePopupPct, saveNeedsRestart, closeSavePopup,
+      settAutoSave, settConfirmRestore, settShowToasts, settAnimations, settSaveLogin, saveSettings,
+      backups, backupName, createBackup, loadBackup, deleteBackup,
       gameProfiles, fpsResolution, fpsQuality, fpsResults, fpsRunning, fpsNetPing, fpsStorageSpd, fpsLatencyScore, runFpsEstimate, runFpsPing, runFpsStorage, toastMsg,
       toggleTweak, doApplyRecommended, doApplyGaming, doRestoreAll,
       doClearTemp, doFlushDns, doVerifyAll, doRequestAdmin,
