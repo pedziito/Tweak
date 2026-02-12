@@ -216,7 +216,36 @@ void LicenseManager::activate(const QString &licenseKey, const QString &username
         // Check if already activated with different HWID
         QString existingHwid = lic.value(QStringLiteral("hwid")).toString();
         if (!existingHwid.isEmpty() && existingHwid != myHwid) {
-            emit activateResult(false, QStringLiteral("This license is already bound to another machine."));
+            // Check if self-rebind is allowed
+            int resets = lic.value(QStringLiteral("hwid_resets")).toInt(0);
+            int maxResets = lic.value(QStringLiteral("max_resets")).toInt(3);
+            if (resets >= maxResets) {
+                emit activateResult(false, QStringLiteral("This license has used all %1 HWID changes. Contact admin.").arg(maxResets));
+                return;
+            }
+            // Check 30-day cooldown
+            QString lastChange = lic.value(QStringLiteral("last_hwid_change")).toString();
+            if (!lastChange.isEmpty()) {
+                QDateTime lastDt = QDateTime::fromString(lastChange, Qt::ISODate);
+                if (lastDt.isValid() && lastDt.daysTo(QDateTime::currentDateTimeUtc()) < 30) {
+                    int daysLeft = 30 - lastDt.daysTo(QDateTime::currentDateTimeUtc());
+                    emit activateResult(false, QStringLiteral("HWID change cooldown: %1 day(s) remaining.").arg(daysLeft));
+                    return;
+                }
+            }
+            // Self-rebind allowed
+            lic[QStringLiteral("hwid")] = myHwid;
+            lic[QStringLiteral("hwid_resets")] = resets + 1;
+            lic[QStringLiteral("last_hwid_change")] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+            lic[QStringLiteral("activated_at")] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+            licenses[foundIdx] = lic;
+
+            saveLicenses(licenses, sha, [this, resets, maxResets](bool saved) {
+                if (saved)
+                    emit activateResult(true, QStringLiteral("HWID re-bound (%1/%2 changes used).").arg(resets + 1).arg(maxResets));
+                else
+                    emit activateResult(false, QStringLiteral("Failed to save. Try again."));
+            });
             return;
         }
 
@@ -238,6 +267,13 @@ void LicenseManager::activate(const QString &licenseKey, const QString &username
         lic[QStringLiteral("username")]     = username;
         lic[QStringLiteral("password")]     = QString::fromLatin1(passHash);
         lic[QStringLiteral("activated_at")] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+        // Initialize rebind fields if missing
+        if (!lic.contains(QStringLiteral("hwid_resets")))
+            lic[QStringLiteral("hwid_resets")] = 0;
+        if (!lic.contains(QStringLiteral("max_resets")))
+            lic[QStringLiteral("max_resets")] = 3;
+        if (!lic.contains(QStringLiteral("last_hwid_change")))
+            lic[QStringLiteral("last_hwid_change")] = QString();
 
         licenses[foundIdx] = lic;
 
@@ -284,7 +320,35 @@ void LicenseManager::login(const QString &username, const QString &password)
                     return;
                 }
                 if (storedHwid != myHwid) {
-                    emit loginResult(false, QStringLiteral("This account is bound to a different machine."));
+                    // Check if self-rebind is allowed
+                    int resets = lic.value(QStringLiteral("hwid_resets")).toInt(0);
+                    int maxResets = lic.value(QStringLiteral("max_resets")).toInt(3);
+                    if (resets >= maxResets) {
+                        emit loginResult(false, QStringLiteral("This account is bound to a different machine. All %1 HWID changes used — contact admin.").arg(maxResets));
+                        return;
+                    }
+                    // Check 30-day cooldown
+                    QString lastChange = lic.value(QStringLiteral("last_hwid_change")).toString();
+                    if (!lastChange.isEmpty()) {
+                        QDateTime lastDt = QDateTime::fromString(lastChange, Qt::ISODate);
+                        if (lastDt.isValid() && lastDt.daysTo(QDateTime::currentDateTimeUtc()) < 30) {
+                            int daysLeft = 30 - lastDt.daysTo(QDateTime::currentDateTimeUtc());
+                            emit loginResult(false, QStringLiteral("HWID mismatch. You can rebind in %1 day(s).").arg(daysLeft));
+                            return;
+                        }
+                    }
+                    // Auto-rebind to new machine
+                    lic[QStringLiteral("hwid")] = myHwid;
+                    lic[QStringLiteral("hwid_resets")] = resets + 1;
+                    lic[QStringLiteral("last_hwid_change")] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+                    lic[QStringLiteral("activated_at")] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+                    licenses[i] = lic;
+                    saveLicenses(licenses, sha, [this, resets, maxResets](bool saved) {
+                        if (saved)
+                            emit loginResult(true, QStringLiteral("Welcome back! HWID re-bound (%1/%2 changes used).").arg(resets + 1).arg(maxResets));
+                        else
+                            emit loginResult(false, QStringLiteral("Failed to update HWID binding."));
+                    });
                     return;
                 }
                 emit loginResult(true, QStringLiteral("Welcome back!"));
@@ -325,7 +389,23 @@ void LicenseManager::checkHwidStatus(const QString &username)
                     emit hwidStatusResult(QStringLiteral("ok"), QStringLiteral("HWID matches"));
                     return;
                 }
-                emit hwidStatusResult(QStringLiteral("mismatch"), QStringLiteral("HWID mismatch — contact admin for reset"));
+                // HWID mismatch — check rebind eligibility
+                int resets = lic.value(QStringLiteral("hwid_resets")).toInt(0);
+                int maxResets = lic.value(QStringLiteral("max_resets")).toInt(3);
+                if (resets >= maxResets) {
+                    emit hwidStatusResult(QStringLiteral("mismatch"), QStringLiteral("HWID mismatch — all %1 changes used, contact admin").arg(maxResets));
+                    return;
+                }
+                QString lastChange = lic.value(QStringLiteral("last_hwid_change")).toString();
+                if (!lastChange.isEmpty()) {
+                    QDateTime lastDt = QDateTime::fromString(lastChange, Qt::ISODate);
+                    if (lastDt.isValid() && lastDt.daysTo(QDateTime::currentDateTimeUtc()) < 30) {
+                        int daysLeft = 30 - lastDt.daysTo(QDateTime::currentDateTimeUtc());
+                        emit hwidStatusResult(QStringLiteral("mismatch"), QStringLiteral("HWID mismatch — rebind available in %1 day(s)").arg(daysLeft));
+                        return;
+                    }
+                }
+                emit hwidStatusResult(QStringLiteral("rebind"), QStringLiteral("HWID mismatch — will auto-rebind on login (%1/%2 used)").arg(resets).arg(maxResets));
                 return;
             }
         }

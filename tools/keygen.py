@@ -134,6 +134,7 @@ def api_generate():
             licenses.append({
                 "key": k, "hwid": "", "username": "", "password": "",
                 "created_at": datetime.now(timezone.utc).isoformat(), "activated_at": "",
+                "hwid_resets": 0, "last_hwid_change": "", "max_resets": 3
             })
             new_keys.append(k)
         save_licenses(token, licenses, sha)
@@ -189,14 +190,18 @@ def api_reset_hwid():
         found = False
         for l in licenses:
             if l["key"].upper() == key:
+                resets = l.get("hwid_resets", 0)
+                max_r = l.get("max_resets", 3)
                 l["hwid"] = ""
                 l["activated_at"] = ""
+                l["hwid_resets"] = resets + 1
+                l["last_hwid_change"] = datetime.now(timezone.utc).isoformat()
                 found = True
                 break
         if not found:
             return jsonify({"error": "Key not found"}), 404
         save_licenses(token, licenses, sha)
-        return jsonify({"ok": True})
+        return jsonify({"ok": True, "resets_used": l.get("hwid_resets", 0), "max_resets": l.get("max_resets", 3)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -215,6 +220,8 @@ def api_reset_user():
                 l["username"] = ""
                 l["password"] = ""
                 l["activated_at"] = ""
+                l["hwid_resets"] = 0
+                l["last_hwid_change"] = ""
                 found = True
                 break
         if not found:
@@ -331,25 +338,30 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 
 /* ── Table ── */
 .table-scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;white-space:nowrap}
-th,td{text-align:left;padding:10px 14px;vertical-align:middle}
-th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:separate;border-spacing:0}
+th,td{text-align:left;padding:11px 16px;vertical-align:middle}
+th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);white-space:nowrap}
 th .icon{margin-right:4px;opacity:.5}
-td{font-size:13px;border-bottom:1px solid rgba(26,34,64,.5)}
+td{font-size:13px;border-bottom:1px solid rgba(26,34,64,.5);white-space:nowrap}
 tr:hover td{background:rgba(255,255,255,.02)}
 tr.row-selected td{background:rgba(6,182,212,.04)}
 .th-chk{width:36px;padding-right:0}
-.th-actions{text-align:right}
-.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:inline-flex;align-items:center;gap:8px}
-.key-cell .icon{color:var(--cyan);opacity:.5;flex-shrink:0}
-.hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis}
-.user-cell{font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:6px}
-.user-cell .icon{color:var(--text3);flex-shrink:0}
+.th-actions{text-align:right;width:110px}
+.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:12px;letter-spacing:.3px}
+.key-cell .icon{color:var(--cyan);opacity:.5;vertical-align:-2px;margin-right:6px}
+.hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.user-cell{font-weight:600;color:var(--text)}
+.user-cell .icon{color:var(--text3);vertical-align:-2px;margin-right:4px}
 .date-cell{font-size:12px;color:var(--text3)}
+.resets-cell{font-size:12px}
+.resets-cell .reset-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700}
+.resets-cell .reset-ok{background:rgba(16,185,129,.1);color:var(--green)}
+.resets-cell .reset-warn{background:rgba(245,158,11,.1);color:var(--amber)}
+.resets-cell .reset-max{background:rgba(239,68,68,.1);color:var(--red)}
 .status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .status-active{background:rgba(16,185,129,.12);color:var(--green)}
 .status-unused{background:rgba(6,182,212,.1);color:var(--cyan)}
-.td-actions{text-align:right}
+.td-actions{text-align:right;width:110px}
 .actions-cell{display:inline-flex;gap:4px}
 .btn-icon{padding:7px;border-radius:8px;line-height:0}
 .btn-icon .icon{width:16px;height:16px}
@@ -613,10 +625,10 @@ function renderTable() {
     <th class="chk-col th-chk"><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Key</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Status</th>
-    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Username</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> User</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HWID</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Resets</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Created</th>
-    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Activated</th>
     <th class="th-actions">Actions</th>
   </tr></thead><tbody>`;
 
@@ -625,21 +637,23 @@ function renderTable() {
     const hwid = l.hwid || '\u2014';
     const user = l.username || '\u2014';
     const created = l.created_at ? l.created_at.substring(0, 10) : '\u2014';
-    const activated = l.activated_at ? l.activated_at.substring(0, 10) : '\u2014';
+    const resets = l.hwid_resets || 0;
+    const maxResets = l.max_resets || 3;
     const chk = selected.has(l.key) ? 'checked' : '';
     const statusIcon = active
       ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
       : '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
+    const resetClass = resets === 0 ? 'reset-ok' : (resets >= maxResets ? 'reset-max' : 'reset-warn');
     html += `<tr class="${chk ? 'row-selected' : ''}">
       <td class="chk-col"><input type="checkbox" class="chk" ${chk} onchange="toggleSelect('${esc(l.key)}', this.checked)"></td>
-      <td class="key-cell"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${esc(l.key)}</td>
+      <td class="key-cell"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>${esc(l.key)}</td>
       <td><span class="status-badge ${active ? 'status-active' : 'status-unused'}">${statusIcon} ${active ? 'Active' : 'Unused'}</span></td>
-      <td class="user-cell">${active ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ' : ''}${esc(user)}</td>
+      <td class="user-cell">${active ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' : ''}${esc(user)}</td>
       <td class="hwid-cell" title="${esc(hwid)}">${esc(hwid)}</td>
+      <td class="resets-cell"><span class="reset-badge ${resetClass}">${resets}/${maxResets}</span></td>
       <td class="date-cell">${esc(created)}</td>
-      <td class="date-cell">${esc(activated)}</td>
       <td class="td-actions"><div class="actions-cell">
-        ${l.hwid ? `<button class="btn btn-amber btn-icon" onclick="resetHwid('${esc(l.key)}')" title="Reset HWID"><svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
+        ${l.hwid ? `<button class="btn btn-amber btn-icon" onclick="resetHwid('${esc(l.key)}')" title="Reset HWID (${resets}/${maxResets} used)"><svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
         ${l.username ? `<button class="btn btn-outline btn-icon" onclick="resetUser('${esc(l.key)}')" title="Reset User"><svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg></button>` : ''}
         <button class="btn btn-red btn-icon" onclick="revokeKey('${esc(l.key)}')" title="Revoke"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div></td>
@@ -685,8 +699,11 @@ function revokeKey(key) {
 }
 
 function resetHwid(key) {
-  showModal('Reset HWID', 'Clear HWID binding for <span class="key-highlight">' + esc(key) + '</span>? The user will need to re-activate on their device.', 'Reset HWID', 'btn-amber', async () => {
-    try { await api('/api/reset-hwid', 'POST', { key }); toast('HWID reset for ' + key); await loadLicenses(); }
+  const lic = licenses.find(l => l.key === key);
+  const resets = lic ? (lic.hwid_resets || 0) : 0;
+  const maxR = lic ? (lic.max_resets || 3) : 3;
+  showModal('Reset HWID', `Clear HWID binding for <span class="key-highlight">${esc(key)}</span>?<br><br>This will use <strong>${resets + 1}/${maxR}</strong> admin resets. The user can also self-rebind if eligible (max 3 changes, 30-day cooldown).`, 'Reset HWID', 'btn-amber', async () => {
+    try { const d = await api('/api/reset-hwid', 'POST', { key }); toast(`HWID reset for ${key} (${d.resets_used}/${d.max_resets} used)`); await loadLicenses(); }
     catch (e) { toast(e.message, false); }
   });
 }
