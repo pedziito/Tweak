@@ -54,7 +54,7 @@ ApplicationWindow {
                 SidebarIcon { iconType: "home";      tipText: "Home";          tabIdx: 0 }
                 SidebarIcon { iconType: "lightning";  tipText: "Optimizations"; tabIdx: 1 }
                 SidebarIcon { iconType: "boost";      tipText: "Boost-Up";     tabIdx: 3 }
-                SidebarIcon { iconType: "gamepad";    tipText: "Games";         tabIdx: 2 }
+                SidebarIcon { iconType: "gamepad";    tipText: "FPS Estimator"; tabIdx: 2 }
                 SidebarIcon { iconType: "star";       tipText: "Favorites";     tabIdx: -1 }
 
                 Item { Layout.fillHeight: true }
@@ -86,7 +86,7 @@ ApplicationWindow {
                             switch(root.currentPage) {
                                 case 0: return "Welcome to Tweak"
                                 case 1: return "Optimizations"
-                                case 2: return "Games"
+                                case 2: return "FPS / Delay Estimator"
                                 case 3: return "Boost-Up"
                                 case 4: return "Settings"
                                 default: return "Tweak"
@@ -153,7 +153,7 @@ ApplicationWindow {
         }
     }
 
-    Cs2PathDialog { id: cs2PathDialog }
+    // Cs2PathDialog removed
 
     // ═══════ BATCH APPLY PROGRESS POPUP ═══════
     Rectangle {

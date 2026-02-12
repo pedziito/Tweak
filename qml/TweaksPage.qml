@@ -82,10 +82,13 @@ Item {
             }
         }
 
-        // ═══════ SUB-CATEGORY FILTERS ═══════
+        // ═══════ SUB-CATEGORY FILTERS (active highlight only on hover) ═══════
         Rectangle {
+            id: subCatBar
             Layout.fillWidth: true; Layout.preferredHeight: 42; color: "transparent"
             Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: "#0f1520" }
+
+            property bool barHovered: false
 
             Row {
                 anchors.verticalCenter: parent.verticalCenter; anchors.left: parent.left; anchors.leftMargin: 28
@@ -105,11 +108,20 @@ Item {
                         property bool isActive: tweaksPage.activeSubCat === modelData
                         Text {
                             id: scLabel; anchors.centerIn: parent; text: modelData
-                            color: isActive ? "#f59e0b" : scMouse.containsMouse ? "#c5d0de" : "#5a6a7c"
-                            font.pixelSize: 12; font.weight: isActive ? Font.DemiBold : Font.Normal
+                            color: {
+                                if (subCatBar.barHovered) {
+                                    return isActive ? "#f59e0b" : scMouse.containsMouse ? "#c5d0de" : "#5a6a7c"
+                                }
+                                return scMouse.containsMouse ? "#c5d0de" : "#5a6a7c"
+                            }
+                            font.pixelSize: 12
+                            font.weight: (subCatBar.barHovered && isActive) ? Font.DemiBold : Font.Normal
                         }
                         MouseArea {
                             id: scMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onContainsMouseChanged: {
+                                if (containsMouse) subCatBar.barHovered = true
+                            }
                             onClicked: {
                                 tweaksPage.activeSubCat = modelData
                                 appController.selectedCategory = modelData === "All" ? "All" : modelData
@@ -117,6 +129,14 @@ Item {
                         }
                     }
                 }
+            }
+
+            MouseArea {
+                anchors.fill: parent; hoverEnabled: true; propagateComposedEvents: true
+                onContainsMouseChanged: subCatBar.barHovered = containsMouse
+                onPressed: function(m) { m.accepted = false }
+                onReleased: function(m) { m.accepted = false }
+                onClicked: function(m) { m.accepted = false }
             }
         }
 

@@ -20,9 +20,17 @@ GameBenchmark::GameBenchmark(QObject *parent) : QObject(parent)
 {
     // Initialise game profiles — tuned for 1080p medium settings (base)
     m_profiles = {
-        {"cs2",      "Counter-Strike 2",  "CS2", 0.50, 0.40, 0.10, 120, 550, 0.65},
-        {"fortnite", "Fortnite",          "FN",  0.35, 0.55, 0.10, 60,  300, 0.60},
-        {"gta5",     "GTA V",             "GTA", 0.35, 0.55, 0.10, 40,  200, 0.55},
+        {"valorant",   "Valorant",           "VAL", 0.45, 0.45, 0.10, 100, 500, 0.65},
+        {"fortnite",   "Fortnite",           "FN",  0.35, 0.55, 0.10, 60,  300, 0.60},
+        {"gta5",       "GTA V",              "GTA", 0.35, 0.55, 0.10, 40,  200, 0.55},
+        {"apex",       "Apex Legends",       "APX", 0.40, 0.50, 0.10, 80,  300, 0.60},
+        {"warzone",    "Call of Duty: Warzone","COD", 0.40, 0.50, 0.10, 50,  250, 0.55},
+        {"overwatch2", "Overwatch 2",        "OW2", 0.40, 0.50, 0.10, 90,  400, 0.65},
+        {"minecraft",  "Minecraft",          "MC",  0.55, 0.30, 0.15, 60,  500, 0.70},
+        {"rocketleague","Rocket League",     "RL",  0.40, 0.45, 0.15, 80,  400, 0.65},
+        {"pubg",       "PUBG",               "PBG", 0.40, 0.50, 0.10, 50,  250, 0.55},
+        {"lol",        "League of Legends",  "LOL", 0.50, 0.35, 0.15, 100, 500, 0.70},
+        {"roblox",     "Roblox",             "RBX", 0.50, 0.35, 0.15, 80,  400, 0.70},
     };
 }
 
