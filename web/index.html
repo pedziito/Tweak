@@ -848,7 +848,7 @@ const app = createApp({
       {id:'games',     label:'Games', svg:'<svg class="icon-svg" viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>'},
     ];
 
-    // Game profiles with SVG paths
+    // Game profiles with pro player settings & crosshair codes
     var crosshair = '<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>';
     var gamepad = '<line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>';
     var targetSvg = '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>';
@@ -856,13 +856,92 @@ const app = createApp({
     var boxSvg = '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
     var starSvg = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>';
 
+    const selectedGame = ref(null);
+    const copiedIdx = ref(-1);
+
+    function copyCrosshair(code, idx){
+      navigator.clipboard.writeText(code).then(function(){
+        copiedIdx.value = idx;
+        showToast('Crosshair code copied!');
+        setTimeout(function(){ copiedIdx.value = -1; }, 1500);
+      });
+    }
+
     const gameProfiles = [
-      {name:'CS2',         svgPath:crosshair, desc:'Counter-Strike 2 \u2014 max FPS, low latency',        cats:['Gaming','Network']},
-      {name:'Fortnite',    svgPath:gamepad,   desc:'Fortnite \u2014 smooth builds, stable FPS',           cats:['Gaming','Network','Memory']},
-      {name:'Valorant',    svgPath:targetSvg, desc:'Valorant \u2014 competitive edge, low input lag',     cats:['Gaming','Network','Power']},
-      {name:'Apex Legends',svgPath:zapSvg,    desc:'Apex Legends \u2014 fast-paced battle royale boost',  cats:['Gaming','Network']},
-      {name:'Minecraft',   svgPath:boxSvg,    desc:'Minecraft \u2014 chunk loading, render distance',     cats:['Gaming','Memory','Storage']},
-      {name:'General FPS', svgPath:starSvg,   desc:'Generic FPS optimization for any shooter',            cats:['Gaming','Network','Power','System']},
+      {
+        name:'CS2', svgPath:crosshair, cats:['Gaming','Network'],
+        crosshairs:[
+          {player:'s1mple',   code:'CSGO-YOhes-Dz3wC-sShfd-VcKNi-x7MAD'},
+          {player:'ZywOo',    code:'CSGO-XVMC7-FS3kf-UduuK-dPvQX-6WMGJ'},
+          {player:'m0NESY',   code:'CSGO-nV4Sz-DqZEm-3RuCh-OfSAn-yRMzG'},
+          {player:'NiKo',     code:'CSGO-O4Jsi-V36bm-vsDWZ-sRBuX-7XWQD'},
+          {player:'donk',     code:'CSGO-Rzmhq-Fbc5D-eMONi-vQW3x-6YsdJ'},
+          {player:'ropz',     code:'CSGO-jWjkC-S2CdR-xf4OZ-V9kEr-oTYQP'},
+        ],
+        pros:[
+          {name:'s1mple', team:'NAVI', settings:{'DPI':'400','Sensitivity':'3.09','eDPI':'1236','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz'}},
+          {name:'ZywOo', team:'Vitality', settings:{'DPI':'400','Sensitivity':'2.0','eDPI':'800','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz'}},
+          {name:'m0NESY', team:'G2', settings:{'DPI':'400','Sensitivity':'1.85','eDPI':'740','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz'}},
+          {name:'NiKo', team:'G2', settings:{'DPI':'400','Sensitivity':'1.38','eDPI':'552','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz'}},
+          {name:'donk', team:'Spirit', settings:{'DPI':'800','Sensitivity':'0.8','eDPI':'640','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'240Hz'}},
+          {name:'ropz', team:'FaZe', settings:{'DPI':'400','Sensitivity':'1.77','eDPI':'708','Resolution':'1920\u00d71080','Aspect Ratio':'16:9','Hz':'360Hz'}},
+        ]
+      },
+      {
+        name:'Valorant', svgPath:targetSvg, cats:['Gaming','Network','Power'],
+        crosshairs:[
+          {player:'TenZ',     code:'0;s;1;P;c;5;o;1;d;1;z;3;0b;0;1b;0;S;c;5;s;0.8;o;1'},
+          {player:'Aspas',    code:'0;P;c;7;o;1;d;1;z;3;0b;0;1b;0;S;o;1;d;1;s;0.75'},
+          {player:'yay',      code:'0;s;1;P;c;5;h;0;m;1;0l;4;0o;2;0a;1;0f;0;1b;0'},
+          {player:'Demon1',   code:'0;P;c;1;o;1;f;0;0l;3;0o;0;0a;1;0f;0;1b;0'},
+          {player:'Chronicle',code:'0;P;h;0;f;0;0l;4;0o;0;0a;1;0f;0;1b;0;S;s;0.6'},
+        ],
+        pros:[
+          {name:'TenZ', team:'Sentinels', settings:{'DPI':'800','Sensitivity':'0.4','eDPI':'320','Crosshair':'Small Cross','Resolution':'1920\u00d71080','Hz':'360Hz'}},
+          {name:'Aspas', team:'LOUD', settings:{'DPI':'800','Sensitivity':'0.3','eDPI':'240','Crosshair':'Dot','Resolution':'1920\u00d71080','Hz':'240Hz'}},
+          {name:'yay', team:'Cloud9', settings:{'DPI':'800','Sensitivity':'0.27','eDPI':'216','Crosshair':'Small Cross','Resolution':'1920\u00d71080','Hz':'360Hz'}},
+          {name:'Demon1', team:'Evil Geniuses', settings:{'DPI':'200','Sensitivity':'1.2','eDPI':'240','Crosshair':'Cross','Resolution':'1280\u00d7960','Hz':'240Hz'}},
+          {name:'Chronicle', team:'Fnatic', settings:{'DPI':'400','Sensitivity':'0.77','eDPI':'308','Crosshair':'Cross','Resolution':'1920\u00d71080','Hz':'240Hz'}},
+        ]
+      },
+      {
+        name:'Fortnite', svgPath:gamepad, cats:['Gaming','Network','Memory'],
+        crosshairs:[],
+        pros:[
+          {name:'Bugha', team:'Sentinels', settings:{'DPI':'400','X Sens':'11%','Y Sens':'11%','Target Sens':'37%','Scope Sens':'37%','Resolution':'1920\u00d71080','Hz':'240Hz'}},
+          {name:'Mongraal', team:'\u2014', settings:{'DPI':'400','X Sens':'13%','Y Sens':'13%','Target Sens':'42%','Scope Sens':'42%','Resolution':'1920\u00d71080','Hz':'240Hz'}},
+          {name:'Clix', team:'NRG', settings:{'DPI':'800','X Sens':'5.5%','Y Sens':'5.5%','Target Sens':'28%','Scope Sens':'28%','Resolution':'1920\u00d71080','Hz':'240Hz'}},
+          {name:'MrSavage', team:'100T', settings:{'DPI':'800','X Sens':'6.7%','Y Sens':'6.7%','Target Sens':'35%','Scope Sens':'35%','Resolution':'1920\u00d71080','Hz':'240Hz'}},
+        ]
+      },
+      {
+        name:'Apex Legends', svgPath:zapSvg, cats:['Gaming','Network'],
+        crosshairs:[],
+        pros:[
+          {name:'ImperialHal', team:'TSM', settings:{'DPI':'400','Sensitivity':'2.5','eDPI':'1000','FOV':'110','Resolution':'1920\u00d71080','Hz':'240Hz','Response Curve':'Classic'}},
+          {name:'Genburten', team:'DarkZero', settings:{'DPI':'800','Sensitivity':'1.4','eDPI':'1120','FOV':'110','Resolution':'1920\u00d71080','Hz':'240Hz','Response Curve':'Classic'}},
+          {name:'Ras', team:'CR', settings:{'DPI':'400','Sensitivity':'2.0','eDPI':'800','FOV':'110','Resolution':'1920\u00d71080','Hz':'240Hz','Response Curve':'Classic'}},
+          {name:'Hardecki', team:'\u2014', settings:{'DPI':'800','Sensitivity':'1.3','eDPI':'1040','FOV':'110','Resolution':'1920\u00d71080','Hz':'240Hz','Response Curve':'Linear'}},
+        ]
+      },
+      {
+        name:'Minecraft', svgPath:boxSvg, cats:['Gaming','Memory','Storage'],
+        crosshairs:[],
+        pros:[
+          {name:'Dream', team:'Content', settings:{'FOV':'Quake Pro (110)','Render Dist':'16 chunks','Particles':'Minimal','Graphics':'Fast','Smooth Lighting':'Off','VSync':'Off'}},
+          {name:'Technoblade', team:'Legend', settings:{'FOV':'Quake Pro (110)','Render Dist':'12 chunks','Particles':'Minimal','Graphics':'Fast','Smooth Lighting':'Off','VSync':'Off'}},
+          {name:'Fruit', team:'MCC', settings:{'FOV':'90','Render Dist':'10 chunks','Particles':'Decreased','Graphics':'Fast','Smooth Lighting':'Off','VSync':'Off'}},
+        ]
+      },
+      {
+        name:'General FPS', svgPath:starSvg, cats:['Gaming','Network','Power','System'],
+        crosshairs:[],
+        pros:[
+          {name:'Shroud', team:'Retired', settings:{'DPI':'450','Sensitivity':'Varies','Mouse Accel':'Off','Windows Sens':'6/11','Polling Rate':'1000Hz','VSync':'Off'}},
+          {name:'Wardell', team:'\u2014', settings:{'DPI':'400','Sensitivity':'Low','Mouse Accel':'Off','Windows Sens':'6/11','Polling Rate':'1000Hz','VSync':'Off'}},
+          {name:'fl0m', team:'Content', settings:{'DPI':'400','Sensitivity':'2.25','Mouse Accel':'Off','Windows Sens':'6/11','Polling Rate':'1000Hz','VSync':'Off'}},
+        ]
+      },
     ];
 
     // ── Computed ──
