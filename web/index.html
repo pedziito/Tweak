@@ -227,6 +227,14 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px;transition:width .3s}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ── Progress Circle ── */
+.progress-circle{position:relative;width:80px;height:80px;margin:0 auto 12px}
+.progress-circle svg{width:80px;height:80px;transform:rotate(-90deg)}
+.progress-circle .pc-bg{fill:none;stroke:var(--bg);stroke-width:6}
+.progress-circle .pc-fg{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .4s ease}
+.progress-circle .pc-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--text)}
+.progress-circle .pc-text .pc-pct{font-size:11px;font-weight:600;color:var(--text3)}
+
 /* ── Save Popup ── */
 .save-popup{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px;width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 25px 80px rgba(0,0,0,.5)}
 .save-popup h3{font-size:18px;font-weight:700;margin-bottom:6px}
@@ -643,20 +651,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         </div>
       </div>
 
-      <!-- Unsaved changes bar -->
-      <div class="save-bar" v-if="hasUnsavedTweaks">
-        <div class="sb-text">
-          <svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          You have {{unsavedCount}} unsaved change{{unsavedCount>1?'s':''}}
-        </div>
-        <div class="sb-actions">
-          <button class="btn btn-outline" style="padding:7px 16px;font-size:12px" @click="discardTweakChanges">Discard</button>
-          <button class="btn btn-cyan" style="padding:7px 16px;font-size:12px" @click="saveTweakChanges">
-            <svg class="icon-svg" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Save
-          </button>
-        </div>
-      </div>
+
 
       <!-- Search bar -->
       <div class="filter-bar">
@@ -683,12 +678,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
             <span v-if="t.verified" style="font-size:10px;color:var(--green);display:flex;align-items:center;gap:3px">
               <svg class="icon-svg" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </span>
-            <span class="tweak-status" :class="tweakStatusClass(t)" v-if="tweakStatusText(t)">{{tweakStatusText(t)}}</span>
+
           </div>
-          <!-- Activity log line -->
-          <div class="tweak-log" :class="{visible: tweakLogMsg[t.row]}">
-            {{tweakLogMsg[t.row]}}
-          </div>
+
         </div>
       </div>
 
@@ -1002,10 +994,17 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <div class="overlay" v-if="batchActive" @click.self="batchDone && closeBatch()">
     <div class="batch-popup">
       <h3>{{batchDone ? 'Complete!' : 'Applying Tweaks...'}}</h3>
-      <div class="progress-bar">
-        <div class="fill" :style="{width: batchPct+'%'}"></div>
+      <div class="progress-circle">
+        <svg viewBox="0 0 100 100">
+          <circle class="pc-bg" cx="50" cy="50" r="42"/>
+          <circle class="pc-fg" cx="50" cy="50" r="42"
+            stroke="url(#scoreGrad)"
+            :stroke-dasharray="264"
+            :stroke-dashoffset="264 - (264 * batchPct / 100)"/>
+        </svg>
+        <div class="pc-text">{{batchPct}}<span class="pc-pct">%</span></div>
       </div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center">
         {{batchCurrent}} / {{batchTotal}} tweaks
       </div>
       <div style="max-height:320px;overflow-y:auto">
@@ -1036,8 +1035,15 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       </h3>
       <div class="save-subtitle">{{savePopupDone ? 'All '+savePopupTotal+' changes applied successfully' : savePopupCurrent+' / '+savePopupTotal+' changes'}}</div>
 
-      <div class="progress-bar">
-        <div class="fill" :style="{width: savePopupPct+'%'}"></div>
+      <div class="progress-circle">
+        <svg viewBox="0 0 100 100">
+          <circle class="pc-bg" cx="50" cy="50" r="42"/>
+          <circle class="pc-fg" cx="50" cy="50" r="42"
+            stroke="url(#scoreGrad)"
+            :stroke-dasharray="264"
+            :stroke-dashoffset="264 - (264 * savePopupPct / 100)"/>
+        </svg>
+        <div class="pc-text">{{savePopupPct}}<span class="pc-pct">%</span></div>
       </div>
 
       <div class="save-list">
@@ -1242,27 +1248,11 @@ const app = createApp({
       setTimeout(function(){
         if(wasApplied){
           tweakAnimState.value[row] = 'reverted';
-          showToast('Reverted: ' + t.name);
         } else {
           tweakAnimState.value[row] = 'applied';
-          showToast('Applied: ' + t.name);
         }
-        checkUnsaved();
         setTimeout(function(){ tweakAnimState.value[row] = ''; }, 800);
       }, 300);
-    }
-
-    function tweakStatusClass(t){
-      if(tweakAnimState.value[t.row]==='applying') return 'ts-applying';
-      if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied) return 'ts-unsaved';
-      if(t.applied) return 'ts-saved';
-      return '';
-    }
-    function tweakStatusText(t){
-      if(tweakAnimState.value[t.row]==='applying') return 'Applying...';
-      if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied) return 'Unsaved';
-      if(t.applied) return 'Active';
-      return '';
     }
 
     // Save popup state
@@ -1671,6 +1661,11 @@ const app = createApp({
 
     // ── Init ──
     onMounted(function(){
+      // Auto-save on app close
+      window.addEventListener('beforeunload', function(){
+        initSavedState();
+      });
+
       new QWebChannel(qt.webChannelTransport, function(channel){
         bridge.value = channel.objects.bridge;
 
@@ -1771,10 +1766,9 @@ const app = createApp({
       isAdmin, appliedCount, recommendedCount,
       filteredTweaks, unappliedVisible,
       tweakCountByCat,
-      tweakAnimState, tweakLogMsg, hasUnsavedTweaks, unsavedCount,
-      handleToggleTweak, tweakStatusClass, tweakStatusText,
-      saveTweakChanges, discardTweakChanges, confirmRevertAll,
-      savePopupActive, savePopupDone, savePopupItems, savePopupCurrent, savePopupTotal, savePopupPct, saveNeedsRestart, closeSavePopup,
+      tweakAnimState,
+      handleToggleTweak, confirmRevertAll,
+      savePopupActive, savePopupDone, savePopupItems, savePopupCurrent, savePopupTotal, savePopupPct, saveNeedsRestart, closeSavePopup, saveTweakChanges, discardTweakChanges,
       settAutoSave, settConfirmRestore, settShowToasts, settAnimations, settSaveLogin, saveSettings,
       backups, backupName, createBackup, loadBackup, deleteBackup,
       gameProfiles, fpsResolution, fpsQuality, fpsResults, fpsRunning, fpsNetPing, fpsStorageSpd, fpsLatencyScore, runFpsEstimate, runFpsPing, runFpsStorage, toastMsg,
