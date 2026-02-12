@@ -70,6 +70,7 @@ QVariantMap serviceAction(const QString &serviceName, const QString &startType)
 TweakEngine::TweakEngine()
 {
     initializeTweaks();
+    loadAppliedState();
 }
 
 QList<Tweak> &TweakEngine::tweaks()        { return m_tweaks; }
@@ -207,6 +208,7 @@ void TweakEngine::applyRecommended()
         if (t.recommended && !t.applied)
             applyTweak(t);
     }
+    saveAppliedState();
 }
 
 void TweakEngine::restoreDefaults()
@@ -215,6 +217,7 @@ void TweakEngine::restoreDefaults()
         if (t.applied)
             restoreTweak(t);
     }
+    saveAppliedState();
 }
 
 void TweakEngine::toggleTweak(const QString &id)
@@ -226,6 +229,7 @@ void TweakEngine::toggleTweak(const QString &id)
             break;
         }
     }
+    saveAppliedState();
 }
 
 // ---------------------------------------------------------------------------
@@ -2261,4 +2265,47 @@ QJsonObject TweakEngine::loadBackup(const QString &id) const
     const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
     file.close();
     return root.value(id).toObject();
+}
+
+// ---------------------------------------------------------------------------
+// Applied-state persistence
+// ---------------------------------------------------------------------------
+namespace {
+QString appliedStatePath()
+{
+    const QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    return dir + QStringLiteral("/applied_state.json");
+}
+} // anon
+
+void TweakEngine::saveAppliedState() const
+{
+    const QString path = appliedStatePath();
+    QDir().mkpath(QFileInfo(path).absolutePath());
+
+    QJsonObject root;
+    for (const Tweak &t : m_tweaks) {
+        if (t.applied)
+            root.insert(t.id, true);
+    }
+
+    QFile f(path);
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        f.write(QJsonDocument(root).toJson(QJsonDocument::Compact));
+        f.close();
+    }
+}
+
+void TweakEngine::loadAppliedState()
+{
+    QFile f(appliedStatePath());
+    if (!f.open(QIODevice::ReadOnly)) return;
+    const QJsonObject root = QJsonDocument::fromJson(f.readAll()).object();
+    f.close();
+
+    for (Tweak &t : m_tweaks) {
+        if (root.contains(t.id) && root.value(t.id).toBool()) {
+            t.applied = true;
+        }
+    }
 }

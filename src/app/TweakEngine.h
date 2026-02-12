@@ -55,6 +55,9 @@ private:
     void saveBackup(const QString &id, const QJsonObject &backup);
     QJsonObject loadBackup(const QString &id) const;
 
+    void saveAppliedState() const;
+    void loadAppliedState();
+
     QList<Tweak> m_tweaks;
     QString m_cs2Path;
 };

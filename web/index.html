@@ -1325,10 +1325,17 @@ const app = createApp({
     function doLogout(){
       loggedIn.value = false;
       currentUser.value = '';
-      // Always clear fields; saved creds stay in localStorage for next app launch
-      loginUser.value = '';
-      loginPass.value = '';
-      if(!saveCredentials.value){
+      // Restore saved credentials for next auto-login, or clear fields
+      if(saveCredentials.value){
+        try {
+          var u = localStorage.getItem('tweak_cred_user');
+          var p = localStorage.getItem('tweak_cred_pass');
+          if(u) loginUser.value = u;
+          if(p) loginPass.value = p;
+        } catch(e){}
+      } else {
+        loginUser.value = '';
+        loginPass.value = '';
         try {
           localStorage.removeItem('tweak_cred_user');
           localStorage.removeItem('tweak_cred_pass');
@@ -1436,7 +1443,6 @@ const app = createApp({
                 localStorage.setItem('tweak_save_creds', 'true');
               }
             } catch(e){}
-            loginPass.value = '';
             loginError.value = '';
             refreshAll();
             // Initialize saved state after login
