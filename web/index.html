@@ -587,25 +587,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         </div>
       </div>
 
-      <!-- Filter bar with dropdown -->
+      <!-- Search bar -->
       <div class="filter-bar">
         <input class="search-box" v-model="search" placeholder="Search tweaks...">
-        <div class="cat-dropdown" v-click-outside="closeCatDropdown">
-          <button class="cat-dropdown-btn" :class="{open:catDropdownOpen}" @click="catDropdownOpen=!catDropdownOpen">
-            <span>{{activeCat==='All' ? 'All Categories' : activeCat}}</span>
-            <span class="dd-arrow">&#9660;</span>
-          </button>
-          <div class="cat-dropdown-menu" v-if="catDropdownOpen">
-            <div class="cat-dropdown-item" :class="{active:activeCat==='All'}" @click="activeCat='All';catDropdownOpen=false">
-              <span>All Categories</span>
-              <span class="dd-count">{{tweaks.length}}</span>
-            </div>
-            <div class="cat-dropdown-item" v-for="c in categories" :key="c" :class="{active:activeCat===c}" @click="activeCat=c;catDropdownOpen=false">
-              <span>{{c}}</span>
-              <span class="dd-count">{{tweakCountByCat(c)}}</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="tweak-grid">
