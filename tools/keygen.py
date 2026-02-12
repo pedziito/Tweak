@@ -157,6 +157,27 @@ def api_revoke():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/bulk-revoke", methods=["POST"])
+def api_bulk_revoke():
+    token = get_token()
+    if not token:
+        return jsonify({"error": "No GITHUB_TOKEN"}), 500
+    keys = request.json.get("keys", [])
+    keys = [k.upper() for k in keys]
+    if not keys:
+        return jsonify({"error": "No keys provided"}), 400
+    try:
+        licenses, sha = fetch_licenses(token)
+        before = len(licenses)
+        new_list = [l for l in licenses if l["key"].upper() not in keys]
+        removed = before - len(new_list)
+        if removed == 0:
+            return jsonify({"error": "No matching keys found"}), 404
+        save_licenses(token, new_list, sha)
+        return jsonify({"ok": True, "removed": removed})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/reset-hwid", methods=["POST"])
 def api_reset_hwid():
     token = get_token()
@@ -314,6 +335,7 @@ th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;le
 th .icon{margin-right:4px;opacity:.5}
 td{padding:12px;font-size:13px;border-bottom:1px solid rgba(26,34,64,.5);vertical-align:middle}
 tr:hover td{background:rgba(255,255,255,.02)}
+tr.row-selected td{background:rgba(6,182,212,.04)}
 .key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
 .key-cell .icon{color:var(--cyan);opacity:.5}
 .hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis}
@@ -323,9 +345,20 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .status-active{background:rgba(16,185,129,.12);color:var(--green)}
 .status-unused{background:rgba(6,182,212,.1);color:var(--cyan)}
-.actions-cell{display:flex;gap:6px;flex-wrap:wrap}
+.actions-cell{display:flex;gap:4px;flex-wrap:nowrap}
+.btn-icon{padding:7px;border-radius:8px;line-height:0}
+.btn-icon .icon{width:15px;height:15px}
 .empty{text-align:center;padding:48px;color:var(--text3);font-size:14px}
 .empty .icon{opacity:.3;margin-bottom:12px}
+
+/* ── Checkbox ── */
+.chk{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0}
+th .chk{margin-right:4px}
+
+/* ── Selection Bar ── */
+.sel-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;margin-bottom:14px;border-radius:10px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.15);animation:fadeIn .2s}
+.sel-bar .sel-count{font-size:13px;font-weight:600;color:var(--cyan)}
+.sel-bar .sel-actions{margin-left:auto;display:flex;gap:8px}
 
 /* ── Footer ── */
 .footer{text-align:center;padding:20px;color:var(--text3);font-size:11px;border-top:1px solid var(--border);margin-top:20px}
@@ -481,6 +514,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <script>
 let licenses = [];
 let pendingAction = null;
+let selected = new Set();
 
 document.getElementById('yearFooter').textContent = new Date().getFullYear();
 
@@ -541,14 +575,30 @@ function renderTable() {
     return;
   }
 
-  let html = `<table><thead><tr>
+  // Selection bar
+  let selHtml = '';
+  if (selected.size > 0) {
+    selHtml = `<div class="sel-bar">
+      <span class="sel-count">${selected.size} selected</span>
+      <div class="sel-actions">
+        <button class="btn btn-red btn-sm" onclick="bulkRevoke()"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Revoke Selected</button>
+        <button class="btn btn-outline btn-sm" onclick="clearSelection()"><svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Clear</button>
+      </div>
+    </div>`;
+  }
+
+  const allKeys = filtered.map(l => l.key);
+  const allChecked = allKeys.length > 0 && allKeys.every(k => selected.has(k));
+
+  let html = selHtml + `<table><thead><tr>
+    <th><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Key</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Status</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Username</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HWID</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Created</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Activated</th>
-    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Actions</th>
+    <th>Actions</th>
   </tr></thead><tbody>`;
 
   for (const l of filtered) {
@@ -557,10 +607,12 @@ function renderTable() {
     const user = l.username || '\u2014';
     const created = l.created_at ? l.created_at.substring(0, 10) : '\u2014';
     const activated = l.activated_at ? l.activated_at.substring(0, 10) : '\u2014';
+    const chk = selected.has(l.key) ? 'checked' : '';
     const statusIcon = active
       ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
       : '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
-    html += `<tr>
+    html += `<tr class="${chk ? 'row-selected' : ''}">
+      <td><input type="checkbox" class="chk" ${chk} onchange="toggleSelect('${esc(l.key)}', this.checked)"></td>
       <td class="key-cell"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${esc(l.key)}</td>
       <td><span class="status-badge ${active ? 'status-active' : 'status-unused'}">${statusIcon} ${active ? 'Active' : 'Unused'}</span></td>
       <td class="user-cell">${active ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ' : ''}${esc(user)}</td>
@@ -568,9 +620,9 @@ function renderTable() {
       <td class="date-cell">${esc(created)}</td>
       <td class="date-cell">${esc(activated)}</td>
       <td><div class="actions-cell">
-        ${l.hwid ? `<button class="btn btn-amber btn-sm" onclick="resetHwid('${esc(l.key)}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Reset HWID</button>` : ''}
-        ${l.username ? `<button class="btn btn-outline btn-sm" onclick="resetUser('${esc(l.key)}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Reset User</button>` : ''}
-        <button class="btn btn-red btn-sm" onclick="revokeKey('${esc(l.key)}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Revoke</button>
+        ${l.hwid ? `<button class="btn btn-amber btn-icon" onclick="resetHwid('${esc(l.key)}')" title="Reset HWID"><svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
+        ${l.username ? `<button class="btn btn-outline btn-icon" onclick="resetUser('${esc(l.key)}')" title="Reset User"><svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg></button>` : ''}
+        <button class="btn btn-red btn-icon" onclick="revokeKey('${esc(l.key)}')" title="Revoke"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div></td>
     </tr>`;
   }
@@ -634,11 +686,42 @@ async function initDb() {
   });
 }
 
-// Keyboard shortcut: Ctrl+K to focus search
+function toggleSelect(key, checked) {
+  if (checked) selected.add(key); else selected.delete(key);
+  renderTable();
+}
+function toggleAll(checked) {
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const filtered = query ? licenses.filter(l => l.key.toLowerCase().includes(query) || (l.username||'').toLowerCase().includes(query) || (l.hwid||'').toLowerCase().includes(query)) : licenses;
+  if (checked) filtered.forEach(l => selected.add(l.key)); else selected.clear();
+  renderTable();
+}
+function clearSelection() { selected.clear(); renderTable(); }
+
+function bulkRevoke() {
+  const keys = [...selected];
+  showModal('Bulk Revoke', `Permanently delete <strong>${keys.length}</strong> license(s)? This cannot be undone.`, 'Revoke All', 'btn-red', async () => {
+    try {
+      await api('/api/bulk-revoke', 'POST', { keys });
+      toast(`Revoked ${keys.length} license(s)`);
+      selected.clear();
+      await loadLicenses();
+    } catch (e) { toast(e.message, false); }
+  });
+}
+
+// Keyboard shortcut: Ctrl+K to focus search, Escape to clear selection
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape' && selected.size > 0) {
+    clearSelection();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'a' && document.activeElement?.tagName !== 'INPUT') {
+    e.preventDefault();
+    toggleAll(true);
   }
 });
 
