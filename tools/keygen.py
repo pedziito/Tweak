@@ -330,22 +330,30 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 .search-input::placeholder{color:var(--text3)}
 
 /* ── Table ── */
-table{width:100%;border-collapse:collapse}
-th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th,td{text-align:left;padding:10px 12px;vertical-align:middle}
+th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);white-space:nowrap}
 th .icon{margin-right:4px;opacity:.5}
-td{padding:12px;font-size:13px;border-bottom:1px solid rgba(26,34,64,.5);vertical-align:middle}
+td{font-size:13px;border-bottom:1px solid rgba(26,34,64,.5)}
 tr:hover td{background:rgba(255,255,255,.02)}
 tr.row-selected td{background:rgba(6,182,212,.04)}
-.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
-.key-cell .icon{color:var(--cyan);opacity:.5}
-.hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis}
-.user-cell{font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
-.user-cell .icon{color:var(--text3)}
-.date-cell{font-size:12px;color:var(--text3)}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.col-chk{width:40px}
+.col-key{width:24%}
+.col-status{width:10%}
+.col-user{width:12%}
+.col-hwid{width:18%}
+.col-date{width:10%}
+.col-actions{width:100px;text-align:right}
+.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.key-cell .icon{color:var(--cyan);opacity:.5;flex-shrink:0}
+.hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-cell{font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-cell .icon{color:var(--text3);flex-shrink:0}
+.date-cell{font-size:12px;color:var(--text3);white-space:nowrap}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 .status-active{background:rgba(16,185,129,.12);color:var(--green)}
 .status-unused{background:rgba(6,182,212,.1);color:var(--cyan)}
-.actions-cell{display:flex;gap:4px;flex-wrap:nowrap}
+.actions-cell{display:flex;gap:4px;flex-wrap:nowrap;justify-content:flex-end}
 .btn-icon{padding:7px;border-radius:8px;line-height:0}
 .btn-icon .icon{width:16px;height:16px}
 .empty{text-align:center;padding:48px;color:var(--text3);font-size:14px}
@@ -604,7 +612,16 @@ function renderTable() {
   const allKeys = filtered.map(l => l.key);
   const allChecked = allKeys.length > 0 && allKeys.every(k => selected.has(k));
 
-  let html = selHtml + `<table class="${multiMode ? 'multi-mode' : ''}"><thead><tr>
+  let html = selHtml + `<table class="${multiMode ? 'multi-mode' : ''}"><colgroup>
+    <col class="chk-col col-chk">
+    <col class="col-key">
+    <col class="col-status">
+    <col class="col-user">
+    <col class="col-hwid">
+    <col class="col-date">
+    <col class="col-date">
+    <col class="col-actions">
+  </colgroup><thead><tr>
     <th class="chk-col"><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Key</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Status</th>
@@ -612,7 +629,7 @@ function renderTable() {
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HWID</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Created</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Activated</th>
-    <th>Actions</th>
+    <th style="text-align:right">Actions</th>
   </tr></thead><tbody>`;
 
   for (const l of filtered) {
