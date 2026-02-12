@@ -418,16 +418,35 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <!-- Hardware -->
       <div class="card">
         <div class="card-title">Hardware Information</div>
-        <div class="grid-2">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+          <!-- Column 1: OS-Level -->
           <div>
+            <div style="font-size:9px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">OS Level</div>
             <div class="hw-row"><span class="hw-label">CPU</span><span class="hw-value">{{sysinfo.cpuName||'—'}}</span></div>
             <div class="hw-row"><span class="hw-label">Cores / Threads</span><span class="hw-value">{{sysinfo.cpuCores||'?'}} / {{sysinfo.cpuThreads||'?'}}</span></div>
             <div class="hw-row"><span class="hw-label">GPU</span><span class="hw-value">{{sysinfo.gpuName||'—'}}</span></div>
-          </div>
-          <div>
             <div class="hw-row"><span class="hw-label">RAM</span><span class="hw-value">{{sysinfo.ramText||'—'}}</span></div>
             <div class="hw-row"><span class="hw-label">Storage</span><span class="hw-value">{{sysinfo.storageText||'—'}}</span></div>
             <div class="hw-row"><span class="hw-label">OS</span><span class="hw-value">{{sysinfo.osVersion||'—'}}</span></div>
+          </div>
+          <!-- Column 2: Low-Level -->
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">Low Level</div>
+            <div class="hw-row"><span class="hw-label">RAM Type</span><span class="hw-value">{{sysinfo.ramType||'—'}} <span v-if="sysinfo.ramSpeedMhz">@ {{sysinfo.ramSpeedMhz}} MHz</span></span></div>
+            <div class="hw-row"><span class="hw-label">GPU VRAM</span><span class="hw-value">{{sysinfo.gpuVramMb ? (sysinfo.gpuVramMb >= 1024 ? (sysinfo.gpuVramMb/1024).toFixed(0)+' GB' : sysinfo.gpuVramMb+' MB') : '—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">GPU Driver</span><span class="hw-value">{{sysinfo.gpuDriverVersion||'—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">L2 Cache</span><span class="hw-value">{{sysinfo.cpuL2CacheKb ? (sysinfo.cpuL2CacheKb >= 1024 ? (sysinfo.cpuL2CacheKb/1024).toFixed(0)+' MB' : sysinfo.cpuL2CacheKb+' KB') : '—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">L3 Cache</span><span class="hw-value">{{sysinfo.cpuL3CacheKb ? (sysinfo.cpuL3CacheKb/1024).toFixed(0)+' MB' : '—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">Motherboard</span><span class="hw-value">{{sysinfo.motherboardName||'—'}}</span></div>
+          </div>
+          <!-- Column 3: Firmware -->
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">Firmware / SMBIOS</div>
+            <div class="hw-row"><span class="hw-label">BIOS</span><span class="hw-value">{{sysinfo.biosVersion||'—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">BIOS Date</span><span class="hw-value">{{sysinfo.biosDate||'—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">TPM</span><span class="hw-value">{{sysinfo.tpmVersion||'—'}}</span></div>
+            <div class="hw-row"><span class="hw-label">Secure Boot</span><span class="hw-value" :style="{color: sysinfo.secureBootEnabled ? 'var(--green)' : 'var(--text3)'}">{{sysinfo.secureBootEnabled ? 'Enabled' : 'Disabled'}}</span></div>
+            <div class="hw-row"><span class="hw-label">Chassis</span><span class="hw-value">{{sysinfo.chassisType||'—'}}</span></div>
           </div>
         </div>
       </div>

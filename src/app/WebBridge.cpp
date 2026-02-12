@@ -36,6 +36,19 @@ QJsonObject WebBridge::getSystemInfo()
     obj["hasSsd"]          = m_ctrl->hasSsd();
     obj["hasNvme"]         = m_ctrl->hasNvme();
     obj["isAdmin"]         = m_ctrl->isAdmin();
+    // Lag 2: Low-Level
+    obj["ramType"]         = m_ctrl->ramType();
+    obj["ramSpeedMhz"]     = m_ctrl->ramSpeedMhz();
+    obj["gpuVramMb"]       = m_ctrl->gpuVramMb();
+    obj["gpuDriverVersion"]= m_ctrl->gpuDriverVersion();
+    obj["cpuL2CacheKb"]    = m_ctrl->cpuL2CacheKb();
+    obj["cpuL3CacheKb"]    = m_ctrl->cpuL3CacheKb();
+    // Lag 3: Firmware
+    obj["biosVersion"]     = m_ctrl->biosVersion();
+    obj["biosDate"]        = m_ctrl->biosDate();
+    obj["tpmVersion"]      = m_ctrl->tpmVersion();
+    obj["secureBootEnabled"]= m_ctrl->secureBootEnabled();
+    obj["chassisType"]     = m_ctrl->chassisType();
     return obj;
 }
 

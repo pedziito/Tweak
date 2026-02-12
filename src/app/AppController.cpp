@@ -54,6 +54,21 @@ QString AppController::motherboardName()const { return m_hwInfo.motherboard; }
 bool    AppController::hasSsd()         const { return m_hwInfo.hasSsd; }
 bool    AppController::hasNvme()        const { return m_hwInfo.hasNvme; }
 
+// Lag 2: Low-Level
+QString AppController::ramType()          const { return m_hwInfo.ramType; }
+int     AppController::ramSpeedMhz()      const { return static_cast<int>(m_hwInfo.ramSpeedMhz); }
+int     AppController::gpuVramMb()        const { return static_cast<int>(m_hwInfo.gpuVramMb); }
+QString AppController::gpuDriverVersion() const { return m_hwInfo.gpuDriverVersion; }
+int     AppController::cpuL2CacheKb()     const { return static_cast<int>(m_hwInfo.cpuL2CacheKb); }
+int     AppController::cpuL3CacheKb()     const { return static_cast<int>(m_hwInfo.cpuL3CacheKb); }
+
+// Lag 3: Firmware / SMBIOS
+QString AppController::biosVersion()      const { return m_hwInfo.biosVersion; }
+QString AppController::biosDate()         const { return m_hwInfo.biosDate; }
+QString AppController::tpmVersion()       const { return m_hwInfo.tpmVersion; }
+bool    AppController::secureBootEnabled()const { return m_hwInfo.secureBootEnabled; }
+QString AppController::chassisType()      const { return m_hwInfo.chassisType; }
+
 QString AppController::totalRam() const { return ramText(); }
 
 QString AppController::ramText() const

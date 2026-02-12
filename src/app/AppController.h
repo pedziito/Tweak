@@ -34,6 +34,19 @@ class AppController : public QObject
     Q_PROPERTY(QString osVersion        READ osVersion        NOTIFY hardwareChanged)
     Q_PROPERTY(bool    hasSsd           READ hasSsd           NOTIFY hardwareChanged)
     Q_PROPERTY(bool    hasNvme          READ hasNvme          NOTIFY hardwareChanged)
+    // Lag 2: Low-Level
+    Q_PROPERTY(QString ramType          READ ramType          NOTIFY hardwareChanged)
+    Q_PROPERTY(int     ramSpeedMhz      READ ramSpeedMhz      NOTIFY hardwareChanged)
+    Q_PROPERTY(int     gpuVramMb        READ gpuVramMb        NOTIFY hardwareChanged)
+    Q_PROPERTY(QString gpuDriverVersion READ gpuDriverVersion NOTIFY hardwareChanged)
+    Q_PROPERTY(int     cpuL2CacheKb     READ cpuL2CacheKb     NOTIFY hardwareChanged)
+    Q_PROPERTY(int     cpuL3CacheKb     READ cpuL3CacheKb     NOTIFY hardwareChanged)
+    // Lag 3: Firmware
+    Q_PROPERTY(QString biosVersion      READ biosVersion      NOTIFY hardwareChanged)
+    Q_PROPERTY(QString biosDate         READ biosDate         NOTIFY hardwareChanged)
+    Q_PROPERTY(QString tpmVersion       READ tpmVersion       NOTIFY hardwareChanged)
+    Q_PROPERTY(bool    secureBootEnabled READ secureBootEnabled NOTIFY hardwareChanged)
+    Q_PROPERTY(QString chassisType      READ chassisType      NOTIFY hardwareChanged)
 
     // State
     Q_PROPERTY(bool    isAdmin          READ isAdmin          CONSTANT)
@@ -85,6 +98,19 @@ public:
     QString osVersion() const;
     bool    hasSsd() const;
     bool    hasNvme() const;
+    // Lag 2
+    QString ramType() const;
+    int     ramSpeedMhz() const;
+    int     gpuVramMb() const;
+    QString gpuDriverVersion() const;
+    int     cpuL2CacheKb() const;
+    int     cpuL3CacheKb() const;
+    // Lag 3
+    QString biosVersion() const;
+    QString biosDate() const;
+    QString tpmVersion() const;
+    bool    secureBootEnabled() const;
+    QString chassisType() const;
 
     // State
     bool isAdmin() const;

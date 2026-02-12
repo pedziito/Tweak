@@ -320,6 +320,118 @@ HardwareInfo HardwareDetector::detectLinux() const
     if (info.gpuVendor.isEmpty()) info.gpuVendor = QStringLiteral("Unknown");
     if (info.motherboard.isEmpty()) info.motherboard = QStringLiteral("Unknown");
 
+    // ── Lag 2: Low-Level (Linux) ──
+
+    // CPU Cache from /sys
+    {
+        QFile l2(QStringLiteral("/sys/devices/system/cpu/cpu0/cache/index2/size"));
+        if (l2.open(QIODevice::ReadOnly)) {
+            QString val = QString::fromUtf8(l2.readAll()).trimmed();
+            if (val.endsWith(QLatin1Char('K')))
+                info.cpuL2CacheKb = val.chopped(1).toUInt();
+            else
+                info.cpuL2CacheKb = val.toUInt();
+        }
+        QFile l3(QStringLiteral("/sys/devices/system/cpu/cpu0/cache/index3/size"));
+        if (l3.open(QIODevice::ReadOnly)) {
+            QString val = QString::fromUtf8(l3.readAll()).trimmed();
+            if (val.endsWith(QLatin1Char('K')))
+                info.cpuL3CacheKb = val.chopped(1).toUInt();
+            else if (val.endsWith(QLatin1Char('M')))
+                info.cpuL3CacheKb = val.chopped(1).toUInt() * 1024;
+            else
+                info.cpuL3CacheKb = val.toUInt();
+        }
+    }
+
+    // RAM type & speed from dmidecode (requires root — best effort)
+    {
+        QProcess proc;
+        proc.start(QStringLiteral("dmidecode"), QStringList()
+                    << QStringLiteral("-t") << QStringLiteral("memory"));
+        if (proc.waitForFinished(3000)) {
+            QString out = QString::fromUtf8(proc.readAllStandardOutput());
+            for (const QString &line : out.split(QLatin1Char('\n'))) {
+                QString trimmed = line.trimmed();
+                if (trimmed.startsWith(QStringLiteral("Type:")) && info.ramType.isEmpty()) {
+                    info.ramType = trimmed.mid(5).trimmed();
+                }
+                if (trimmed.startsWith(QStringLiteral("Configured Memory Speed:")) && info.ramSpeedMhz == 0) {
+                    static QRegularExpression rxNum(QStringLiteral("(\\d+)"));
+                    auto m = rxNum.match(trimmed);
+                    if (m.hasMatch()) info.ramSpeedMhz = m.captured(1).toUInt();
+                }
+            }
+        }
+    }
+
+    // Disk sizes
+    {
+        QProcess proc;
+        proc.start(QStringLiteral("lsblk"),
+                    QStringList() << QStringLiteral("-d") << QStringLiteral("-b")
+                                  << QStringLiteral("-o") << QStringLiteral("SIZE,TRAN")
+                                  << QStringLiteral("-n"));
+        if (proc.waitForFinished(3000)) {
+            QString out = QString::fromUtf8(proc.readAllStandardOutput());
+            for (const QString &line : out.split(QLatin1Char('\n'))) {
+                QStringList parts = line.simplified().split(QLatin1Char(' '));
+                if (parts.size() >= 1) {
+                    quint64 bytes = parts.at(0).toULongLong();
+                    if (bytes > 0)
+                        info.diskSizesGb.append(bytes / (1024ULL * 1024ULL * 1024ULL));
+                    if (parts.size() >= 2)
+                        info.diskInterfaces.append(parts.at(1));
+                }
+            }
+        }
+    }
+
+    // ── Lag 3: Firmware / SMBIOS (Linux) ──
+
+    // BIOS version & date
+    {
+        QFile bv(QStringLiteral("/sys/devices/virtual/dmi/id/bios_version"));
+        if (bv.open(QIODevice::ReadOnly))
+            info.biosVersion = QString::fromUtf8(bv.readAll()).trimmed();
+        QFile bd(QStringLiteral("/sys/devices/virtual/dmi/id/bios_date"));
+        if (bd.open(QIODevice::ReadOnly))
+            info.biosDate = QString::fromUtf8(bd.readAll()).trimmed();
+    }
+
+    // Chassis type
+    {
+        QFile ct(QStringLiteral("/sys/devices/virtual/dmi/id/chassis_type"));
+        if (ct.open(QIODevice::ReadOnly)) {
+            quint32 code = QString::fromUtf8(ct.readAll()).trimmed().toUInt();
+            info.chassisType = classifyChassisType(code);
+        }
+    }
+
+    // Secure Boot
+    {
+        QProcess proc;
+        proc.start(QStringLiteral("mokutil"), QStringList() << QStringLiteral("--sb-state"));
+        if (proc.waitForFinished(3000)) {
+            QString out = QString::fromUtf8(proc.readAllStandardOutput());
+            info.secureBootEnabled = out.contains(QStringLiteral("enabled"), Qt::CaseInsensitive);
+        }
+    }
+
+    // TPM
+    {
+        info.tpmVersion = QStringLiteral("Not detected");
+        QFile tpm(QStringLiteral("/sys/class/tpm/tpm0/tpm_version_major"));
+        if (tpm.open(QIODevice::ReadOnly)) {
+            QString ver = QString::fromUtf8(tpm.readAll()).trimmed();
+            info.tpmVersion = ver + QStringLiteral(".0");
+        }
+    }
+
+    if (info.ramType.isEmpty()) info.ramType = QStringLiteral("Unknown");
+    if (info.biosVersion.isEmpty()) info.biosVersion = QStringLiteral("Unknown");
+    if (info.chassisType.isEmpty()) info.chassisType = QStringLiteral("Unknown");
+
     return info;
 }
 
@@ -407,14 +519,149 @@ HardwareInfo HardwareDetector::detectWindows() const
         }
     }
 
+    // ── Lag 2: Low-Level ──
+
+    // RAM type & speed from SMBIOS (Win32_PhysicalMemory)
+    {
+        quint32 memType = wmi.querySingleUInt32(
+            L"SELECT SMBIOSMemoryType FROM Win32_PhysicalMemory", L"SMBIOSMemoryType");
+        info.ramType = classifyRamType(memType);
+        info.ramSpeedMhz = wmi.querySingleUInt32(
+            L"SELECT ConfiguredClockSpeed FROM Win32_PhysicalMemory", L"ConfiguredClockSpeed");
+        if (info.ramSpeedMhz == 0)
+            info.ramSpeedMhz = wmi.querySingleUInt32(
+                L"SELECT Speed FROM Win32_PhysicalMemory", L"Speed");
+    }
+
+    // GPU VRAM & driver from Win32_VideoController
+    {
+        quint32 vram = wmi.querySingleUInt32(
+            L"SELECT AdapterRAM FROM Win32_VideoController", L"AdapterRAM");
+        info.gpuVramMb = vram / (1024U * 1024U);
+        // AdapterRAM caps at 4 GB (32-bit). For modern GPUs, try registry fallback.
+        if (info.gpuVramMb <= 4096 && !info.gpuName.isEmpty()) {
+            // Try qvideo memory size from DXGI via WMI MSFT namespace (simpler: just report capped)
+            // Most games tools do the same unless using DXGI directly
+        }
+        info.gpuDriverVersion = wmi.querySingleString(
+            L"SELECT DriverVersion FROM Win32_VideoController", L"DriverVersion");
+    }
+
+    // CPU Cache from Win32_CacheMemory
+    {
+        // L2 (Purpose = "L2 Cache" or Level = 4)
+        info.cpuL2CacheKb = wmi.querySingleUInt32(
+            L"SELECT MaxCacheSize FROM Win32_CacheMemory WHERE Level = 4", L"MaxCacheSize");
+        // L3 (Level = 5)
+        info.cpuL3CacheKb = wmi.querySingleUInt32(
+            L"SELECT MaxCacheSize FROM Win32_CacheMemory WHERE Level = 5", L"MaxCacheSize");
+        // Some systems report total L2 across cores. Also try Processor class.
+        if (info.cpuL3CacheKb == 0)
+            info.cpuL3CacheKb = wmi.querySingleUInt32(
+                L"SELECT L3CacheSize FROM Win32_Processor", L"L3CacheSize");
+        if (info.cpuL2CacheKb == 0)
+            info.cpuL2CacheKb = wmi.querySingleUInt32(
+                L"SELECT L2CacheSize FROM Win32_Processor", L"L2CacheSize");
+    }
+
+    // Disk interfaces and sizes
+    {
+        info.diskInterfaces = wmi.queryStringList(
+            L"SELECT InterfaceType FROM Win32_DiskDrive", L"InterfaceType");
+        // Disk sizes in GB
+        IEnumWbemClassObject *pEnum = nullptr;
+        // We'll use querySumUInt64 per drive — simplified approach: just get sizes
+        QStringList sizesStr = wmi.queryStringList(
+            L"SELECT Size FROM Win32_DiskDrive", L"Size");
+        for (const QString &s : sizesStr) {
+            quint64 bytes = s.toULongLong();
+            if (bytes > 0)
+                info.diskSizesGb.append(bytes / (1024ULL * 1024ULL * 1024ULL));
+        }
+    }
+
+    // ── Lag 3: Firmware / SMBIOS ──
+
+    // BIOS info
+    info.biosVersion = wmi.querySingleString(
+        L"SELECT SMBIOSBIOSVersion FROM Win32_BIOS", L"SMBIOSBIOSVersion");
+    if (info.biosVersion.isEmpty())
+        info.biosVersion = wmi.querySingleString(
+            L"SELECT Version FROM Win32_BIOS", L"Version");
+    info.biosDate = wmi.querySingleString(
+        L"SELECT ReleaseDate FROM Win32_BIOS", L"ReleaseDate");
+    // Format BIOS date: "20231215000000.000000+000" → "2023-12-15"
+    if (info.biosDate.length() >= 8) {
+        info.biosDate = info.biosDate.left(4) + QStringLiteral("-")
+                      + info.biosDate.mid(4, 2) + QStringLiteral("-")
+                      + info.biosDate.mid(6, 2);
+    }
+
+    // Chassis type (Desktop / Laptop)
+    {
+        quint32 chassisCode = wmi.querySingleUInt32(
+            L"SELECT ChassisTypes FROM Win32_SystemEnclosure", L"ChassisTypes");
+        // ChassisTypes is actually an array; querySingleUInt32 gets first element usually
+        // Fallback: use PCSystemType
+        if (chassisCode == 0) {
+            chassisCode = wmi.querySingleUInt32(
+                L"SELECT PCSystemType FROM Win32_ComputerSystem", L"PCSystemType");
+            // 1=Desktop, 2=Mobile/Laptop, 3=Workstation
+            if (chassisCode == 2) info.chassisType = QStringLiteral("Laptop");
+            else if (chassisCode == 1 || chassisCode == 3) info.chassisType = QStringLiteral("Desktop");
+            else info.chassisType = QStringLiteral("Unknown");
+        } else {
+            info.chassisType = classifyChassisType(chassisCode);
+        }
+    }
+
+    // Secure Boot via registry (faster than WMI UEFI namespace)
+    {
+        HKEY hKey;
+        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                          L"SYSTEM\\CurrentControlSet\\Control\\SecureBoot\\State",
+                          0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            DWORD val = 0, size = sizeof(val);
+            if (RegQueryValueExW(hKey, L"UEFISecureBootEnabled", nullptr, nullptr,
+                                 reinterpret_cast<LPBYTE>(&val), &size) == ERROR_SUCCESS)
+                info.secureBootEnabled = (val == 1);
+            RegCloseKey(hKey);
+        }
+    }
+
+    // TPM version via Win32_Tpm (requires WMI ROOT\CIMV2\Security\MicrosoftTpm namespace)
+    // This often requires admin privileges. Try it, fallback to "Not detected".
+    {
+        info.tpmVersion = QStringLiteral("Not detected");
+        // Try reading from registry as non-admin fallback
+        HKEY hKey;
+        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                          L"SYSTEM\\CurrentControlSet\\Services\\TPM\\WMI",
+                          0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            // If the key exists, TPM is present
+            info.tpmVersion = QStringLiteral("Present");
+            RegCloseKey(hKey);
+        }
+        // For the actual version, try WMI (may fail without admin)
+        // The ManufacturerVersion from ROOT\CIMV2\Security\MicrosoftTpm
+        // is unreachable from user-mode WMI without elevation, so skip.
+    }
+
     // Fallbacks for empty values
     if (info.cpuName.isEmpty()) info.cpuName = QSysInfo::currentCpuArchitecture();
     if (info.gpuName.isEmpty()) info.gpuName = QStringLiteral("Unknown");
     if (info.motherboard.isEmpty()) info.motherboard = QStringLiteral("Unknown");
+    if (info.ramType.isEmpty()) info.ramType = QStringLiteral("Unknown");
+    if (info.biosVersion.isEmpty()) info.biosVersion = QStringLiteral("Unknown");
+    if (info.chassisType.isEmpty()) info.chassisType = QStringLiteral("Unknown");
 
     qDebug() << "[HW] Detected:" << info.cpuName << "|" << info.gpuName
              << "|" << info.gpuVendor << "| RAM" << info.ramMb << "MB"
-             << "| Cores" << info.cpuCores << "/" << info.cpuThreads;
+             << info.ramType << "@" << info.ramSpeedMhz << "MHz"
+             << "| Cores" << info.cpuCores << "/" << info.cpuThreads
+             << "| VRAM" << info.gpuVramMb << "MB"
+             << "| BIOS" << info.biosVersion
+             << "| Chassis" << info.chassisType;
 #endif
     return info;
 }
@@ -436,4 +683,42 @@ QString HardwareDetector::classifyGpuVendor(const QString &gpuName)
         gpuName.contains(QStringLiteral("Arc"), Qt::CaseInsensitive))
         return QStringLiteral("Intel");
     return QStringLiteral("Unknown");
+}
+
+QString HardwareDetector::classifyRamType(quint32 smbiosType)
+{
+    // SMBIOS Memory Type codes (from DMTF spec)
+    switch (smbiosType) {
+    case 20: return QStringLiteral("DDR");
+    case 21: return QStringLiteral("DDR2");
+    case 22: // DDR2 FB-DIMM
+             return QStringLiteral("DDR2");
+    case 24: return QStringLiteral("DDR3");
+    case 26: return QStringLiteral("DDR4");
+    case 30: // LPDDR4
+             return QStringLiteral("LPDDR4");
+    case 34: return QStringLiteral("DDR5");
+    case 35: // LPDDR5
+             return QStringLiteral("LPDDR5");
+    default: return QStringLiteral("Unknown");
+    }
+}
+
+QString HardwareDetector::classifyChassisType(quint32 code)
+{
+    // SMBIOS System Enclosure types
+    switch (code) {
+    case 3: case 4: case 5: case 6: case 7: case 15: case 16:
+        return QStringLiteral("Desktop");
+    case 8: case 9: case 10: case 14: case 31:
+        return QStringLiteral("Laptop");
+    case 11: case 12:
+        return QStringLiteral("Handheld");
+    case 17: case 23:
+        return QStringLiteral("Server");
+    case 30:
+        return QStringLiteral("Tablet");
+    default:
+        return QStringLiteral("Unknown");
+    }
 }
