@@ -229,52 +229,110 @@ HTML_PAGE = r"""<!DOCTYPE html>
 <title>Tweak License Admin</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#060a14;--bg2:#0b1022;--bg3:#111827;--border:#1a2240;--cyan:#06b6d4;--cyan2:#0891b2;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--purple:#8b5cf6;--text:#f1f5f9;--text2:#94a3b8;--text3:#4b5e80;--radius:14px}
+:root{--bg:#060a14;--bg2:#0b1022;--bg3:#111827;--bg4:#0d1328;--border:#1a2240;--border2:#1e2d4f;--cyan:#06b6d4;--cyan2:#0891b2;--cyan-glow:rgba(6,182,212,.12);--green:#10b981;--red:#ef4444;--amber:#f59e0b;--purple:#8b5cf6;--text:#f1f5f9;--text2:#94a3b8;--text3:#4b5e80;--radius:14px}
 html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:middle}
+.icon-sm{width:14px;height:14px}
+.icon-lg{width:24px;height:24px}
+.icon-xl{width:32px;height:32px}
 
-.container{max-width:1100px;margin:0 auto;padding:32px 28px}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
-.header h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.header .sub{font-size:13px;color:var(--text3);margin-top:4px}
-.header-right{display:flex;gap:10px;align-items:center}
+/* ── Topbar ── */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
+.topbar-brand{display:flex;align-items:center;gap:14px}
+.topbar-logo{width:40px;height:40px;min-width:40px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(6,182,212,.25)}
+.topbar-logo svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.topbar-text h1{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2}
+.topbar-text span{font-size:11px;color:var(--text3);font-weight:500}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.topbar-status{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);font-size:11px;font-weight:600;color:var(--green)}
+.topbar-status .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
-.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:center}
-.stat .val{font-size:30px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.stat .lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:4px}
+.container{max-width:1200px;margin:0 auto;padding:28px 32px}
 
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.card-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px}
+/* ── Stats ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;display:flex;align-items:center;gap:16px;transition:all .25s;position:relative;overflow:hidden}
+.stat:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--radius) var(--radius) 0 0;opacity:0;transition:opacity .25s}
+.stat:nth-child(1)::before{background:linear-gradient(90deg,var(--cyan),var(--cyan2));opacity:1}
+.stat:nth-child(2)::before{background:linear-gradient(90deg,var(--green),#34d399);opacity:1}
+.stat:nth-child(3)::before{background:linear-gradient(90deg,var(--purple),#a78bfa);opacity:1}
+.stat:nth-child(4)::before{background:linear-gradient(90deg,var(--amber),#fbbf24);opacity:1}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat:nth-child(1) .stat-icon{background:rgba(6,182,212,.1);color:var(--cyan)}
+.stat:nth-child(2) .stat-icon{background:rgba(16,185,129,.1);color:var(--green)}
+.stat:nth-child(3) .stat-icon{background:rgba(139,92,246,.1);color:var(--purple)}
+.stat:nth-child(4) .stat-icon{background:rgba(245,158,11,.1);color:var(--amber)}
+.stat-info{flex:1}
+.stat .val{font-size:28px;font-weight:900;line-height:1.1}
+.stat:nth-child(1) .val{color:var(--cyan)}
+.stat:nth-child(2) .val{color:var(--green)}
+.stat:nth-child(3) .val{color:var(--purple)}
+.stat:nth-child(4) .val{color:var(--amber)}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-top:3px}
 
+/* ── Cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.card-header .card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px}
+.card-subtitle{font-size:11px;color:var(--text3);margin-top:1px;font-weight:400;text-transform:none;letter-spacing:0}
+
+/* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-cyan{background:var(--cyan);color:#000}.btn-cyan:hover:not(:disabled){background:var(--cyan2);transform:translateY(-1px)}
+.btn-cyan{background:var(--cyan);color:#000}.btn-cyan:hover:not(:disabled){background:var(--cyan2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(6,182,212,.3)}
 .btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}.btn-red:hover:not(:disabled){background:rgba(239,68,68,.25)}
 .btn-amber{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.2)}.btn-amber:hover:not(:disabled){background:rgba(245,158,11,.22)}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}.btn-outline:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
 .btn-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}.btn-green:hover:not(:disabled){background:rgba(16,185,129,.22)}
 .btn-sm{padding:7px 14px;font-size:12px;border-radius:8px}
+.btn-purple{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.2)}.btn-purple:hover:not(:disabled){background:rgba(139,92,246,.22)}
 
+/* ── Generate ── */
 .gen-bar{display:flex;gap:10px;align-items:center;margin-bottom:6px}
 .gen-bar input[type=number]{width:80px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;outline:none;text-align:center}
 .gen-bar input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.1)}
+.new-keys{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.new-key{background:var(--bg3);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:8px 16px;font-family:'Cascadia Code','Fira Code',monospace;font-size:13px;color:var(--cyan);letter-spacing:.5px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
+.new-key:hover{background:rgba(6,182,212,.1);border-color:var(--cyan);transform:translateY(-1px)}
+.new-key:active{transform:scale(.97)}
 
+/* ── Search ── */
+.search-wrap{position:relative;margin-bottom:16px}
+.search-wrap .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-input{width:100%;padding:11px 14px 11px 42px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;outline:none;transition:all .2s}
+.search-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.08)}
+.search-input::placeholder{color:var(--text3)}
+
+/* ── Table ── */
 table{width:100%;border-collapse:collapse}
 th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+th .icon{margin-right:4px;opacity:.5}
 td{padding:12px;font-size:13px;border-bottom:1px solid rgba(26,34,64,.5);vertical-align:middle}
 tr:hover td{background:rgba(255,255,255,.02)}
-.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px}
+.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.key-cell .icon{color:var(--cyan);opacity:.5}
 .hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis}
-.user-cell{font-weight:600;color:var(--text)}
+.user-cell{font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.user-cell .icon{color:var(--text3)}
 .date-cell{font-size:12px;color:var(--text3)}
-.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .status-active{background:rgba(16,185,129,.12);color:var(--green)}
 .status-unused{background:rgba(6,182,212,.1);color:var(--cyan)}
 .actions-cell{display:flex;gap:6px;flex-wrap:wrap}
-.empty{text-align:center;padding:40px;color:var(--text3);font-size:14px}
+.empty{text-align:center;padding:48px;color:var(--text3);font-size:14px}
+.empty .icon{opacity:.3;margin-bottom:12px}
 
-.toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:slideUp .3s ease;max-width:400px}
+/* ── Footer ── */
+.footer{text-align:center;padding:20px;color:var(--text3);font-size:11px;border-top:1px solid var(--border);margin-top:20px}
+.footer a{color:var(--cyan);text-decoration:none}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:slideUp .3s ease;max-width:400px;display:flex;align-items:center;gap:10px}
 .toast-ok{background:var(--bg2);border:1px solid rgba(16,185,129,.3);color:var(--green)}
 .toast-err{background:var(--bg2);border:1px solid rgba(239,68,68,.3);color:var(--red)}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -282,50 +340,137 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .loading{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.new-keys{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
-.new-key{background:var(--bg3);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:6px 14px;font-family:monospace;font-size:13px;color:var(--cyan);letter-spacing:.5px;cursor:pointer;transition:all .2s}
-.new-key:hover{background:rgba(6,182,212,.1);border-color:var(--cyan)}
-.new-key:active{transform:scale(.97)}
+/* ── Confirm Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .2s}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal .key-highlight{background:var(--bg3);padding:2px 8px;border-radius:6px;font-family:monospace;color:var(--cyan);font-size:12px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}
+/* ── Responsive ── */
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stats{grid-template-columns:1fr}.topbar{padding:12px 16px}.container{padding:16px}}
 </style>
 </head>
 <body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="topbar-text">
+      <h1>Tweak Admin</h1>
+      <span>License Management Console</span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <div class="topbar-status"><span class="dot"></span> Connected</div>
+    <button class="btn btn-outline" onclick="loadLicenses()" id="refreshBtn">
+      <svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      Refresh
+    </button>
+    <button class="btn btn-purple" onclick="initDb()" id="initBtn">
+      <svg class="icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Init DB
+    </button>
+  </div>
+</div>
+
 <div class="container" id="app">
-  <div class="header">
-    <div>
-      <h1>Tweak License Admin</h1>
-      <div class="sub">Manage license keys, users & HWID bindings</div>
-    </div>
-    <div class="header-right">
-      <button class="btn btn-outline" onclick="loadLicenses()" id="refreshBtn">Refresh</button>
-      <button class="btn btn-outline" onclick="initDb()" id="initBtn">Init DB</button>
-    </div>
-  </div>
 
+  <!-- Stats -->
   <div class="stats">
-    <div class="stat"><div class="val" id="statTotal">—</div><div class="lbl">Total Keys</div></div>
-    <div class="stat"><div class="val" id="statActive">—</div><div class="lbl">Activated</div></div>
-    <div class="stat"><div class="val" id="statUnused">—</div><div class="lbl">Unused</div></div>
-    <div class="stat"><div class="val" id="statBound">—</div><div class="lbl">HWID Bound</div></div>
+    <div class="stat">
+      <div class="stat-icon">
+        <svg class="icon icon-xl" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="stat-info"><div class="val" id="statTotal">—</div><div class="lbl">Total Keys</div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">
+        <svg class="icon icon-xl" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
+      </div>
+      <div class="stat-info"><div class="val" id="statActive">—</div><div class="lbl">Activated</div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">
+        <svg class="icon icon-xl" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="stat-info"><div class="val" id="statUnused">—</div><div class="lbl">Unused</div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">
+        <svg class="icon icon-xl" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="stat-info"><div class="val" id="statBound">—</div><div class="lbl">HWID Bound</div></div>
+    </div>
   </div>
 
+  <!-- Generate Keys -->
   <div class="card">
-    <div class="card-title">Generate Keys</div>
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">
+        <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div>
+        <div class="card-title">Generate Keys</div>
+        <div class="card-subtitle">Create new license keys for distribution</div>
+      </div>
+    </div>
     <div class="gen-bar">
       <input type="number" id="genCount" value="1" min="1" max="50">
-      <button class="btn btn-cyan" onclick="generateKeys()" id="genBtn">Generate</button>
+      <button class="btn btn-cyan" onclick="generateKeys()" id="genBtn">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Generate
+      </button>
     </div>
     <div class="new-keys" id="newKeys"></div>
   </div>
 
+  <!-- All Licenses -->
   <div class="card">
-    <div class="card-title">All Licenses</div>
-    <div style="margin-bottom:14px">
-      <input type="text" id="searchInput" placeholder="Search by key or username..." oninput="renderTable()" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;outline:none">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div>
+        <div class="card-title">All Licenses</div>
+        <div class="card-subtitle" id="licenseCount">Manage keys, users & HWID bindings</div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by key, username or HWID..." oninput="renderTable()">
     </div>
     <div id="tableWrap">
       <div class="empty"><span class="loading"></span> Loading...</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <svg class="icon icon-sm" style="vertical-align:middle;margin-right:4px;opacity:.4" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Tweak License Admin &middot; Secure key management &middot; <span id="yearFooter"></span>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modalTitle">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Confirm Action
+    </h3>
+    <p id="modalMsg">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-red" id="modalConfirmBtn" onclick="modalAction()">Confirm</button>
     </div>
   </div>
 </div>
@@ -335,15 +480,33 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <script>
 let licenses = [];
+let pendingAction = null;
+
+document.getElementById('yearFooter').textContent = new Date().getFullYear();
 
 function toast(msg, ok = true) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  const icon = ok
+    ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+    : '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+  t.innerHTML = icon + ' ' + esc(msg);
   t.className = 'toast ' + (ok ? 'toast-ok' : 'toast-err');
-  t.style.display = 'block';
+  t.style.display = 'flex';
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.style.display = 'none', 3500);
 }
+
+function showModal(title, msg, btnText, btnClass, action) {
+  document.getElementById('modalTitle').innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ' + esc(title);
+  document.getElementById('modalMsg').innerHTML = msg;
+  const btn = document.getElementById('modalConfirmBtn');
+  btn.textContent = btnText;
+  btn.className = 'btn ' + btnClass;
+  pendingAction = action;
+  document.getElementById('confirmModal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('confirmModal').style.display = 'none'; pendingAction = null; }
+function modalAction() { if (pendingAction) pendingAction(); closeModal(); }
 
 async function api(path, method = 'GET', body = null) {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -359,36 +522,55 @@ function updateStats() {
   document.getElementById('statActive').textContent = licenses.filter(l => l.username).length;
   document.getElementById('statUnused').textContent = licenses.filter(l => !l.username).length;
   document.getElementById('statBound').textContent = licenses.filter(l => l.hwid).length;
+  document.getElementById('licenseCount').textContent = licenses.length + ' license(s) in database';
 }
 
 function renderTable() {
   updateStats();
   const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
-  const filtered = query ? licenses.filter(l => l.key.toLowerCase().includes(query) || (l.username || '').toLowerCase().includes(query)) : licenses;
+  const filtered = query ? licenses.filter(l =>
+    l.key.toLowerCase().includes(query) ||
+    (l.username || '').toLowerCase().includes(query) ||
+    (l.hwid || '').toLowerCase().includes(query)
+  ) : licenses;
+
   if (filtered.length === 0) {
-    document.getElementById('tableWrap').innerHTML = query ? '<div class="empty">No matches found</div>' : '<div class="empty">No licenses yet. Generate some!</div>';
+    document.getElementById('tableWrap').innerHTML = query
+      ? '<div class="empty"><svg class="icon" style="width:48px;height:48px;display:block;margin:0 auto 12px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>No matches found</div>'
+      : '<div class="empty"><svg class="icon" style="width:48px;height:48px;display:block;margin:0 auto 12px" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>No licenses yet. Generate some!</div>';
     return;
   }
+
   let html = `<table><thead><tr>
-    <th>License Key</th><th>Status</th><th>Username</th><th>HWID</th><th>Created</th><th>Activated</th><th>Actions</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Key</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Status</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Username</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HWID</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Created</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Activated</th>
+    <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Actions</th>
   </tr></thead><tbody>`;
+
   for (const l of filtered) {
     const active = !!l.username;
-    const hwid = l.hwid || '—';
-    const user = l.username || '—';
-    const created = l.created_at ? l.created_at.substring(0, 10) : '—';
-    const activated = l.activated_at ? l.activated_at.substring(0, 10) : '—';
+    const hwid = l.hwid || '\u2014';
+    const user = l.username || '\u2014';
+    const created = l.created_at ? l.created_at.substring(0, 10) : '\u2014';
+    const activated = l.activated_at ? l.activated_at.substring(0, 10) : '\u2014';
+    const statusIcon = active
+      ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+      : '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
     html += `<tr>
-      <td class="key-cell">${esc(l.key)}</td>
-      <td><span class="status-badge ${active ? 'status-active' : 'status-unused'}">${active ? 'Active' : 'Unused'}</span></td>
-      <td class="user-cell">${esc(user)}</td>
+      <td class="key-cell"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${esc(l.key)}</td>
+      <td><span class="status-badge ${active ? 'status-active' : 'status-unused'}">${statusIcon} ${active ? 'Active' : 'Unused'}</span></td>
+      <td class="user-cell">${active ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ' : ''}${esc(user)}</td>
       <td class="hwid-cell" title="${esc(hwid)}">${esc(hwid)}</td>
       <td class="date-cell">${esc(created)}</td>
       <td class="date-cell">${esc(activated)}</td>
       <td><div class="actions-cell">
-        ${l.hwid ? `<button class="btn btn-amber btn-sm" onclick="resetHwid('${esc(l.key)}')">Reset HWID</button>` : ''}
-        ${l.username ? `<button class="btn btn-outline btn-sm" onclick="resetUser('${esc(l.key)}')">Reset User</button>` : ''}
-        <button class="btn btn-red btn-sm" onclick="revoke('${esc(l.key)}')">Revoke</button>
+        ${l.hwid ? `<button class="btn btn-amber btn-sm" onclick="resetHwid('${esc(l.key)}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Reset HWID</button>` : ''}
+        ${l.username ? `<button class="btn btn-outline btn-sm" onclick="resetUser('${esc(l.key)}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Reset User</button>` : ''}
+        <button class="btn btn-red btn-sm" onclick="revokeKey('${esc(l.key)}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Revoke</button>
       </div></td>
     </tr>`;
   }
@@ -396,15 +578,18 @@ function renderTable() {
   document.getElementById('tableWrap').innerHTML = html;
 }
 
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 
 async function loadLicenses() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
   try {
     document.getElementById('tableWrap').innerHTML = '<div class="empty"><span class="loading"></span> Loading...</div>';
     const d = await api('/api/licenses');
     licenses = d.licenses || [];
     renderTable();
   } catch (e) { toast(e.message, false); }
+  btn.disabled = false;
 }
 
 async function generateKeys() {
@@ -414,48 +599,48 @@ async function generateKeys() {
   try {
     const d = await api('/api/generate', 'POST', { count: n });
     toast(`Generated ${d.keys.length} key(s)`);
-    // Show new keys
     const wrap = document.getElementById('newKeys');
-    wrap.innerHTML = d.keys.map(k => `<div class="new-key" onclick="navigator.clipboard.writeText('${k}');toast('Copied!')" title="Click to copy">${k}</div>`).join('');
+    wrap.innerHTML = d.keys.map(k => `<div class="new-key" onclick="navigator.clipboard.writeText('${k}');toast('Copied to clipboard!')" title="Click to copy"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${k}</div>`).join('');
     await loadLicenses();
   } catch (e) { toast(e.message, false); }
-  btn.disabled = false; btn.innerHTML = 'Generate';
+  btn.disabled = false; btn.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Generate';
 }
 
-async function revoke(key) {
-  if (!confirm(`Revoke license ${key}? This cannot be undone.`)) return;
-  try {
-    await api('/api/revoke', 'POST', { key });
-    toast(`Revoked ${key}`);
-    await loadLicenses();
-  } catch (e) { toast(e.message, false); }
+function revokeKey(key) {
+  showModal('Revoke License', 'Permanently delete <span class="key-highlight">' + esc(key) + '</span>? This cannot be undone.', 'Revoke', 'btn-red', async () => {
+    try { await api('/api/revoke', 'POST', { key }); toast('Revoked ' + key); await loadLicenses(); }
+    catch (e) { toast(e.message, false); }
+  });
 }
 
-async function resetHwid(key) {
-  if (!confirm(`Reset HWID for ${key}? The user will need to re-activate.`)) return;
-  try {
-    await api('/api/reset-hwid', 'POST', { key });
-    toast(`HWID reset for ${key}`);
-    await loadLicenses();
-  } catch (e) { toast(e.message, false); }
+function resetHwid(key) {
+  showModal('Reset HWID', 'Clear HWID binding for <span class="key-highlight">' + esc(key) + '</span>? The user will need to re-activate on their device.', 'Reset HWID', 'btn-amber', async () => {
+    try { await api('/api/reset-hwid', 'POST', { key }); toast('HWID reset for ' + key); await loadLicenses(); }
+    catch (e) { toast(e.message, false); }
+  });
 }
 
-async function resetUser(key) {
-  if (!confirm(`Reset user + HWID for ${key}? The key becomes fully unused.`)) return;
-  try {
-    await api('/api/reset-user', 'POST', { key });
-    toast(`User reset for ${key}`);
-    await loadLicenses();
-  } catch (e) { toast(e.message, false); }
+function resetUser(key) {
+  showModal('Reset User', 'Clear user & HWID for <span class="key-highlight">' + esc(key) + '</span>? The key becomes completely unused.', 'Reset User', 'btn-red', async () => {
+    try { await api('/api/reset-user', 'POST', { key }); toast('User reset for ' + key); await loadLicenses(); }
+    catch (e) { toast(e.message, false); }
+  });
 }
 
 async function initDb() {
-  try {
-    await api('/api/init', 'POST');
-    toast('Database initialized');
-    await loadLicenses();
-  } catch (e) { toast(e.message, false); }
+  showModal('Initialize Database', 'Create the license database? This only works if no licenses exist yet.', 'Initialize', 'btn-purple', async () => {
+    try { await api('/api/init', 'POST'); toast('Database initialized'); await loadLicenses(); }
+    catch (e) { toast(e.message, false); }
+  });
 }
+
+// Keyboard shortcut: Ctrl+K to focus search
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
 
 // Load on start
 loadLicenses();
