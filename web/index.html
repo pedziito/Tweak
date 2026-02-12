@@ -351,10 +351,22 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     <div class="login-box">
       <div class="login-logo">
         <div class="logo-icon" style="background:none;padding:0">
-          <svg viewBox="0 0 100 100" style="width:48px;height:48px">
-            <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient></defs>
-            <path d="M28 80L50 15L72 80" fill="none" stroke="url(#logoGrad)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M22 80L50 20L62 55L78 15" fill="none" stroke="url(#logoGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+          <svg viewBox="0 0 200 200" style="width:52px;height:52px">
+            <defs>
+              <linearGradient id="logoGradA" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="40%" stop-color="#1565a8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+              <linearGradient id="logoGradV" x1="0.3" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>
+              <linearGradient id="logoGradMid" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e3a6e"/><stop offset="100%" stop-color="#0c7bb3"/></linearGradient>
+            </defs>
+            <!-- A left leg -->
+            <path d="M30 170 L75 30 L95 30 L60 170 Z" fill="url(#logoGradA)"/>
+            <!-- A right leg (behind V) -->
+            <path d="M95 30 L130 130 L110 130 L82 50 Z" fill="url(#logoGradMid)"/>
+            <!-- V left leg -->
+            <path d="M80 30 L100 30 L125 130 L108 130 Z" fill="url(#logoGradMid)" opacity=".85"/>
+            <!-- V right leg -->
+            <path d="M125 130 L140 170 L170 30 L148 30 Z" fill="url(#logoGradV)"/>
+            <!-- A crossbar ribbon -->
+            <path d="M52 120 L108 120 L104 108 L56 108 Z" fill="url(#logoGradMid)" opacity=".7"/>
           </svg>
         </div>
         <h1>Tweak</h1>
@@ -426,10 +438,17 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <aside class="sidebar" @mouseenter="sidebarHovered=true" @mouseleave="sidebarHovered=false">
     <div class="sidebar-brand">
       <div class="logo" style="background:none;padding:0;display:flex;align-items:center;justify-content:center">
-        <svg viewBox="0 0 100 100" style="width:32px;height:32px">
-          <defs><linearGradient id="sideLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient></defs>
-          <path d="M28 80L50 15L72 80" fill="none" stroke="url(#sideLogoGrad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M22 80L50 20L62 55L78 15" fill="none" stroke="url(#sideLogoGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+        <svg viewBox="0 0 200 200" style="width:34px;height:34px">
+          <defs>
+            <linearGradient id="sGradA" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="40%" stop-color="#1565a8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+            <linearGradient id="sGradV" x1="0.3" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>
+            <linearGradient id="sGradM" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e3a6e"/><stop offset="100%" stop-color="#0c7bb3"/></linearGradient>
+          </defs>
+          <path d="M30 170 L75 30 L95 30 L60 170 Z" fill="url(#sGradA)"/>
+          <path d="M95 30 L130 130 L110 130 L82 50 Z" fill="url(#sGradM)"/>
+          <path d="M80 30 L100 30 L125 130 L108 130 Z" fill="url(#sGradM)" opacity=".85"/>
+          <path d="M125 130 L140 170 L170 30 L148 30 Z" fill="url(#sGradV)"/>
+          <path d="M52 120 L108 120 L104 108 L56 108 Z" fill="url(#sGradM)" opacity=".7"/>
         </svg>
       </div>
       <div class="brand-text">
