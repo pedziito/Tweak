@@ -514,28 +514,61 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <h2>Optimizations</h2>
           <p>{{filteredTweaks.length}} tweaks &middot; {{appliedCount}} applied</p>
         </div>
-        <div style="display:flex;gap:10px">
+        <div style="display:flex;gap:10px;align-items:center">
           <button class="btn btn-cyan" @click="startBatchApply" :disabled="unappliedVisible.length===0">
+            <svg class="icon-svg" style="width:14px;height:14px" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             Apply Visible ({{unappliedVisible.length}})
           </button>
-          <button class="btn btn-outline" @click="doRestoreAll">Restore All</button>
+          <button class="btn btn-outline" @click="confirmRevertAll" title="Revert all tweaks to defaults">
+            <svg class="icon-svg" style="width:14px;height:14px" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Revert All
+          </button>
         </div>
       </div>
 
+      <!-- Unsaved changes bar -->
+      <div class="save-bar" v-if="hasUnsavedTweaks">
+        <div class="sb-text">
+          <svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          You have {{unsavedCount}} unsaved change{{unsavedCount>1?'s':''}}
+        </div>
+        <div class="sb-actions">
+          <button class="btn btn-outline" style="padding:7px 16px;font-size:12px" @click="discardTweakChanges">Discard</button>
+          <button class="btn btn-cyan" style="padding:7px 16px;font-size:12px" @click="saveTweakChanges">
+            <svg class="icon-svg" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter bar with dropdown -->
       <div class="filter-bar">
         <input class="search-box" v-model="search" placeholder="Search tweaks...">
-        <button class="cat-btn" :class="{active:activeCat==='All'}" @click="activeCat='All'">All<span class="cat-count">{{tweaks.length}}</span></button>
-        <button class="cat-btn" v-for="c in categories" :key="c" :class="{active:activeCat===c}" @click="activeCat=c">
-          {{c}}<span class="cat-count">{{tweakCountByCat(c)}}</span>
-        </button>
+        <div class="cat-dropdown" v-click-outside="closeCatDropdown">
+          <button class="cat-dropdown-btn" :class="{open:catDropdownOpen}" @click="catDropdownOpen=!catDropdownOpen">
+            <span>{{activeCat==='All' ? 'All Categories' : activeCat}}</span>
+            <span class="dd-arrow">&#9660;</span>
+          </button>
+          <div class="cat-dropdown-menu" v-if="catDropdownOpen">
+            <div class="cat-dropdown-item" :class="{active:activeCat==='All'}" @click="activeCat='All';catDropdownOpen=false">
+              <span>All Categories</span>
+              <span class="dd-count">{{tweaks.length}}</span>
+            </div>
+            <div class="cat-dropdown-item" v-for="c in categories" :key="c" :class="{active:activeCat===c}" @click="activeCat=c;catDropdownOpen=false">
+              <span>{{c}}</span>
+              <span class="dd-count">{{tweakCountByCat(c)}}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="tweak-grid">
-        <div class="card tweak-card" v-for="t in filteredTweaks" :key="t.row">
+        <div class="card tweak-card" v-for="t in filteredTweaks" :key="t.row"
+             :class="{'just-applied': tweakAnimState[t.row]==='applied', 'just-reverted': tweakAnimState[t.row]==='reverted', 'applying': tweakAnimState[t.row]==='applying'}">
           <div class="tc-top">
             <span class="tc-name">{{t.name}}</span>
             <label class="toggle" @click.stop>
-              <input type="checkbox" :checked="t.applied" @change="toggleTweak(t.row)">
+              <input type="checkbox" :checked="t.applied" @change="handleToggleTweak(t)">
               <span class="slider"></span>
             </label>
           </div>
@@ -549,6 +582,12 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
             <span v-if="t.verified" style="font-size:10px;color:var(--green);display:flex;align-items:center;gap:3px">
               <svg class="icon-svg" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </span>
+            <span class="tweak-status" :class="tweakStatusClass(t)" v-if="tweakStatusText(t)">{{tweakStatusText(t)}}</span>
+          </div>
+          <!-- Activity log line -->
+          <div class="tweak-log" :class="{visible: tweakLogMsg[t.row]}">
+            <svg class="icon-svg" style="width:11px;height:11px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{tweakLogMsg[t.row]}}
           </div>
         </div>
       </div>
@@ -801,6 +840,19 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 const {createApp, ref, computed, onMounted} = Vue;
 
 const app = createApp({
+  directives: {
+    'click-outside': {
+      mounted: function(el, binding){
+        el._clickOutside = function(e){
+          if(!el.contains(e.target)) binding.value();
+        };
+        document.addEventListener('click', el._clickOutside);
+      },
+      unmounted: function(el){
+        document.removeEventListener('click', el._clickOutside);
+      }
+    }
+  },
   setup(){
     // ── Auth State ──
     const loggedIn    = ref(false);
@@ -842,6 +894,106 @@ const app = createApp({
     const batchTotal   = ref(0);
     const batchItems   = ref([]);
     const batchPct     = computed(function(){ return batchTotal.value ? Math.round(batchCurrent.value/batchTotal.value*100) : 0; });
+
+    // Category dropdown
+    const catDropdownOpen = ref(false);
+    function closeCatDropdown(){ catDropdownOpen.value = false; }
+
+    // Tweak animation & feedback state
+    const tweakAnimState = ref({});        // row -> 'applying'|'applied'|'reverted'
+    const tweakLogMsg    = ref({});         // row -> message string
+    const savedTweakState = ref({});        // row -> true/false (last saved state)
+    const hasUnsavedTweaks = ref(false);
+    const unsavedCount = ref(0);
+
+    function checkUnsaved(){
+      var count = 0;
+      tweaks.value.forEach(function(t){
+        if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied){
+          count++;
+        }
+      });
+      unsavedCount.value = count;
+      hasUnsavedTweaks.value = count > 0;
+    }
+
+    function initSavedState(){
+      var s = {};
+      tweaks.value.forEach(function(t){ s[t.row] = t.applied; });
+      savedTweakState.value = s;
+      hasUnsavedTweaks.value = false;
+      unsavedCount.value = 0;
+      // Save to localStorage
+      try { localStorage.setItem('tweak_saved_state', JSON.stringify(s)); } catch(e){}
+    }
+
+    function loadSavedState(){
+      try {
+        var raw = localStorage.getItem('tweak_saved_state');
+        if(raw){
+          savedTweakState.value = JSON.parse(raw);
+        }
+      } catch(e){}
+    }
+
+    // Toggle with visual feedback
+    function handleToggleTweak(t){
+      var row = t.row;
+      var wasApplied = t.applied;
+      tweakAnimState.value[row] = 'applying';
+      var now = new Date();
+      var ts = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+
+      if(bridge.value) bridge.value.toggleTweak(row);
+
+      setTimeout(function(){
+        if(wasApplied){
+          tweakAnimState.value[row] = 'reverted';
+          tweakLogMsg.value[row] = 'Reverted at ' + ts;
+          showToast('Reverted: ' + t.name);
+        } else {
+          tweakAnimState.value[row] = 'applied';
+          tweakLogMsg.value[row] = 'Applied at ' + ts;
+          showToast('Applied: ' + t.name);
+        }
+        checkUnsaved();
+        setTimeout(function(){ tweakAnimState.value[row] = ''; }, 800);
+      }, 300);
+    }
+
+    function tweakStatusClass(t){
+      if(tweakAnimState.value[t.row]==='applying') return 'ts-applying';
+      if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied) return 'ts-unsaved';
+      if(t.applied) return 'ts-saved';
+      return '';
+    }
+    function tweakStatusText(t){
+      if(tweakAnimState.value[t.row]==='applying') return 'Applying...';
+      if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied) return 'Unsaved';
+      if(t.applied) return 'Active';
+      return '';
+    }
+
+    function saveTweakChanges(){
+      initSavedState();
+      showToast('All changes saved!');
+    }
+
+    function discardTweakChanges(){
+      // Revert tweaks to their saved state
+      tweaks.value.forEach(function(t){
+        if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied){
+          if(bridge.value) bridge.value.toggleTweak(t.row);
+        }
+      });
+      showToast('Changes discarded');
+      setTimeout(function(){ hasUnsavedTweaks.value = false; unsavedCount.value = 0; }, 500);
+    }
+
+    function confirmRevertAll(){
+      doRestoreAll();
+      setTimeout(function(){ initSavedState(); }, 1000);
+    }
 
     // SVG icon paths for nav
     const pages = [
@@ -1031,12 +1183,16 @@ const app = createApp({
 
     function refreshTweaks(){
       if(!bridge.value) return;
-      bridge.value.getTweaks(function(d){ tweaks.value = d; });
+      bridge.value.getTweaks(function(d){
+        tweaks.value = d;
+        checkUnsaved();
+      });
       bridge.value.getAppliedCount(function(v){ appliedCount.value = v; });
     }
 
     // ── Actions ──
     function toggleTweak(row){ if(bridge.value) bridge.value.toggleTweak(row); }
+    // toggleTweak kept for batch, handleToggleTweak used for individual UI toggle
     function doApplyRecommended(){ if(bridge.value){ bridge.value.applyRecommended(); showToast('Applying recommended tweaks...'); }}
     function doApplyGaming(){ if(bridge.value){ bridge.value.applyAllGaming(); showToast('Applying gaming tweaks...'); }}
     function doRestoreAll(){ if(bridge.value){ bridge.value.restoreAll(); showToast('Restoring all defaults...'); }}
@@ -1092,6 +1248,10 @@ const app = createApp({
             loginPass.value = '';
             loginError.value = '';
             refreshAll();
+            // Initialize saved state after login
+            setTimeout(function(){
+              if(Object.keys(savedTweakState.value).length === 0) initSavedState();
+            }, 1500);
           } else {
             loginError.value = message || 'Login failed';
           }
@@ -1122,6 +1282,9 @@ const app = createApp({
         });
 
         bridge.value.tweaksChanged.connect(function(){ refreshTweaks(); });
+
+        // Load saved tweak state from localStorage
+        loadSavedState();
         bridge.value.monitorUpdated.connect(function(){
           bridge.value.getMonitorData(function(d){ monitor.value = d; });
         });
@@ -1141,6 +1304,7 @@ const app = createApp({
             batchItems.value[i].state = 'done';
           }
           refreshTweaks();
+          showToast('Batch complete! Don\'t forget to Save.');
         });
       });
     });
@@ -1155,6 +1319,10 @@ const app = createApp({
       isAdmin, appliedCount, recommendedCount,
       filteredTweaks, unappliedVisible, appliedGamingTweaks,
       tweakCountByCat,
+      catDropdownOpen, closeCatDropdown,
+      tweakAnimState, tweakLogMsg, hasUnsavedTweaks, unsavedCount,
+      handleToggleTweak, tweakStatusClass, tweakStatusText,
+      saveTweakChanges, discardTweakChanges, confirmRevertAll,
       gameProfiles, csCrosshairs, csAllPros, proSearch, filteredPros, copiedIdx, copyCrosshair, toastMsg,
       toggleTweak, doApplyRecommended, doApplyGaming, doRestoreAll,
       doClearTemp, doFlushDns, doVerifyAll, doRequestAdmin,
