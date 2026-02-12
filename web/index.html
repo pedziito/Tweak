@@ -209,7 +209,8 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .pro-player-card{padding:0;overflow:hidden;transition:all .25s;border:1px solid var(--border)}
 .pro-player-card:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 8px 28px rgba(6,182,212,.1)}
 .pro-card-top{padding:20px 20px 16px;display:flex;align-items:center;gap:14px}
-.pro-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#000;flex-shrink:0}
+.pro-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#000;flex-shrink:0;overflow:hidden}
+.pro-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .pro-info{flex:1}
 .pro-name{font-size:16px;font-weight:700}
 .pro-team{font-size:12px;color:var(--text3);margin-top:2px}
@@ -228,6 +229,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .optimize-bar{padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .section-title .icon-svg{width:18px;height:18px;color:var(--cyan)}
+.pro-search{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;margin-bottom:16px;outline:none;transition:border-color .2s}
+.pro-search:focus{border-color:var(--cyan)}
+.pro-search::placeholder{color:var(--text3)}
+.player-count{font-size:12px;color:var(--text3);font-weight:500;margin-left:auto}
 
 /* ── Settings ── */
 .setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
@@ -636,9 +641,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <div class="section-title">
         <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
         Crosshair Codes
+        <span class="player-count">{{csCrosshairs.length}} codes</span>
       </div>
       <div class="card" style="padding:20px;margin-bottom:24px">
-        <div class="crosshair-box" v-for="(ch,ci) in csProPlayers[0].crosshairs" :key="ci" @click="copyCrosshair(csProPlayers[0].crosshairs[ci].code,ci)">
+        <div class="crosshair-box" v-for="(ch,ci) in csCrosshairs" :key="ci" @click="copyCrosshair(ch.code,ci)">
           <span class="ch-player">{{ch.player}}</span>
           <span class="ch-code">{{ch.code}}</span>
           <span class="ch-copy" :class="{'copied-flash':copiedIdx===ci}">{{copiedIdx===ci ? '✓ Copied' : 'Click to copy'}}</span>
@@ -649,11 +655,15 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <div class="section-title">
         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Pro Player Settings
+        <span class="player-count">{{filteredPros.length}} players</span>
       </div>
+      <input class="pro-search" type="text" placeholder="Search players..." v-model="proSearch">
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px">
-        <div class="card pro-player-card" v-for="p in csProPlayers[0].pros" :key="p.name">
+        <div class="card pro-player-card" v-for="p in filteredPros" :key="p.name">
           <div class="pro-card-top">
-            <div class="pro-avatar">{{p.name.charAt(0).toUpperCase()}}</div>
+            <div class="pro-avatar">
+              <img :src="p.image" :alt="p.name" @error="$event.target.style.display='none'" loading="lazy">
+            </div>
             <div class="pro-info">
               <div class="pro-name">{{p.name}}</div>
               <div class="pro-team">{{p.team}}</div>
@@ -846,30 +856,82 @@ const app = createApp({
       });
     }
 
-    const csProPlayers = [
-      {
-        crosshairs:[
-          {player:'s1mple',   code:'CSGO-YOhes-Dz3wC-sShfd-VcKNi-x7MAD'},
-          {player:'ZywOo',    code:'CSGO-XVMC7-FS3kf-UduuK-dPvQX-6WMGJ'},
-          {player:'m0NESY',   code:'CSGO-nV4Sz-DqZEm-3RuCh-OfSAn-yRMzG'},
-          {player:'NiKo',     code:'CSGO-O4Jsi-V36bm-vsDWZ-sRBuX-7XWQD'},
-          {player:'donk',     code:'CSGO-Rzmhq-Fbc5D-eMONi-vQW3x-6YsdJ'},
-          {player:'ropz',     code:'CSGO-jWjkC-S2CdR-xf4OZ-V9kEr-oTYQP'},
-          {player:'device',   code:'CSGO-aN2Ke-VF3xL-qPKHy-OjR7M-dW8YB'},
-          {player:'b1t',      code:'CSGO-W7vFk-xRm3Z-J9pKe-aY6bN-dT4QC'},
-        ],
-        pros:[
-          {name:'s1mple',  slug:'s1mple',  team:'NAVI',     settings:{'DPI':'400','Sensitivity':'3.09','eDPI':'1236','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz','Zoom Sens':'1.0'}},
-          {name:'ZywOo',   slug:'zywoo',   team:'Vitality', settings:{'DPI':'400','Sensitivity':'2.0','eDPI':'800','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz','Zoom Sens':'1.0'}},
-          {name:'m0NESY',  slug:'m0nesy',  team:'G2',       settings:{'DPI':'400','Sensitivity':'1.85','eDPI':'740','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz','Zoom Sens':'0.9'}},
-          {name:'NiKo',    slug:'niko',    team:'G2',       settings:{'DPI':'400','Sensitivity':'1.38','eDPI':'552','Resolution':'1024\u00d7768','Aspect Ratio':'4:3','Hz':'360Hz','Zoom Sens':'0.9'}},
-          {name:'donk',    slug:'donk',    team:'Spirit',   settings:{'DPI':'800','Sensitivity':'0.8','eDPI':'640','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'240Hz','Zoom Sens':'1.0'}},
-          {name:'ropz',    slug:'ropz',    team:'FaZe',     settings:{'DPI':'400','Sensitivity':'1.77','eDPI':'708','Resolution':'1920\u00d71080','Aspect Ratio':'16:9','Hz':'360Hz','Zoom Sens':'1.0'}},
-          {name:'device',  slug:'device',  team:'Astralis', settings:{'DPI':'400','Sensitivity':'1.8','eDPI':'720','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'240Hz','Zoom Sens':'1.0'}},
-          {name:'b1t',     slug:'b1t',     team:'NAVI',     settings:{'DPI':'800','Sensitivity':'0.85','eDPI':'680','Resolution':'1280\u00d7960','Aspect Ratio':'4:3','Hz':'360Hz','Zoom Sens':'1.0'}},
-        ]
-      }
-    ];
+    const csCrosshairs = [
+          {player:'s1mple', code:'CSGO-E8xcE-27Lmw-2ipNt-3HZvp-pevvE'},
+          {player:'ZywOo', code:'CSGO-E9RyF-Mv3Uv-67Cp3-GtHxR-k8aYO'},
+          {player:'NiKo', code:'CSGO-LfYUV-BtxVq-iAmCV-DpFQZ-5eRqJ'},
+          {player:'donk', code:'CSGO-odYLp-isvFB-KOuxt-PsGZe-PU9vO'},
+          {player:'Twistzz', code:'CSGO-JU2jV-vzchu-svymm-AjmBN-4jw5G'},
+          {player:'electronic', code:'CSGO-XxVXc-qLTMh-djJcV-2RPcf-WROpP'},
+          {player:'b1t', code:'CSGO-RGiBp-OXkpB-BqZwB-BRBvu-zwsyM'},
+          {player:'blameF', code:'CSGO-GkbuB-AoRSV-WSRTX-3uku3-UTGOP'},
+          {player:'Magisk', code:'CSGO-u9zTy-WMY5r-o8par-X6eM3-kJ5mA'},
+          {player:'cadiaN', code:'CSGO-qkkHe-wUdL7-HvPrQ-7q4PF-htuWK'},
+          {player:'stavn', code:'CSGO-yikLL-77yEK-NWkyj-WJn8u-dptiB'},
+          {player:'jabbi', code:'CSGO-2iS5N-77Zdo-UjdRV-vPshA-ZbmbN'},
+          {player:'TeSeS', code:'CSGO-uSeWF-F4v3i-yzDJ7-OEThH-CFCEB'},
+          {player:'sjuush', code:'CSGO-6CrJG-XTmKy-xhYoP-kcMPU-He4NF'},
+          {player:'jL', code:'CSGO-WDGNY-oKrfi-N2E4n-XyDEY-f2XDJ'},
+          {player:'jks', code:'CSGO-VzkXX-2Uo4N-Q77fo-aCpnB-XyqRP'},
+          {player:'EliGE', code:'CSGO-kuotc-J8r2V-bpfZh-VB585-GbvvE'},
+          {player:'NAF', code:'CSGO-CqJLs-FtDeV-zyfwL-Q39tt-OYBpF'},
+          {player:'Stewie2k', code:'CSGO-r3XBE-ySAhm-GuHRz-CfiVC-Vc4NF'},
+          {player:'autimatic', code:'CSGO-cYLt8-mWhnx-PiYYY-tjBNt-TGpEM'},
+          {player:'Ax1Le', code:'CSGO-k3yQ7-F5aqK-sVKQd-ZUi4K-z26KQ'},
+          {player:'Perfecto', code:'CSGO-LdXHk-hatWX-JjEa8-tuLDN-5tbJD'},
+          {player:'Spinx', code:'CSGO-9Cmqe-AtNsK-erz4T-qBVCE-8kwjN'},
+          {player:'mezii', code:'CSGO-39YYV-RFmuF-QpcOt-2zQFu-J9T8N'},
+          {player:'huNter', code:'CSGO-UZZrY-2yHCw-8URMu-dHkb6-5pZQM'}
+        ];
+
+    const csAllPros = [
+          {name:'s1mple', slug:'s1mple', team:'BC.Game', image:'https://prosettings.net/wp-content/uploads/s1mple-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'3.09','eDPI':'1236','Resolution':'1280×960'}},
+          {name:'ZywOo', slug:'zywoo', team:'Team Vitality', image:'https://prosettings.net/wp-content/uploads/zywoo-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'2','eDPI':'800.00','Resolution':'1280×960'}},
+          {name:'NiKo', slug:'niko', team:'Falcons Esports', image:'https://prosettings.net/wp-content/uploads/niko-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1','eDPI':'800.00','Resolution':'1280×768'}},
+          {name:'donk', slug:'donk', team:'Team Spirit', image:'https://prosettings.net/wp-content/uploads/donk-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.25','eDPI':'1000','Resolution':'1280×960'}},
+          {name:'m0NESY', slug:'m0nesy', team:'Falcons Esports', image:'https://prosettings.net/wp-content/uploads/m0nesy-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.15','eDPI':'920.00','Resolution':'1280×960'}},
+          {name:'ropz', slug:'ropz', team:'Team Vitality', image:'https://prosettings.net/wp-content/uploads/ropz-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'1.77','eDPI':'708','Resolution':'1920×1080'}},
+          {name:'Twistzz', slug:'twistzz', team:'FaZe Clan', image:'https://prosettings.net/wp-content/uploads/twistzz-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'1.59','eDPI':'636.00','Resolution':'1280×960'}},
+          {name:'electronic', slug:'electronic', team:'BC.Game', image:'https://prosettings.net/wp-content/uploads/electronic-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'2.2','eDPI':'880.00','Resolution':'1280×1024'}},
+          {name:'b1t', slug:'b1t', team:'Natus Vincere', image:'https://prosettings.net/wp-content/uploads/b1t-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'1.65','eDPI':'660.00','Resolution':'1280×960'}},
+          {name:'rain', slug:'rain', team:'100 Thieves', image:'https://prosettings.net/wp-content/uploads/rain-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'0.95','eDPI':'760.00','Resolution':'1280×960'}},
+          {name:'broky', slug:'broky', team:'FaZe Clan', image:'https://prosettings.net/wp-content/uploads/broky-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'2.57','eDPI':'1028.00','Resolution':'1280×960'}},
+          {name:'frozen', slug:'frozen', team:'FaZe Clan', image:'https://prosettings.net/wp-content/uploads/frozen-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'2','eDPI':'800','Resolution':'1280×960'}},
+          {name:'blameF', slug:'blamef', team:'BIG', image:'https://prosettings.net/wp-content/uploads/blamef-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'1.6','eDPI':'640.00','Resolution':'1280×960'}},
+          {name:'Magisk', slug:'magisk', team:'Free Agent', image:'https://prosettings.net/wp-content/uploads/magisk-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1','eDPI':'800.00','Resolution':'1280×960'}},
+          {name:'dupreeh', slug:'dupreeh', team:'Retired', image:'https://prosettings.net/wp-content/uploads/dupreeh-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'400','Sensitivity':'1.77','eDPI':'708.00','Resolution':'1280×800'}},
+          {name:'gla1ve', slug:'gla1ve', team:'100 Thieves', image:'https://prosettings.net/wp-content/uploads/gla1ve-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'400','Sensitivity':'1.8','eDPI':'720','Resolution':'1280×960'}},
+          {name:'Xyp9x', slug:'xyp9x', team:'MOUZ', image:'https://prosettings.net/wp-content/uploads/xyp9x-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'400','Sensitivity':'2','eDPI':'800','Resolution':'1680×1050'}},
+          {name:'cadiaN', slug:'cadian', team:'OG Esports', image:'https://prosettings.net/wp-content/uploads/cadian-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'400','Sensitivity':'2.3','eDPI':'920.00','Resolution':'1280×960'}},
+          {name:'stavn', slug:'stavn', team:'Free Agent', image:'https://prosettings.net/wp-content/uploads/stavn-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'400','Sensitivity':'2.5','eDPI':'1000.00','Resolution':'800×600'}},
+          {name:'jabbi', slug:'jabbi', team:'Astralis', image:'https://prosettings.net/wp-content/uploads/jabbi-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'0.90','eDPI':'720','Resolution':'1280×960'}},
+          {name:'TeSeS', slug:'teses', team:'Falcons Esports', image:'https://prosettings.net/wp-content/uploads/teses-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'1600','Sensitivity':'0.5','eDPI':'800.00','Resolution':'1024×768'}},
+          {name:'sjuush', slug:'sjuush', team:'Ninjas in Pyjamas', image:'https://prosettings.net/wp-content/uploads/sjuush-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.11','eDPI':'888.00','Resolution':'1440×1080'}},
+          {name:'HooXi', slug:'hooxi', team:'Astralis', image:'https://prosettings.net/wp-content/uploads/hooxi-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'0.9','eDPI':'720.00','Resolution':'1280×768'}},
+          {name:'w0nderful', slug:'w0nderful', team:'Natus Vincere', image:'https://prosettings.net/wp-content/uploads/w0nderful-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'2.6','eDPI':'1040.00','Resolution':'1280×960'}},
+          {name:'jL', slug:'jl', team:'Content Creator', image:'https://prosettings.net/wp-content/uploads/jl-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'1','eDPI':'800','Resolution':'1280×1024'}},
+          {name:'Aleksib', slug:'aleksib', team:'Natus Vincere', image:'https://prosettings.net/wp-content/uploads/aleksib-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.06','eDPI':'848.00','Resolution':'1440×1080'}},
+          {name:'jks', slug:'jks', team:'FlyQuest', image:'https://prosettings.net/wp-content/uploads/jks-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'1.85','eDPI':'740.00','Resolution':'1920×1080'}},
+          {name:'EliGE', slug:'elige', team:'Team Liquid', image:'https://prosettings.net/wp-content/uploads/elige-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'1600','Sensitivity':'0.74','eDPI':'1184','Resolution':'1680×1050'}},
+          {name:'NAF', slug:'naf', team:'Team Liquid', image:'https://prosettings.net/wp-content/uploads/naf-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'0.8','eDPI':'640.00','Resolution':'1280×960'}},
+          {name:'Stewie2k', slug:'stewie2k', team:'Free Agent', image:'https://prosettings.net/wp-content/uploads/stewie2k-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'1.25','eDPI':'1000.00','Resolution':'1280×960'}},
+          {name:'autimatic', slug:'autimatic', team:'NRG', image:'https://prosettings.net/wp-content/uploads/autimatic-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'1.125','eDPI':'900','Resolution':'1920×1080'}},
+          {name:'Ax1Le', slug:'ax1le', team:'BetBoom Team', image:'https://prosettings.net/wp-content/uploads/ax1le-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'1.50','eDPI':'1200','Resolution':'1280×960'}},
+          {name:'HObbit', slug:'hobbit', team:'1WIN', image:'https://prosettings.net/wp-content/uploads/hobbit-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'1.25','eDPI':'1000.00','Resolution':'1280×960'}},
+          {name:'Perfecto', slug:'perfecto', team:'Virtus.pro', image:'https://prosettings.net/wp-content/uploads/perfecto-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.2','eDPI':'960.00','Resolution':'1280×960'}},
+          {name:'fame', slug:'fame', team:'Virtus.pro', image:'https://prosettings.net/wp-content/uploads/fame-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.10','eDPI':'880','Resolution':'1280×960'}},
+          {name:'Spinx', slug:'spinx', team:'MOUZ', image:'https://prosettings.net/wp-content/uploads/spinx-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.23','eDPI':'984.00','Resolution':'1280×960'}},
+          {name:'mezii', slug:'mezii', team:'Team Vitality', image:'https://prosettings.net/wp-content/uploads/mezii-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'400','Sensitivity':'2.2','eDPI':'880.00','Resolution':'1280×960'}},
+          {name:'huNter', slug:'hunter', team:'G2 Esports', image:'https://prosettings.net/wp-content/uploads/hunter-200x200-fitcontain-q99-gb283-s1.png', settings:{'DPI':'800','Sensitivity':'1.25','eDPI':'1000.00','Resolution':'1350×1080'}},
+          {name:'nexa', slug:'nexa', team:'Free Agent', image:'https://prosettings.net/wp-content/uploads/nexa-200x200-fitcontain-q99-gb283-s1.webp', settings:{'DPI':'800','Sensitivity':'1.25','eDPI':'1000.00','Resolution':'1024×768'}}
+        ];
+
+    const proSearch = ref('');
+    const filteredPros = computed(function(){
+      if(!proSearch.value) return csAllPros;
+      var q = proSearch.value.toLowerCase();
+      return csAllPros.filter(function(p){ return p.name.toLowerCase().includes(q) || p.team.toLowerCase().includes(q); });
+    });
 
     // Keep gameProfiles for applyGameProfile compatibility
     const gameProfiles = [{name:'CS2', cats:['Gaming','Network']}];
@@ -1087,7 +1149,7 @@ const app = createApp({
       isAdmin, appliedCount, recommendedCount,
       filteredTweaks, unappliedVisible, appliedGamingTweaks,
       tweakCountByCat,
-      gameProfiles, csProPlayers, copiedIdx, copyCrosshair, toastMsg,
+      gameProfiles, csCrosshairs, csAllPros, proSearch, filteredPros, copiedIdx, copyCrosshair, toastMsg,
       toggleTweak, doApplyRecommended, doApplyGaming, doRestoreAll,
       doClearTemp, doFlushDns, doVerifyAll, doRequestAdmin,
       startBatchApply, startFullBatchApply, applyGameProfile, closeBatch,
