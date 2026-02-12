@@ -38,6 +38,11 @@ qt_add_resources(TweakApp "web"
 
 target_include_directories(TweakApp PRIVATE src)
 
+# Windows .exe icon
+if (WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/resources/icon.ico")
+    target_sources(TweakApp PRIVATE resources/app.rc)
+endif()
+
 target_link_libraries(TweakApp PRIVATE
     Qt6::Core
     Qt6::Gui

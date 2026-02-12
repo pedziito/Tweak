@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tweak</title>
+<title>ADAMV TWEAKS</title>
 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <style>
@@ -351,25 +351,13 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     <div class="login-box">
       <div class="login-logo">
         <div class="logo-icon" style="background:none;padding:0">
-          <svg viewBox="0 0 200 200" style="width:52px;height:52px">
-            <defs>
-              <linearGradient id="logoGradA" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="40%" stop-color="#1565a8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
-              <linearGradient id="logoGradV" x1="0.3" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>
-              <linearGradient id="logoGradMid" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e3a6e"/><stop offset="100%" stop-color="#0c7bb3"/></linearGradient>
-            </defs>
-            <!-- A left leg -->
-            <path d="M30 170 L75 30 L95 30 L60 170 Z" fill="url(#logoGradA)"/>
-            <!-- A right leg (behind V) -->
-            <path d="M95 30 L130 130 L110 130 L82 50 Z" fill="url(#logoGradMid)"/>
-            <!-- V left leg -->
-            <path d="M80 30 L100 30 L125 130 L108 130 Z" fill="url(#logoGradMid)" opacity=".85"/>
-            <!-- V right leg -->
-            <path d="M125 130 L140 170 L170 30 L148 30 Z" fill="url(#logoGradV)"/>
-            <!-- A crossbar ribbon -->
-            <path d="M52 120 L108 120 L104 108 L56 108 Z" fill="url(#logoGradMid)" opacity=".7"/>
+          <svg viewBox="0 0 175 160" style="width:48px;height:48px">
+            <defs><linearGradient id="avGl" x1="0" y1="0" x2="175" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="35%" stop-color="#1976d2"/><stop offset="65%" stop-color="#0891b2"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs>
+            <path d="M5,155 L55,5 L105,155Z M55,52 L27,155 L83,155Z M41,105 L69,105 L72,115 L38,115Z" fill="url(#avGl)" fill-rule="evenodd"/>
+            <path d="M65,5 L117,155 L169,5 L152,5 L117,130 L82,5Z" fill="url(#avGl)"/>
           </svg>
         </div>
-        <h1>Tweak</h1>
+        <h1>ADAMV TWEAKS</h1>
       </div>
 
       <!-- Tab switcher -->
@@ -427,7 +415,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         <div class="login-error" :style="{color: activateSuccess ? 'var(--green)' : 'var(--red)'}">{{activateMsg}}</div>
       </form>
 
-      <div class="login-footer">Tweak v5.0.0 &mdash; PC Optimization Suite</div>
+      <div class="login-footer">ADAMV TWEAKS v5.0.0 &mdash; PC Optimization Suite</div>
     </div>
   </div>
 
@@ -438,22 +426,15 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <aside class="sidebar" @mouseenter="sidebarHovered=true" @mouseleave="sidebarHovered=false">
     <div class="sidebar-brand">
       <div class="logo" style="background:none;padding:0;display:flex;align-items:center;justify-content:center">
-        <svg viewBox="0 0 200 200" style="width:34px;height:34px">
-          <defs>
-            <linearGradient id="sGradA" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="40%" stop-color="#1565a8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
-            <linearGradient id="sGradV" x1="0.3" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>
-            <linearGradient id="sGradM" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e3a6e"/><stop offset="100%" stop-color="#0c7bb3"/></linearGradient>
-          </defs>
-          <path d="M30 170 L75 30 L95 30 L60 170 Z" fill="url(#sGradA)"/>
-          <path d="M95 30 L130 130 L110 130 L82 50 Z" fill="url(#sGradM)"/>
-          <path d="M80 30 L100 30 L125 130 L108 130 Z" fill="url(#sGradM)" opacity=".85"/>
-          <path d="M125 130 L140 170 L170 30 L148 30 Z" fill="url(#sGradV)"/>
-          <path d="M52 120 L108 120 L104 108 L56 108 Z" fill="url(#sGradM)" opacity=".7"/>
+        <svg viewBox="0 0 175 160" style="width:34px;height:34px">
+          <defs><linearGradient id="avGs" x1="0" y1="0" x2="175" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#1a3a6e"/><stop offset="35%" stop-color="#1976d2"/><stop offset="65%" stop-color="#0891b2"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs>
+          <path d="M5,155 L55,5 L105,155Z M55,52 L27,155 L83,155Z M41,105 L69,105 L72,115 L38,115Z" fill="url(#avGs)" fill-rule="evenodd"/>
+          <path d="M65,5 L117,155 L169,5 L152,5 L117,130 L82,5Z" fill="url(#avGs)"/>
         </svg>
       </div>
       <div class="brand-text">
-        <h1>Tweak</h1>
-        <span>v5.0.0</span>
+        <h1>ADAMV</h1>
+        <span>TWEAKS v5.0.0</span>
       </div>
     </div>
 
