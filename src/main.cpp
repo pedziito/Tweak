@@ -1,8 +1,10 @@
 #include <QApplication>
 #include <QWebEngineView>
 #include <QWebEngineProfile>
+#include <QWebEngineSettings>
 #include <QWebChannel>
 #include <QUrl>
+#include <QStandardPaths>
 
 #include "app/AppController.h"
 #include "app/WebBridge.h"
@@ -24,6 +26,13 @@ int main(int argc, char *argv[])
     channel.registerObject(QStringLiteral("bridge"), &bridge);
 
     QWebEngineView view;
+
+    // Enable persistent local storage for the web engine
+    QWebEngineProfile *profile = view.page()->profile();
+    profile->setPersistentStoragePath(
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/webdata"));
+    view.page()->settings()->setAttribute(QWebEngineSettings::LocalStorageEnabled, true);
+
     view.page()->setWebChannel(&channel);
     view.setUrl(QUrl(QStringLiteral("qrc:/web/index.html")));
     view.setWindowTitle(QStringLiteral("Tweak"));

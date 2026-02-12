@@ -167,3 +167,41 @@ void WebBridge::applyBatch(QJsonArray rowIndices)
     }
     emit batchComplete();
 }
+
+// ── Credential persistence via QSettings ──
+
+void WebBridge::saveCredentials(const QString &user, const QString &pass, bool save)
+{
+    QSettings s;
+    s.beginGroup(QStringLiteral("Credentials"));
+    if (save && !user.isEmpty()) {
+        s.setValue(QStringLiteral("username"), user);
+        s.setValue(QStringLiteral("password"), pass);
+        s.setValue(QStringLiteral("remember"), true);
+    } else {
+        s.remove(QStringLiteral(""));
+    }
+    s.endGroup();
+    s.sync();
+}
+
+QJsonObject WebBridge::loadCredentials()
+{
+    QSettings s;
+    s.beginGroup(QStringLiteral("Credentials"));
+    QJsonObject obj;
+    obj[QStringLiteral("remember")] = s.value(QStringLiteral("remember"), false).toBool();
+    obj[QStringLiteral("username")] = s.value(QStringLiteral("username"), QString()).toString();
+    obj[QStringLiteral("password")] = s.value(QStringLiteral("password"), QString()).toString();
+    s.endGroup();
+    return obj;
+}
+
+void WebBridge::clearCredentials()
+{
+    QSettings s;
+    s.beginGroup(QStringLiteral("Credentials"));
+    s.remove(QStringLiteral(""));
+    s.endGroup();
+    s.sync();
+}

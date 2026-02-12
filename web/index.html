@@ -350,7 +350,13 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <div class="login-page" v-if="!loggedIn">
     <div class="login-box">
       <div class="login-logo">
-        <div class="logo-icon">T</div>
+        <div class="logo-icon" style="background:none;padding:0">
+          <svg viewBox="0 0 100 100" style="width:48px;height:48px">
+            <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient></defs>
+            <path d="M28 80L50 15L72 80" fill="none" stroke="url(#logoGrad)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 80L50 20L62 55L78 15" fill="none" stroke="url(#logoGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+          </svg>
+        </div>
         <h1>Tweak</h1>
       </div>
 
@@ -419,7 +425,13 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <!-- Sidebar -->
   <aside class="sidebar" @mouseenter="sidebarHovered=true" @mouseleave="sidebarHovered=false">
     <div class="sidebar-brand">
-      <div class="logo">T</div>
+      <div class="logo" style="background:none;padding:0;display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 100 100" style="width:32px;height:32px">
+          <defs><linearGradient id="sideLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient></defs>
+          <path d="M28 80L50 15L72 80" fill="none" stroke="url(#sideLogoGrad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 80L50 20L62 55L78 15" fill="none" stroke="url(#sideLogoGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
+        </svg>
+      </div>
       <div class="brand-text">
         <h1>Tweak</h1>
         <span>v5.0.0</span>
@@ -1122,30 +1134,13 @@ const app = createApp({
     // ── Save Credentials ──
     const saveCredentials = ref(false);
 
-    // Load saved credentials on startup
-    (function(){
-      try {
-        var saved = localStorage.getItem('tweak_save_creds');
-        if(saved === 'true'){
-          saveCredentials.value = true;
-          var u = localStorage.getItem('tweak_cred_user');
-          var p = localStorage.getItem('tweak_cred_pass');
-          if(u) loginUser.value = u;
-          if(p) loginPass.value = p;
-        }
-      } catch(e){}
-    })();
+    // Credentials are loaded from C++ QSettings in onMounted (after bridge is ready)
+    // No localStorage dependency for credentials anymore.
 
     function onSaveCredsToggle(){
-      try {
-        if(saveCredentials.value){
-          localStorage.setItem('tweak_save_creds', 'true');
-        } else {
-          localStorage.removeItem('tweak_save_creds');
-          localStorage.removeItem('tweak_cred_user');
-          localStorage.removeItem('tweak_cred_pass');
-        }
-      } catch(e){}
+      if(!saveCredentials.value && bridge.value){
+        bridge.value.clearCredentials();
+      }
     }
 
     // ── App State ──
@@ -1569,21 +1564,11 @@ const app = createApp({
     function doLogout(){
       loggedIn.value = false;
       currentUser.value = '';
-      // Restore saved credentials for next auto-login, or clear fields
-      if(saveCredentials.value){
-        try {
-          var u = localStorage.getItem('tweak_cred_user');
-          var p = localStorage.getItem('tweak_cred_pass');
-          if(u) loginUser.value = u;
-          if(p) loginPass.value = p;
-        } catch(e){}
-      } else {
+      // Keep saved credentials for next login if checkbox was checked
+      if(!saveCredentials.value){
         loginUser.value = '';
         loginPass.value = '';
-        try {
-          localStorage.removeItem('tweak_cred_user');
-          localStorage.removeItem('tweak_cred_pass');
-        } catch(e){}
+        if(bridge.value) bridge.value.clearCredentials();
       }
       loginError.value = '';
       activateMsg.value = '';
@@ -1672,11 +1657,19 @@ const app = createApp({
         // Fetch HWID for the activate tab
         bridge.value.getHwid(function(h){ hwidValue.value = h || '...'; });
 
-        // Auto-login if credentials are saved
-        if(saveCredentials.value && loginUser.value && loginPass.value){
-          authLoading.value = true;
-          bridge.value.loginLicense(loginUser.value, loginPass.value);
-        }
+        // Load saved credentials from C++ QSettings
+        bridge.value.loadCredentials(function(creds){
+          if(creds && creds.remember){
+            saveCredentials.value = true;
+            loginUser.value = creds.username || '';
+            loginPass.value = creds.password || '';
+            // Auto-login with loaded credentials
+            if(loginUser.value && loginPass.value){
+              authLoading.value = true;
+              bridge.value.loginLicense(loginUser.value, loginPass.value);
+            }
+          }
+        });
 
         // License login result
         bridge.value.loginResult.connect(function(success, message){
@@ -1684,14 +1677,10 @@ const app = createApp({
           if(success){
             loggedIn.value = true;
             currentUser.value = loginUser.value;
-            // Save credentials if checkbox is checked
-            try {
-              if(saveCredentials.value){
-                localStorage.setItem('tweak_cred_user', loginUser.value);
-                localStorage.setItem('tweak_cred_pass', loginPass.value);
-                localStorage.setItem('tweak_save_creds', 'true');
-              }
-            } catch(e){}
+            // Save credentials via C++ QSettings if checkbox is checked
+            if(saveCredentials.value && bridge.value){
+              bridge.value.saveCredentials(loginUser.value, loginPass.value, true);
+            }
             loginError.value = '';
             refreshAll();
             // Initialize saved state after login

@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTimer>
+#include <QSettings>
 
 #include "app/AppController.h"
 #include "app/LicenseManager.h"
@@ -48,6 +49,11 @@ public:
 
     // Batch apply with progress
     Q_INVOKABLE void applyBatch(QJsonArray rowIndices);
+
+    // Credential persistence (QSettings — reliable across restarts)
+    Q_INVOKABLE void saveCredentials(const QString &user, const QString &pass, bool save);
+    Q_INVOKABLE QJsonObject loadCredentials();
+    Q_INVOKABLE void clearCredentials();
 
 signals:
     void tweaksChanged();
