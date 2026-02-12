@@ -81,13 +81,24 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .sidebar:hover .nav-items li .nav-expand{opacity:1}
 .nav-items li.expanded .nav-expand{transform:rotate(180deg);color:var(--cyan)}
 .nav-sub{list-style:none;padding:0;max-height:0;overflow:hidden;transition:max-height .3s ease}
-.nav-sub.open{max-height:400px}
-.nav-sub li{padding:8px 12px 8px 48px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;border-radius:8px;margin:1px 0}
+.nav-sub.open{max-height:500px}
+.nav-sub li{padding:8px 12px 8px 22px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;border-radius:8px;margin:1px 0;display:flex;align-items:center;gap:10px}
 .nav-sub li:hover{color:var(--text);background:rgba(255,255,255,.03)}
 .nav-sub li.active{color:var(--cyan);font-weight:600}
 .nav-sub li .sub-count{margin-left:auto;font-size:10px;opacity:.6}
-.nav-sub li .sub-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);margin-right:10px;flex-shrink:0;transition:background .2s}
-.nav-sub li.active .sub-dot{background:var(--cyan)}
+.nav-sub li .sub-icon{width:16px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-sub li .sub-icon svg{width:14px;height:14px}
+.nav-sub li.active .sub-icon{color:var(--cyan)}
+/* Pinned single category (sidebar collapsed + category selected) */
+.nav-pinned{list-style:none;padding:0 10px;max-height:0;overflow:hidden;transition:max-height .3s ease}
+.nav-pinned.show{max-height:50px}
+.nav-pinned li{padding:8px 12px;font-size:12px;color:var(--cyan);font-weight:600;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:10px}
+.nav-pinned li .sub-icon{width:16px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--cyan)}
+.nav-pinned li .sub-icon svg{width:14px;height:14px}
+.nav-pinned .nav-label{overflow:hidden;opacity:0;transition:opacity .2s .05s}
+.sidebar:hover .nav-pinned .nav-label{opacity:1}
+.nav-pinned .sub-count{margin-left:auto;font-size:10px;opacity:0;transition:opacity .2s .05s}
+.sidebar:hover .nav-pinned .sub-count{opacity:.6}
 
 /* ── Save Credentials Checkbox ── */
 .save-creds{display:flex;align-items:center;gap:9px;margin-top:12px;margin-bottom:4px;cursor:pointer;user-select:none}
@@ -351,7 +362,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
   <template v-if="loggedIn">
 
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" @mouseenter="sidebarHovered=true" @mouseleave="sidebarHovered=false">
     <div class="sidebar-brand">
       <div class="logo">T</div>
       <div class="brand-text">
@@ -363,26 +374,34 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     <div class="nav-section">Menu</div>
     <ul class="nav-items">
       <li v-for="p in pages" :key="p.id"
-          :class="{active: page===p.id, expanded: p.id==='tweaks' && tweaksExpanded}"
+          :class="{active: page===p.id, expanded: p.id==='tweaks' && sidebarHovered && page==='tweaks'}"
           @click="handleNavClick(p)">
         <span class="nav-icon" v-html="p.svg"></span>
         <span class="nav-label">{{p.label}}</span>
         <span v-if="p.id==='tweaks' && appliedCount>0" class="badge">{{appliedCount}}</span>
         <span v-if="p.id==='tweaks'" class="nav-expand">&#9660;</span>
       </li>
-      <!-- Optimizations sub-menu -->
-      <ul class="nav-sub" :class="{open: tweaksExpanded}">
-        <li :class="{active: page==='tweaks' && activeCat==='All'}" @click="page='tweaks';activeCat='All'">
-          <span class="sub-dot"></span>
+      <!-- Full sub-menu (visible on sidebar hover when on tweaks page) -->
+      <ul class="nav-sub" :class="{open: sidebarHovered && page==='tweaks'}">
+        <li :class="{active: activeCat==='All'}" @click="selectCategory('All')">
+          <span class="sub-icon" v-html="catIcon('All')"></span>
           <span>All</span>
           <span class="sub-count">{{tweaks.length}}</span>
         </li>
-        <li v-for="c in categories" :key="c"
-            :class="{active: page==='tweaks' && activeCat===c}"
-            @click="page='tweaks';activeCat=c">
-          <span class="sub-dot"></span>
-          <span>{{c}}</span>
-          <span class="sub-count">{{tweakCountByCat(c)}}</span>
+        <template v-for="c in categories" :key="c">
+          <li v-if="c!=='All'" :class="{active: activeCat===c}" @click="selectCategory(c)">
+            <span class="sub-icon" v-html="catIcon(c)"></span>
+            <span>{{c}}</span>
+            <span class="sub-count">{{tweakCountByCat(c)}}</span>
+          </li>
+        </template>
+      </ul>
+      <!-- Pinned category (sidebar collapsed + category selected) -->
+      <ul class="nav-pinned" :class="{show: !sidebarHovered && page==='tweaks' && catPinned}">
+        <li>
+          <span class="sub-icon" v-html="catIcon(activeCat)"></span>
+          <span class="nav-label">{{activeCat}}</span>
+          <span class="sub-count nav-label">{{activeCat==='All' ? tweaks.length : tweakCountByCat(activeCat)}}</span>
         </li>
       </ul>
     </ul>
@@ -935,16 +954,34 @@ const app = createApp({
     const page      = ref('dashboard');
     const search    = ref('');
     const activeCat = ref('All');
-    const tweaksExpanded = ref(false);
+    const sidebarHovered = ref(false);
+    const catPinned = ref(false);
 
     function handleNavClick(p){
-      if(p.id === 'tweaks'){
-        page.value = 'tweaks';
-        tweaksExpanded.value = !tweaksExpanded.value;
-      } else {
-        page.value = p.id;
-        tweaksExpanded.value = false;
-      }
+      page.value = p.id;
+    }
+
+    function selectCategory(c){
+      page.value = 'tweaks';
+      activeCat.value = c;
+      catPinned.value = true;
+    }
+
+    function catIcon(cat){
+      var icons = {
+        'All':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+        'FPS':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+        'Gaming':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><line x1="15" y1="12" x2="15.01" y2="12"/><line x1="18" y1="10" x2="18.01" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>',
+        'Latency':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        'Memory':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>',
+        'Network':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+        'Power':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        'Privacy':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+        'Services':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+        'Storage':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
+        'Visual':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      };
+      return icons[cat] || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>';
     }
 
     const sysinfo    = ref({});
@@ -964,10 +1001,6 @@ const app = createApp({
     const batchTotal   = ref(0);
     const batchItems   = ref([]);
     const batchPct     = computed(function(){ return batchTotal.value ? Math.round(batchCurrent.value/batchTotal.value*100) : 0; });
-
-    // Category dropdown
-    const catDropdownOpen = ref(false);
-    function closeCatDropdown(){ catDropdownOpen.value = false; }
 
     // Tweak animation & feedback state
     const tweakAnimState = ref({});        // row -> 'applying'|'applied'|'reverted'
@@ -1245,7 +1278,7 @@ const app = createApp({
       activateUser.value = '';
       activatePass.value = '';
       page.value = 'dashboard';
-      tweaksExpanded.value = false;
+      catPinned.value = false;
     }
 
     // ── Data Loaders ──
@@ -1409,12 +1442,11 @@ const app = createApp({
       activateMsg, activateSuccess, hwidValue, hwidStatus, hwidStatusMsg,
       doActivate, onLoginUserInput, saveCredentials, onSaveCredsToggle,
       bridge, page, pages, search, activeCat,
-      tweaksExpanded, handleNavClick,
+      sidebarHovered, catPinned, handleNavClick, selectCategory, catIcon,
       sysinfo, monitor, scores, tweaks, categories,
       isAdmin, appliedCount, recommendedCount,
       filteredTweaks, unappliedVisible, appliedGamingTweaks,
       tweakCountByCat,
-      catDropdownOpen, closeCatDropdown,
       tweakAnimState, tweakLogMsg, hasUnsavedTweaks, unsavedCount,
       handleToggleTweak, tweakStatusClass, tweakStatusText,
       saveTweakChanges, discardTweakChanges, confirmRevertAll,
