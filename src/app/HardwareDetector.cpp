@@ -444,74 +444,197 @@ HardwareInfo HardwareDetector::detectLinux() const
 }
 
 // ---------------------------------------------------------------------------
-// Windows — WMI-based detection
+// Windows — PowerShell-first detection with WMI fallback
+// Uses Get-CimInstance (PowerShell) as primary since it avoids all COM
+// initialization issues with Qt WebEngine. Falls back to direct WMI if
+// PowerShell is unavailable.
 // ---------------------------------------------------------------------------
 HardwareInfo HardwareDetector::detectWindows() const
 {
     HardwareInfo info;
 #ifdef Q_OS_WIN
-    ComInitGuard comInit;
-    // COM may already be initialized by Qt — that's fine, WMI will still work.
-    // Only bail if we truly can't use COM at all.
 
-    WmiSession wmi;
-    bool wmiOk = wmi.open();
-
-    if (!wmiOk) {
-        qWarning() << "[HW] WMI session failed to open — using PowerShell fallback";
-        // PowerShell fallback for basic info
+    // ═══════════════ PRIMARY: PowerShell (Get-CimInstance) ═══════════════
+    // PowerShell manages its own CIM session — no COM conflicts with Qt.
+    {
         QProcess ps;
-        ps.start(QStringLiteral("powershell"), QStringList()
-            << QStringLiteral("-NoProfile") << QStringLiteral("-Command")
+        ps.setProgram(QStringLiteral("powershell.exe"));
+        ps.setArguments(QStringList()
+            << QStringLiteral("-NoProfile")
+            << QStringLiteral("-NoLogo")
+            << QStringLiteral("-ExecutionPolicy") << QStringLiteral("Bypass")
+            << QStringLiteral("-Command")
             << QStringLiteral(
-                "$cpu = Get-CimInstance Win32_Processor | Select -First 1;"
-                "$gpu = Get-CimInstance Win32_VideoController | Where {$_.Name -notmatch 'Microsoft|Virtual'} | Select -First 1;"
-                "$ram = (Get-CimInstance Win32_PhysicalMemory | Measure -Property Capacity -Sum).Sum;"
-                "$mb = (Get-CimInstance Win32_BaseBoard).Product;"
-                "$disk = Get-CimInstance Win32_DiskDrive | Select Model;"
-                "$bios = Get-CimInstance Win32_BIOS | Select SMBIOSBIOSVersion,ReleaseDate;"
+                "try {"
+                "$cpu = Get-CimInstance Win32_Processor -ErrorAction Stop | Select -First 1;"
+                "$gpus = Get-CimInstance Win32_VideoController -ErrorAction Stop;"
+                "$gpu = $gpus | Where-Object {$_.Name -notmatch 'Microsoft|Virtual|Basic'} | Select -First 1;"
+                "if(-not $gpu){$gpu = $gpus | Select -First 1};"
+                "$ram = Get-CimInstance Win32_PhysicalMemory -ErrorAction Stop;"
+                "$ramTotal = ($ram | Measure-Object -Property Capacity -Sum).Sum;"
+                "$ramFirst = $ram | Select -First 1;"
+                "$mb = (Get-CimInstance Win32_BaseBoard -ErrorAction Stop).Product;"
+                "$disks = Get-CimInstance Win32_DiskDrive -ErrorAction Stop;"
+                "$bios = Get-CimInstance Win32_BIOS -ErrorAction Stop;"
+                "$cs = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop;"
                 "Write-Output \"CPU=$($cpu.Name)\";"
                 "Write-Output \"CORES=$($cpu.NumberOfCores)\";"
                 "Write-Output \"THREADS=$($cpu.ThreadCount)\";"
                 "Write-Output \"CLOCK=$($cpu.MaxClockSpeed)\";"
+                "Write-Output \"L2=$($cpu.L2CacheSize)\";"
+                "Write-Output \"L3=$($cpu.L3CacheSize)\";"
                 "Write-Output \"GPU=$($gpu.Name)\";"
                 "Write-Output \"GPUDRIVER=$($gpu.DriverVersion)\";"
                 "Write-Output \"GPUVRAM=$($gpu.AdapterRAM)\";"
-                "Write-Output \"RAM=$ram\";"
+                "Write-Output \"RAM=$ramTotal\";"
+                "Write-Output \"RAMTYPE=$($ramFirst.SMBIOSMemoryType)\";"
+                "Write-Output \"RAMSPEED=$($ramFirst.ConfiguredClockSpeed)\";"
                 "Write-Output \"MB=$mb\";"
                 "Write-Output \"BIOS=$($bios.SMBIOSBIOSVersion)\";"
-                "foreach($d in $disk){Write-Output \"DISK=$($d.Model)\"};"
+                "Write-Output \"BIOSDATE=$($bios.ReleaseDate.ToString('yyyy-MM-dd'))\";"
+                "Write-Output \"CHASSIS=$($cs.PCSystemType)\";"
+                "foreach($d in $disks){"
+                "  Write-Output \"DISK=$($d.Model)\";"
+                "  Write-Output \"DISKSIZE=$($d.Size)\";"
+                "  Write-Output \"DISKIFACE=$($d.InterfaceType)\";"
+                "}"
+                "} catch { Write-Output \"PS_ERROR=$($_.Exception.Message)\" }"
             ));
-        if (ps.waitForFinished(15000)) {
-            QString out = QString::fromUtf8(ps.readAllStandardOutput());
-            for (const QString &line : out.split(QLatin1Char('\n'))) {
-                QString l = line.trimmed();
-                if (l.startsWith(QStringLiteral("CPU=")))     info.cpuName = l.mid(4);
-                if (l.startsWith(QStringLiteral("CORES=")))   info.cpuCores = l.mid(6).toInt();
-                if (l.startsWith(QStringLiteral("THREADS="))) info.cpuThreads = l.mid(8).toInt();
-                if (l.startsWith(QStringLiteral("CLOCK=")))   info.cpuMaxClockMhz = l.mid(6).toULongLong();
-                if (l.startsWith(QStringLiteral("GPU=")))     info.gpuName = l.mid(4);
-                if (l.startsWith(QStringLiteral("GPUDRIVER=")))info.gpuDriverVersion = l.mid(10);
-                if (l.startsWith(QStringLiteral("GPUVRAM="))) info.gpuVramMb = l.mid(8).toUInt() / (1024U * 1024U);
-                if (l.startsWith(QStringLiteral("RAM=")))     info.ramMb = l.mid(4).toULongLong() / (1024ULL * 1024ULL);
-                if (l.startsWith(QStringLiteral("MB=")))      info.motherboard = l.mid(3);
-                if (l.startsWith(QStringLiteral("BIOS=")))    info.biosVersion = l.mid(5);
-                if (l.startsWith(QStringLiteral("DISK="))) {
-                    QString model = l.mid(5);
-                    if (!model.isEmpty()) info.storage.append(model);
-                    if (model.contains(QStringLiteral("SSD"), Qt::CaseInsensitive) ||
-                        model.contains(QStringLiteral("NVMe"), Qt::CaseInsensitive))
-                        info.hasSsd = true;
-                    if (model.contains(QStringLiteral("NVMe"), Qt::CaseInsensitive))
-                        info.hasNvme = true;
+
+        qDebug() << "[HW] Starting PowerShell hardware detection...";
+        ps.start();
+
+        bool finished = ps.waitForFinished(20000);
+        QString psOut = QString::fromUtf8(ps.readAllStandardOutput());
+        QString psErr = QString::fromUtf8(ps.readAllStandardError());
+
+        if (!finished || psOut.isEmpty()) {
+            qWarning() << "[HW] PowerShell failed or timed out."
+                        << "Exit:" << ps.exitCode()
+                        << "Err:" << psErr.left(200);
+            // Fall through to WMI fallback below
+        } else {
+            qDebug() << "[HW] PowerShell output:" << psOut.left(200);
+
+            if (psOut.contains(QStringLiteral("PS_ERROR="))) {
+                qWarning() << "[HW] PowerShell error:" << psOut;
+                // Fall through to WMI
+            } else {
+                // Parse successful PowerShell output
+                for (const QString &line : psOut.split(QLatin1Char('\n'))) {
+                    QString l = line.trimmed();
+                    if (l.startsWith(QStringLiteral("CPU=")))        info.cpuName = l.mid(4);
+                    else if (l.startsWith(QStringLiteral("CORES=")))      info.cpuCores = l.mid(6).toInt();
+                    else if (l.startsWith(QStringLiteral("THREADS=")))    info.cpuThreads = l.mid(8).toInt();
+                    else if (l.startsWith(QStringLiteral("CLOCK=")))      info.cpuMaxClockMhz = l.mid(6).toULongLong();
+                    else if (l.startsWith(QStringLiteral("L2=")))         info.cpuL2CacheKb = l.mid(3).toUInt();
+                    else if (l.startsWith(QStringLiteral("L3=")))         info.cpuL3CacheKb = l.mid(3).toUInt();
+                    else if (l.startsWith(QStringLiteral("GPU=")))        info.gpuName = l.mid(4);
+                    else if (l.startsWith(QStringLiteral("GPUDRIVER=")))  info.gpuDriverVersion = l.mid(10);
+                    else if (l.startsWith(QStringLiteral("GPUVRAM="))) {
+                        quint64 vram = l.mid(8).toULongLong();
+                        info.gpuVramMb = static_cast<quint32>(vram / (1024ULL * 1024ULL));
+                    }
+                    else if (l.startsWith(QStringLiteral("RAM=")))        info.ramMb = l.mid(4).toULongLong() / (1024ULL * 1024ULL);
+                    else if (l.startsWith(QStringLiteral("RAMTYPE=")))    info.ramType = classifyRamType(l.mid(8).toUInt());
+                    else if (l.startsWith(QStringLiteral("RAMSPEED=")))   info.ramSpeedMhz = l.mid(9).toUInt();
+                    else if (l.startsWith(QStringLiteral("MB=")))         info.motherboard = l.mid(3);
+                    else if (l.startsWith(QStringLiteral("BIOS=")))       info.biosVersion = l.mid(5);
+                    else if (l.startsWith(QStringLiteral("BIOSDATE=")))   info.biosDate = l.mid(9);
+                    else if (l.startsWith(QStringLiteral("CHASSIS="))) {
+                        int ct = l.mid(8).toInt();
+                        if (ct == 2) info.chassisType = QStringLiteral("Laptop");
+                        else if (ct == 1 || ct == 3) info.chassisType = QStringLiteral("Desktop");
+                        else info.chassisType = QStringLiteral("Unknown");
+                    }
+                    else if (l.startsWith(QStringLiteral("DISK="))) {
+                        QString model = l.mid(5);
+                        if (!model.isEmpty()) info.storage.append(model);
+                        if (model.contains(QStringLiteral("SSD"), Qt::CaseInsensitive) ||
+                            model.contains(QStringLiteral("NVMe"), Qt::CaseInsensitive))
+                            info.hasSsd = true;
+                        if (model.contains(QStringLiteral("NVMe"), Qt::CaseInsensitive))
+                            info.hasNvme = true;
+                    }
+                    else if (l.startsWith(QStringLiteral("DISKSIZE="))) {
+                        quint64 bytes = l.mid(9).toULongLong();
+                        if (bytes > 0)
+                            info.diskSizesGb.append(bytes / (1024ULL * 1024ULL * 1024ULL));
+                    }
+                    else if (l.startsWith(QStringLiteral("DISKIFACE="))) {
+                        info.diskInterfaces.append(l.mid(10));
+                    }
                 }
+
+                info.gpuVendor = classifyGpuVendor(info.gpuName);
+
+                // RAM fallback via GlobalMemoryStatusEx if PowerShell reported 0
+                if (info.ramMb == 0) {
+                    MEMORYSTATUSEX memInfo;
+                    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+                    if (GlobalMemoryStatusEx(&memInfo))
+                        info.ramMb = memInfo.ullTotalPhys / (1024ULL * 1024ULL);
+                }
+
+                // Secure Boot from registry
+                {
+                    HKEY hKey;
+                    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                                      L"SYSTEM\\CurrentControlSet\\Control\\SecureBoot\\State",
+                                      0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+                        DWORD val = 0, size = sizeof(val);
+                        if (RegQueryValueExW(hKey, L"UEFISecureBootEnabled", nullptr, nullptr,
+                                             reinterpret_cast<LPBYTE>(&val), &size) == ERROR_SUCCESS)
+                            info.secureBootEnabled = (val == 1);
+                        RegCloseKey(hKey);
+                    }
+                }
+
+                // TPM from registry
+                {
+                    info.tpmVersion = QStringLiteral("Not detected");
+                    HKEY hKey;
+                    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                                      L"SYSTEM\\CurrentControlSet\\Services\\TPM\\WMI",
+                                      0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+                        info.tpmVersion = QStringLiteral("Present");
+                        RegCloseKey(hKey);
+                    }
+                }
+
+                // Apply fallback values
+                if (info.cpuName.isEmpty()) info.cpuName = QSysInfo::currentCpuArchitecture();
+                if (info.gpuName.isEmpty()) info.gpuName = QStringLiteral("Unknown");
+                if (info.motherboard.isEmpty()) info.motherboard = QStringLiteral("Unknown");
+                if (info.ramType.isEmpty()) info.ramType = QStringLiteral("Unknown");
+                if (info.biosVersion.isEmpty()) info.biosVersion = QStringLiteral("Unknown");
+                if (info.chassisType.isEmpty()) info.chassisType = QStringLiteral("Unknown");
+
+                qDebug() << "[HW] PowerShell detected:" << info.cpuName << "|" << info.gpuName
+                         << "|" << info.gpuVendor << "| RAM" << info.ramMb << "MB"
+                         << info.ramType << "@" << info.ramSpeedMhz << "MHz"
+                         << "| Cores" << info.cpuCores << "/" << info.cpuThreads;
+
+                return info;
             }
         }
-        info.gpuVendor = classifyGpuVendor(info.gpuName);
-        if (info.cpuName.isEmpty()) info.cpuName = QSysInfo::currentCpuArchitecture();
-        if (info.gpuName.isEmpty()) info.gpuName = QStringLiteral("Unknown");
-        if (info.motherboard.isEmpty()) info.motherboard = QStringLiteral("Unknown");
-        qDebug() << "[HW] PowerShell fallback:" << info.cpuName << "|" << info.gpuName;
+    }
+
+    // ═══════════════ FALLBACK: Direct WMI ═══════════════
+    qDebug() << "[HW] Falling back to WMI...";
+
+    ComInitGuard comInit;
+    WmiSession wmi;
+    if (!wmi.open()) {
+        qWarning() << "[HW] WMI fallback also failed. Using basic info only.";
+        info.cpuName = QSysInfo::currentCpuArchitecture();
+        info.gpuName = QStringLiteral("Unknown");
+        info.motherboard = QStringLiteral("Unknown");
+        // At least get RAM via Win32 API
+        MEMORYSTATUSEX memInfo;
+        memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+        if (GlobalMemoryStatusEx(&memInfo))
+            info.ramMb = memInfo.ullTotalPhys / (1024ULL * 1024ULL);
         return info;
     }
 
