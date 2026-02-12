@@ -347,18 +347,25 @@ tr.row-selected td{background:rgba(6,182,212,.04)}
 .status-unused{background:rgba(6,182,212,.1);color:var(--cyan)}
 .actions-cell{display:flex;gap:4px;flex-wrap:nowrap}
 .btn-icon{padding:7px;border-radius:8px;line-height:0}
-.btn-icon .icon{width:15px;height:15px}
+.btn-icon .icon{width:16px;height:16px}
 .empty{text-align:center;padding:48px;color:var(--text3);font-size:14px}
 .empty .icon{opacity:.3;margin-bottom:12px}
 
 /* ── Checkbox ── */
 .chk{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0}
 th .chk{margin-right:4px}
+.chk-col{display:none}
+.multi-mode .chk-col{display:table-cell}
 
 /* ── Selection Bar ── */
 .sel-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;margin-bottom:14px;border-radius:10px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.15);animation:fadeIn .2s}
 .sel-bar .sel-count{font-size:13px;font-weight:600;color:var(--cyan)}
 .sel-bar .sel-actions{margin-left:auto;display:flex;gap:8px}
+
+/* ── Multi-select toggle ── */
+.multi-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.btn-multi{transition:all .2s}
+.btn-multi.active{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.2)}
 
 /* ── Footer ── */
 .footer{text-align:center;padding:20px;color:var(--text3);font-size:11px;border-top:1px solid var(--border);margin-top:20px}
@@ -481,6 +488,12 @@ th .chk{margin-right:4px}
       </span>
       <input type="text" id="searchInput" class="search-input" placeholder="Search by key, username or HWID..." oninput="renderTable()">
     </div>
+    <div class="multi-bar">
+      <button class="btn btn-outline btn-sm btn-multi" id="multiBtn" onclick="toggleMultiMode()">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Revoke Multiple
+      </button>
+    </div>
     <div id="tableWrap">
       <div class="empty"><span class="loading"></span> Loading...</div>
     </div>
@@ -515,6 +528,7 @@ th .chk{margin-right:4px}
 let licenses = [];
 let pendingAction = null;
 let selected = new Set();
+let multiMode = false;
 
 document.getElementById('yearFooter').textContent = new Date().getFullYear();
 
@@ -575,14 +589,14 @@ function renderTable() {
     return;
   }
 
-  // Selection bar
+  // Selection bar (only in multi mode)
   let selHtml = '';
-  if (selected.size > 0) {
+  if (multiMode && selected.size > 0) {
     selHtml = `<div class="sel-bar">
       <span class="sel-count">${selected.size} selected</span>
       <div class="sel-actions">
         <button class="btn btn-red btn-sm" onclick="bulkRevoke()"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Revoke Selected</button>
-        <button class="btn btn-outline btn-sm" onclick="clearSelection()"><svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Clear</button>
+        <button class="btn btn-outline btn-sm" onclick="exitMultiMode()"><svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancel</button>
       </div>
     </div>`;
   }
@@ -590,8 +604,8 @@ function renderTable() {
   const allKeys = filtered.map(l => l.key);
   const allChecked = allKeys.length > 0 && allKeys.every(k => selected.has(k));
 
-  let html = selHtml + `<table><thead><tr>
-    <th><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
+  let html = selHtml + `<table class="${multiMode ? 'multi-mode' : ''}"><thead><tr>
+    <th class="chk-col"><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Key</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Status</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Username</th>
@@ -612,7 +626,7 @@ function renderTable() {
       ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
       : '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
     html += `<tr class="${chk ? 'row-selected' : ''}">
-      <td><input type="checkbox" class="chk" ${chk} onchange="toggleSelect('${esc(l.key)}', this.checked)"></td>
+      <td class="chk-col"><input type="checkbox" class="chk" ${chk} onchange="toggleSelect('${esc(l.key)}', this.checked)"></td>
       <td class="key-cell"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${esc(l.key)}</td>
       <td><span class="status-badge ${active ? 'status-active' : 'status-unused'}">${statusIcon} ${active ? 'Active' : 'Unused'}</span></td>
       <td class="user-cell">${active ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ' : ''}${esc(user)}</td>
@@ -698,6 +712,17 @@ function toggleAll(checked) {
 }
 function clearSelection() { selected.clear(); renderTable(); }
 
+function toggleMultiMode() {
+  multiMode = !multiMode;
+  if (!multiMode) { selected.clear(); }
+  document.getElementById('multiBtn').classList.toggle('active', multiMode);
+  document.getElementById('multiBtn').innerHTML = multiMode
+    ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancel'
+    : '<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Revoke Multiple';
+  renderTable();
+}
+function exitMultiMode() { multiMode = false; selected.clear(); document.getElementById('multiBtn').classList.remove('active'); document.getElementById('multiBtn').innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Revoke Multiple'; renderTable(); }
+
 function bulkRevoke() {
   const keys = [...selected];
   showModal('Bulk Revoke', `Permanently delete <strong>${keys.length}</strong> license(s)? This cannot be undone.`, 'Revoke All', 'btn-red', async () => {
@@ -716,10 +741,10 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     document.getElementById('searchInput').focus();
   }
-  if (e.key === 'Escape' && selected.size > 0) {
-    clearSelection();
+  if (e.key === 'Escape' && multiMode) {
+    exitMultiMode();
   }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'a' && document.activeElement?.tagName !== 'INPUT') {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'a' && multiMode && document.activeElement?.tagName !== 'INPUT') {
     e.preventDefault();
     toggleAll(true);
   }
