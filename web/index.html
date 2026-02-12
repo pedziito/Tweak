@@ -241,53 +241,56 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .boost-card p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.5}
 
 /* ── FPS / Delay Estimator ── */
-.fps-hw-bar{display:flex;gap:20px;align-items:center;padding:16px 22px;flex-wrap:wrap}
-.fps-hw-chip{display:flex;align-items:center;gap:8px}
-.fps-hw-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.fps-hw-chip .label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.fps-hw-chip .val{font-size:12px;font-weight:600;color:var(--text);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fps-controls{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
-.fps-control-group{display:flex;align-items:center;gap:8px}
-.fps-control-label{font-size:12px;font-weight:600;color:var(--text3)}
-.fps-btn{padding:8px 16px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border-radius:0}
-.fps-btn:first-child{border-radius:8px 0 0 8px}
-.fps-btn:last-child{border-radius:0 8px 8px 0}
-.fps-btn.active-res{background:var(--amber);color:#000;border-color:var(--amber)}
-.fps-btn.active-qual{background:var(--cyan);color:#000;border-color:var(--cyan)}
-.fps-btn:hover:not(.active-res):not(.active-qual){border-color:var(--cyan);color:var(--text)}
-.fps-test-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-.fps-test-card{padding:16px;display:flex;align-items:center;gap:14px}
-.fps-test-icon{width:40px;height:40px;border-radius:10px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.fps-test-icon .icon-svg{width:18px;height:18px}
+.fps-hw-bar{display:flex;gap:18px;align-items:center;padding:18px 24px;flex-wrap:wrap}
+.fps-hw-chip{display:flex;align-items:center;gap:10px}
+.fps-hw-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
+.fps-hw-chip .label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.fps-hw-chip .val{font-size:13px;font-weight:600;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fps-controls{display:flex;gap:28px;align-items:center;flex-wrap:wrap;margin-bottom:24px;padding:16px 20px;border-radius:14px;background:var(--bg2);border:1px solid var(--border)}
+.fps-control-group{display:flex;align-items:center;gap:10px}
+.fps-control-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.fps-btn{padding:9px 18px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;transition:all .25s;border-radius:0}
+.fps-btn:first-of-type{border-radius:10px 0 0 10px}
+.fps-btn:last-of-type{border-radius:0 10px 10px 0}
+.fps-btn.active-res{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border-color:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.25)}
+.fps-btn.active-qual{background:linear-gradient(135deg,var(--cyan),#0891b2);color:#000;border-color:var(--cyan);box-shadow:0 0 12px rgba(6,182,212,.25)}
+.fps-btn:hover:not(.active-res):not(.active-qual){border-color:var(--cyan);color:var(--text);background:var(--bg)}
+.fps-test-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.fps-test-card{padding:18px;display:flex;align-items:center;gap:16px}
+.fps-test-icon{width:44px;height:44px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fps-test-icon .icon-svg{width:20px;height:20px}
 .fps-test-info{flex:1}
-.fps-test-label{font-size:11px;color:var(--text3)}
-.fps-test-value{font-size:20px;font-weight:800;margin-top:2px}
-.fps-game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-@media(max-width:1200px){.fps-game-grid{grid-template-columns:repeat(2,1fr)}.fps-test-row{grid-template-columns:repeat(2,1fr)}}
-.fps-game-card{padding:0;overflow:hidden;position:relative}
-.fps-game-accent{height:3px;border-radius:16px 16px 0 0}
-.fps-game-inner{padding:18px 20px}
-.fps-game-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.fps-game-icon{width:36px;height:36px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0}
-.fps-game-name{font-size:14px;font-weight:700}
-.fps-game-setting{font-size:10px;color:var(--text3)}
-.fps-rating-badge{margin-left:auto;padding:3px 10px;border-radius:6px;background:rgba(0,0,0,.3);border:1px solid;font-size:10px;font-weight:700}
-.fps-numbers{display:flex;gap:0;margin-bottom:10px}
-.fps-num-col{flex:1}
-.fps-num-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-.fps-num-big{font-size:30px;font-weight:900}
-.fps-num-med{font-size:20px;font-weight:700}
-.fps-bar-track{height:5px;border-radius:3px;background:var(--border);margin-bottom:10px;overflow:hidden}
-.fps-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
-.fps-delay-row{display:flex;justify-content:space-between;align-items:center;font-size:11px}
-.fps-delay-row .label{color:var(--text3)}
-.fps-delay-row .value{font-weight:700;font-size:12px}
-.bottleneck-card{padding:20px 22px;margin-bottom:22px}
+.fps-test-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.fps-test-value{font-size:22px;font-weight:800;margin-top:4px}
+.fps-game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
+@media(max-width:1200px){.fps-game-grid{grid-template-columns:1fr}.fps-test-row{grid-template-columns:1fr}}
+.fps-game-card{padding:0;overflow:hidden;position:relative;transition:transform .2s,box-shadow .2s}
+.fps-game-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.3)}
+.fps-game-banner{height:6px;position:relative}
+.fps-game-inner{padding:22px 24px 20px}
+.fps-game-header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.fps-game-logo{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;letter-spacing:-.5px}
+.fps-game-title{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.fps-game-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.fps-rating-pill{margin-left:auto;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
+.fps-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:16px}
+.fps-stat-item{text-align:center;padding:12px 0}
+.fps-stat-item:not(:last-child){border-right:1px solid var(--border)}
+.fps-stat-num{font-size:32px;font-weight:900;line-height:1}
+.fps-stat-unit{font-size:11px;font-weight:600;opacity:.7;margin-left:2px}
+.fps-stat-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-top:6px}
+.fps-bar-track{height:6px;border-radius:3px;background:var(--border);margin-bottom:14px;overflow:hidden}
+.fps-bar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.22,.61,.36,1)}
+.fps-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fps-detail-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12px}
+.fps-detail-item .label{color:var(--text3);font-weight:500}
+.fps-detail-item .value{font-weight:700}
+.bottleneck-card{padding:20px 24px;margin-bottom:24px;border-left:3px solid var(--amber)}
 .bottleneck-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .bottleneck-title .icon-svg{width:16px;height:16px;color:var(--amber)}
-.bottleneck-text{font-size:12px;color:var(--text3);line-height:1.5}
-.section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.section-title .icon-svg{width:18px;height:18px;color:var(--cyan)}
+.bottleneck-text{font-size:12px;color:var(--text3);line-height:1.6}
+.section-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-title .icon-svg{width:20px;height:20px;color:var(--cyan)}
 
 /* ── Settings ── */
 .setting-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)}
@@ -732,35 +735,30 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     <template v-if="page==='games'">
       <div class="page-header">
         <h2>FPS / Delay Estimator</h2>
-        <p>Estimated performance for popular games based on your hardware</p>
+        <p>Estimated performance based on your hardware — auto-detected</p>
       </div>
 
       <!-- Hardware summary bar -->
-      <div class="card fps-hw-bar" style="margin-bottom:18px">
+      <div class="card fps-hw-bar" style="margin-bottom:20px">
         <div class="fps-hw-chip">
-          <div class="fps-hw-dot" :style="{background: (scores.cpuScore||0)>=80?'var(--green)':(scores.cpuScore||0)>=50?'var(--amber)':'var(--red)'}"></div>
-          <div><div class="label">CPU</div><div class="val">{{sysinfo.cpu||'—'}}</div></div>
+          <div class="fps-hw-dot" :style="{background: (scores.cpuScore||0)>=80?'#22c55e':(scores.cpuScore||0)>=50?'#f59e0b':'#ef4444', boxShadow:'0 0 8px '+((scores.cpuScore||0)>=80?'#22c55e':(scores.cpuScore||0)>=50?'#f59e0b':'#ef4444')}"></div>
+          <div><div class="label">CPU</div><div class="val">{{sysinfo.cpuName||'Detecting...'}}</div></div>
         </div>
-        <div style="width:1px;height:28px;background:var(--border)"></div>
+        <div style="width:1px;height:30px;background:var(--border)"></div>
         <div class="fps-hw-chip">
-          <div class="fps-hw-dot" :style="{background: (scores.gpuScore||0)>=80?'var(--green)':(scores.gpuScore||0)>=50?'var(--amber)':'var(--red)'}"></div>
-          <div><div class="label">GPU</div><div class="val">{{sysinfo.gpu||'—'}}</div></div>
+          <div class="fps-hw-dot" :style="{background: (scores.gpuScore||0)>=80?'#22c55e':(scores.gpuScore||0)>=50?'#f59e0b':'#ef4444', boxShadow:'0 0 8px '+((scores.gpuScore||0)>=80?'#22c55e':(scores.gpuScore||0)>=50?'#f59e0b':'#ef4444')}"></div>
+          <div><div class="label">GPU</div><div class="val">{{sysinfo.gpuName||'Detecting...'}}</div></div>
         </div>
-        <div style="width:1px;height:28px;background:var(--border)"></div>
+        <div style="width:1px;height:30px;background:var(--border)"></div>
         <div class="fps-hw-chip">
-          <div class="fps-hw-dot" :style="{background: (scores.ramScore||0)>=80?'var(--green)':(scores.ramScore||0)>=50?'var(--amber)':'var(--red)'}"></div>
-          <div><div class="label">RAM</div><div class="val">{{sysinfo.ram||'—'}}</div></div>
+          <div class="fps-hw-dot" :style="{background: (scores.ramScore||0)>=80?'#22c55e':(scores.ramScore||0)>=50?'#f59e0b':'#ef4444', boxShadow:'0 0 8px '+((scores.ramScore||0)>=80?'#22c55e':(scores.ramScore||0)>=50?'#f59e0b':'#ef4444')}"></div>
+          <div><div class="label">RAM</div><div class="val">{{sysinfo.ramText||'Detecting...'}}</div></div>
         </div>
-        <div style="width:1px;height:28px;background:var(--border)"></div>
+        <div style="width:1px;height:30px;background:var(--border)"></div>
         <div class="fps-hw-chip">
-          <div class="fps-hw-dot" :style="{background: (scores.gamingScore||0)>=80?'var(--green)':(scores.gamingScore||0)>=50?'var(--amber)':'var(--red)'}"></div>
-          <div><div class="label">Tier</div><div class="val">{{scores.tier||'—'}}</div></div>
+          <div class="fps-hw-dot" :style="{background: (scores.gamingScore||0)>=80?'#22c55e':(scores.gamingScore||0)>=50?'#f59e0b':'#ef4444', boxShadow:'0 0 8px '+((scores.gamingScore||0)>=80?'#22c55e':(scores.gamingScore||0)>=50?'#f59e0b':'#ef4444')}"></div>
+          <div><div class="label">Tier</div><div class="val" style="font-weight:800;font-size:14px">{{scores.tier||'—'}}</div></div>
         </div>
-        <div style="flex:1"></div>
-        <button class="btn btn-cyan" @click="runFpsEstimate" :disabled="fpsRunning">
-          <svg class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          {{fpsRunning ? 'Estimating...' : 'Run Estimate'}}
-        </button>
       </div>
 
       <!-- Resolution + Quality selectors -->
@@ -769,13 +767,14 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <span class="fps-control-label">Resolution</span>
           <button v-for="r in ['1080p','1440p','4K']" :key="r"
                   class="fps-btn" :class="{'active-res': fpsResolution===r}"
-                  @click="fpsResolution=r">{{r}}</button>
+                  @click="fpsResolution=r; runFpsEstimate()">{{r}}</button>
         </div>
+        <div style="width:1px;height:24px;background:var(--border)"></div>
         <div class="fps-control-group">
           <span class="fps-control-label">Quality</span>
           <button v-for="q in ['Low','Medium','High','Ultra']" :key="q"
                   class="fps-btn" :class="{'active-qual': fpsQuality===q}"
-                  @click="fpsQuality=q">{{q}}</button>
+                  @click="fpsQuality=q; runFpsEstimate()">{{q}}</button>
         </div>
       </div>
 
@@ -786,10 +785,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
             <svg class="icon-svg" viewBox="0 0 24 24"><path d="M2 20h20"/><path d="M5 17a9 9 0 0 1 14 0"/><path d="M8 14a5 5 0 0 1 8 0"/><circle cx="12" cy="11" r="1"/></svg>
           </div>
           <div class="fps-test-info">
-            <div class="fps-test-label">Network Latency</div>
-            <div class="fps-test-value" :style="{color: fpsNetPing>0?(fpsNetPing<30?'var(--green)':fpsNetPing<60?'var(--amber)':'var(--red)'):'var(--text3)'}">{{fpsNetPing>0 ? fpsNetPing.toFixed(1)+' ms' : 'Not tested'}}</div>
+            <div class="fps-test-label">Network Ping</div>
+            <div class="fps-test-value" :style="{color: fpsNetPing>0?(fpsNetPing<30?'var(--green)':fpsNetPing<60?'var(--amber)':'var(--red)'):'var(--text3)'}">{{fpsNetPing>0 ? fpsNetPing.toFixed(1)+' ms' : '...'}}</div>
           </div>
-          <button class="btn btn-outline" style="padding:6px 14px;font-size:11px" @click="runFpsPing">Test</button>
         </div>
         <div class="card fps-test-card">
           <div class="fps-test-icon" style="color:var(--purple)">
@@ -797,61 +795,62 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           </div>
           <div class="fps-test-info">
             <div class="fps-test-label">Storage Speed</div>
-            <div class="fps-test-value" :style="{color: fpsStorageSpd>0?(fpsStorageSpd>1000?'var(--green)':fpsStorageSpd>300?'var(--amber)':'var(--red)'):'var(--text3)'}">{{fpsStorageSpd>0 ? Math.round(fpsStorageSpd)+' MB/s' : 'Not tested'}}</div>
+            <div class="fps-test-value" :style="{color: fpsStorageSpd>0?(fpsStorageSpd>1000?'var(--green)':fpsStorageSpd>300?'var(--amber)':'var(--red)'):'var(--text3)'}">{{fpsStorageSpd>0 ? Math.round(fpsStorageSpd)+' MB/s' : '...'}}</div>
           </div>
-          <button class="btn btn-outline" style="padding:6px 14px;font-size:11px" @click="runFpsStorage">Test</button>
         </div>
         <div class="card fps-test-card">
           <div class="fps-test-icon" style="color:var(--amber)">
             <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 12"/></svg>
           </div>
           <div class="fps-test-info">
-            <div class="fps-test-label">System Latency Score</div>
-            <div class="fps-test-value" :style="{color: fpsLatencyScore>0?(fpsLatencyScore>=80?'var(--green)':fpsLatencyScore>=50?'var(--amber)':'var(--red)'):'var(--text3)'}">{{fpsLatencyScore>0 ? fpsLatencyScore+' / 100' : '—'}}</div>
+            <div class="fps-test-label">Latency Score</div>
+            <div class="fps-test-value" :style="{color: fpsLatencyScore>0?(fpsLatencyScore>=80?'var(--green)':fpsLatencyScore>=50?'var(--amber)':'var(--red)'):'var(--text3)'}">{{fpsLatencyScore>0 ? fpsLatencyScore+'/100' : '...'}}</div>
           </div>
         </div>
       </div>
 
-      <!-- Section title -->
-      <div class="section-title" style="margin-bottom:16px">
-        <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        {{fpsResults.length > 0 ? 'Estimated Performance ('+fpsResolution+' · '+fpsQuality+')' : 'Press "Run Estimate" to see FPS predictions'}}
-      </div>
-
-      <!-- FPS game cards -->
+      <!-- Game cards -->
       <div class="fps-game-grid">
         <div class="card fps-game-card" v-for="g in fpsResults" :key="g.id">
-          <div class="fps-game-accent" :style="{background: g.ratingColor}"></div>
+          <div class="fps-game-banner" :style="{background: g.gradient}"></div>
           <div class="fps-game-inner">
             <div class="fps-game-header">
-              <div class="fps-game-icon" :style="{borderColor: g.ratingColor, color: g.ratingColor}">{{g.icon}}</div>
+              <div class="fps-game-logo" :style="{background: g.gradient, color:'#fff'}">{{g.icon}}</div>
               <div>
-                <div class="fps-game-name">{{g.name}}</div>
-                <div class="fps-game-setting">{{fpsResolution}} · {{fpsQuality}}</div>
+                <div class="fps-game-title">{{g.name}}</div>
+                <div class="fps-game-sub">{{fpsResolution}} · {{fpsQuality}}</div>
               </div>
-              <div class="fps-rating-badge" :style="{borderColor: g.ratingColor, color: g.ratingColor}">{{g.rating}}</div>
+              <div class="fps-rating-pill" :style="{background: g.ratingColor+'22', color: g.ratingColor, border:'1px solid '+g.ratingColor+'44'}">{{g.rating}}</div>
             </div>
-            <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
-            <div class="fps-numbers">
-              <div class="fps-num-col">
-                <div class="fps-num-label">AVG FPS</div>
-                <div class="fps-num-big" :style="{color: g.ratingColor}">{{g.avgFps}}</div>
+
+            <div class="fps-stat-grid">
+              <div class="fps-stat-item">
+                <div class="fps-stat-num" :style="{color: g.ratingColor}">{{g.avgFps}}</div>
+                <div class="fps-stat-label">AVG FPS</div>
               </div>
-              <div class="fps-num-col">
-                <div class="fps-num-label">1% LOW</div>
-                <div class="fps-num-med" style="color:var(--text)">{{g.onePercentLow}}</div>
+              <div class="fps-stat-item">
+                <div class="fps-stat-num" style="color:var(--text)">{{g.onePercentLow}}</div>
+                <div class="fps-stat-label">1% LOW</div>
               </div>
-              <div class="fps-num-col">
-                <div class="fps-num-label">FRAME TIME</div>
-                <div class="fps-num-med" :style="{color: g.frameTime<=6.9?'var(--green)':g.frameTime<=16.7?'var(--cyan)':g.frameTime<=33.3?'var(--amber)':'var(--red)'}">{{g.frameTime}} ms</div>
+              <div class="fps-stat-item">
+                <div class="fps-stat-num" :style="{color: g.frameTime<=6.9?'var(--green)':g.frameTime<=16.7?'var(--cyan)':g.frameTime<=33.3?'var(--amber)':'var(--red)', fontSize:'26px'}">{{g.frameTime}}<span class="fps-stat-unit">ms</span></div>
+                <div class="fps-stat-label">FRAME TIME</div>
               </div>
             </div>
+
             <div class="fps-bar-track">
-              <div class="fps-bar-fill" :style="{width: Math.min(g.avgFps/300*100,100)+'%', background: g.ratingColor}"></div>
+              <div class="fps-bar-fill" :style="{width: Math.min(g.avgFps/300*100,100)+'%', background: g.gradient}"></div>
             </div>
-            <div class="fps-delay-row">
-              <span class="label">Input Delay Est.</span>
-              <span class="value" :style="{color: g.inputDelay<=11?'var(--green)':g.inputDelay<=21?'var(--cyan)':g.inputDelay<=38?'var(--amber)':'var(--red)'}">{{g.inputDelay}} ms</span>
+
+            <div class="fps-detail-grid">
+              <div class="fps-detail-item">
+                <span class="label">Input Delay</span>
+                <span class="value" :style="{color: g.inputDelay<=11?'var(--green)':g.inputDelay<=21?'var(--cyan)':g.inputDelay<=38?'var(--amber)':'var(--red)'}">{{g.inputDelay}} ms</span>
+              </div>
+              <div class="fps-detail-item">
+                <span class="label">Smoothness</span>
+                <span class="value" :style="{color: g.ratingColor}">{{g.smoothness}}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1188,19 +1187,11 @@ const app = createApp({
     const fpsStorageSpd = ref(0);
     const fpsLatencyScore = ref(0);
 
-    // Game profiles for FPS estimation (matched to C++ GameBenchmark profiles)
+    // Game profiles — only Fortnite, Warzone & CS2
     const fpsGameProfiles = [
-      {id:'valorant',   name:'Valorant',            icon:'VAL', cpuW:0.45, gpuW:0.45, ramW:0.10, baseFps:100, maxFps:500, onePctMult:0.65},
-      {id:'fortnite',   name:'Fortnite',            icon:'FN',  cpuW:0.35, gpuW:0.55, ramW:0.10, baseFps:60,  maxFps:300, onePctMult:0.60},
-      {id:'gta5',       name:'GTA V',               icon:'GTA', cpuW:0.35, gpuW:0.55, ramW:0.10, baseFps:40,  maxFps:200, onePctMult:0.55},
-      {id:'apex',       name:'Apex Legends',        icon:'APX', cpuW:0.40, gpuW:0.50, ramW:0.10, baseFps:80,  maxFps:300, onePctMult:0.60},
-      {id:'warzone',    name:'Call of Duty: Warzone',icon:'COD', cpuW:0.40, gpuW:0.50, ramW:0.10, baseFps:50,  maxFps:250, onePctMult:0.55},
-      {id:'overwatch2', name:'Overwatch 2',         icon:'OW2', cpuW:0.40, gpuW:0.50, ramW:0.10, baseFps:90,  maxFps:400, onePctMult:0.65},
-      {id:'minecraft',  name:'Minecraft',           icon:'MC',  cpuW:0.55, gpuW:0.30, ramW:0.15, baseFps:60,  maxFps:500, onePctMult:0.70},
-      {id:'rocketleague',name:'Rocket League',      icon:'RL',  cpuW:0.40, gpuW:0.45, ramW:0.15, baseFps:80,  maxFps:400, onePctMult:0.65},
-      {id:'pubg',       name:'PUBG',                icon:'PBG', cpuW:0.40, gpuW:0.50, ramW:0.10, baseFps:50,  maxFps:250, onePctMult:0.55},
-      {id:'lol',        name:'League of Legends',   icon:'LOL', cpuW:0.50, gpuW:0.35, ramW:0.15, baseFps:100, maxFps:500, onePctMult:0.70},
-      {id:'roblox',     name:'Roblox',              icon:'RBX', cpuW:0.50, gpuW:0.35, ramW:0.15, baseFps:80,  maxFps:400, onePctMult:0.70},
+      {id:'fortnite', name:'Fortnite',             icon:'FN',  gradient:'linear-gradient(135deg,#2563eb,#7c3aed)', cpuW:0.35, gpuW:0.55, ramW:0.10, baseFps:60,  maxFps:300, onePctMult:0.60},
+      {id:'warzone',  name:'Call of Duty: Warzone', icon:'COD', gradient:'linear-gradient(135deg,#16a34a,#15803d)', cpuW:0.40, gpuW:0.50, ramW:0.10, baseFps:50,  maxFps:250, onePctMult:0.55},
+      {id:'cs2',      name:'Counter-Strike 2',     icon:'CS2', gradient:'linear-gradient(135deg,#f59e0b,#ea580c)', cpuW:0.45, gpuW:0.45, ramW:0.10, baseFps:100, maxFps:500, onePctMult:0.65},
     ];
 
     function fpsResMult(){
@@ -1234,12 +1225,13 @@ const app = createApp({
         var ft = avg > 0 ? (1000/avg) : 999;
         var delay = ft + 4;
         var rating = avg>=240?'Excellent':avg>=144?'Great':avg>=60?'Good':avg>=30?'Playable':'Low';
-        var ratingColor = avg>=240?'var(--green)':avg>=144?'var(--cyan)':avg>=60?'var(--purple)':avg>=30?'var(--amber)':'var(--red)';
+        var ratingColor = avg>=240?'#22c55e':avg>=144?'#06b6d4':avg>=60?'#a855f7':avg>=30?'#f59e0b':'#ef4444';
+        var smoothness = avg>=240?'Butter smooth':avg>=144?'Very smooth':avg>=60?'Smooth':avg>=30?'Choppy':'Unplayable';
         results.push({
-          id:g.id, name:g.name, icon:g.icon,
+          id:g.id, name:g.name, icon:g.icon, gradient:g.gradient,
           avgFps:Math.round(avg), onePercentLow:Math.round(low),
           frameTime:ft.toFixed(1), inputDelay:delay.toFixed(1),
-          rating:rating, ratingColor:ratingColor
+          rating:rating, ratingColor:ratingColor, smoothness:smoothness
         });
       });
       fpsResults.value = results;
@@ -1362,6 +1354,8 @@ const app = createApp({
       bridge.value.getAppliedCount(function(v){ appliedCount.value = v; });
       bridge.value.getRecommendedCount(function(v){ recommendedCount.value = v; });
       bridge.value.getIsAdmin(function(v){ isAdmin.value = v; });
+      // Auto-run FPS estimate + tests after data loads
+      setTimeout(function(){ runFpsEstimate(); runFpsPing(); runFpsStorage(); }, 800);
     }
 
     function refreshTweaks(){
