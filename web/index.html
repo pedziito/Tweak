@@ -1261,16 +1261,14 @@ const app = createApp({
     function doLogout(){
       loggedIn.value = false;
       currentUser.value = '';
-      // Keep credentials if save is on, clear otherwise
+      // Always clear fields; saved creds stay in localStorage for next app launch
+      loginUser.value = '';
+      loginPass.value = '';
       if(!saveCredentials.value){
-        loginUser.value = '';
-        loginPass.value = '';
         try {
           localStorage.removeItem('tweak_cred_user');
           localStorage.removeItem('tweak_cred_pass');
         } catch(e){}
-      } else {
-        loginPass.value = '';
       }
       loginError.value = '';
       activateMsg.value = '';
