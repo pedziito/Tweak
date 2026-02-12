@@ -6,6 +6,7 @@
 
 #include "app/AppController.h"
 #include "app/WebBridge.h"
+#include "app/LicenseManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,8 +17,9 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion(QStringLiteral("5.0.0"));
 
     AppController controller;
+    LicenseManager license;
 
-    WebBridge bridge(&controller);
+    WebBridge bridge(&controller, &license);
     QWebChannel channel;
     channel.registerObject(QStringLiteral("bridge"), &bridge);
 

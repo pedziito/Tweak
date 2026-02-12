@@ -4,14 +4,18 @@
 #include <QThread>
 #include <QFile>
 
-WebBridge::WebBridge(AppController *controller, QObject *parent)
-    : QObject(parent), m_ctrl(controller)
+WebBridge::WebBridge(AppController *controller, LicenseManager *license, QObject *parent)
+    : QObject(parent), m_ctrl(controller), m_license(license)
 {
     // Forward tweak changes
     connect(m_ctrl, &AppController::tweaksChanged, this, &WebBridge::tweaksChanged);
 
     // Poll system monitor and forward
     connect(m_ctrl->systemMonitor(), &SystemMonitor::updated, this, &WebBridge::monitorUpdated);
+
+    // Forward license signals
+    connect(m_license, &LicenseManager::loginResult,    this, &WebBridge::loginResult);
+    connect(m_license, &LicenseManager::activateResult, this, &WebBridge::activateResult);
 }
 
 QJsonObject WebBridge::getSystemInfo()
@@ -96,27 +100,20 @@ QJsonArray WebBridge::getCategories()
     return arr;
 }
 
-bool WebBridge::login(const QString &username, const QString &password)
+void WebBridge::loginLicense(const QString &username, const QString &password)
 {
-    QFile file(QStringLiteral(":/data/users.json"));
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
+    m_license->login(username, password);
+}
 
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    file.close();
+void WebBridge::activateLicense(const QString &key, const QString &username,
+                                const QString &password)
+{
+    m_license->activate(key, username, password);
+}
 
-    if (!doc.isArray())
-        return false;
-
-    const QJsonArray users = doc.array();
-    for (const auto &val : users) {
-        QJsonObject u = val.toObject();
-        if (u.value(QStringLiteral("username")).toString() == username &&
-            u.value(QStringLiteral("password")).toString() == password) {
-            return true;
-        }
-    }
-    return false;
+QString WebBridge::getHwid()
+{
+    return m_license->hwid();
 }
 
 int  WebBridge::getAppliedCount()     { return m_ctrl->appliedCount(); }

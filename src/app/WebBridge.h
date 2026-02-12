@@ -7,6 +7,7 @@
 #include <QTimer>
 
 #include "app/AppController.h"
+#include "app/LicenseManager.h"
 
 /// Bridge between the HTML UI (via QWebChannel) and the C++ AppController.
 /// Exposes all data and actions as Q_INVOKABLE methods + signals.
@@ -15,7 +16,8 @@ class WebBridge : public QObject
     Q_OBJECT
 
 public:
-    explicit WebBridge(AppController *controller, QObject *parent = nullptr);
+    explicit WebBridge(AppController *controller, LicenseManager *license,
+                       QObject *parent = nullptr);
 
     // ── Data fetchers (called from JS) ──
     Q_INVOKABLE QJsonObject getSystemInfo();
@@ -27,8 +29,11 @@ public:
     Q_INVOKABLE int         getRecommendedCount();
     Q_INVOKABLE bool        getIsAdmin();
 
-    // ── Auth ──
-    Q_INVOKABLE bool login(const QString &username, const QString &password);
+    // ── License / Auth (async – results come via signals) ──
+    Q_INVOKABLE void loginLicense(const QString &username, const QString &password);
+    Q_INVOKABLE void activateLicense(const QString &key, const QString &username,
+                                     const QString &password);
+    Q_INVOKABLE QString getHwid();
 
     // ── Actions (called from JS) ──
     Q_INVOKABLE void toggleTweak(int row);
@@ -48,8 +53,11 @@ signals:
     void monitorUpdated();
     void batchProgress(int current, int total, QString name, QString status);
     void batchComplete();
+    void loginResult(bool success, const QString &message);
+    void activateResult(bool success, const QString &message);
 
 private:
-    AppController *m_ctrl;
+    AppController  *m_ctrl;
+    LicenseManager *m_license;
     QTimer m_pollTimer;
 };

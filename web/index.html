@@ -230,7 +230,15 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
         <div class="logo-icon">T</div>
         <h1>Tweak</h1>
       </div>
-      <form @submit.prevent="doLogin">
+
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:0;margin-bottom:28px;border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+        <button @click="authTab='login'" :style="{flex:1,padding:'11px',border:'none',fontSize:'13px',fontWeight:600,cursor:'pointer',background:authTab==='login'?'var(--cyan)':'var(--bg3)',color:authTab==='login'?'#000':'var(--text3)',transition:'all .2s'}">Sign In</button>
+        <button @click="authTab='activate'" :style="{flex:1,padding:'11px',border:'none',fontSize:'13px',fontWeight:600,cursor:'pointer',background:authTab==='activate'?'var(--cyan)':'var(--bg3)',color:authTab==='activate'?'#000':'var(--text3)',transition:'all .2s'}">Activate License</button>
+      </div>
+
+      <!-- Login tab -->
+      <form v-if="authTab==='login'" @submit.prevent="doLogin">
         <div class="field">
           <label>Username</label>
           <input type="text" v-model="loginUser" placeholder="Enter your username" autofocus>
@@ -239,9 +247,36 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <label>Password</label>
           <input type="password" v-model="loginPass" placeholder="Enter your password">
         </div>
-        <button class="login-btn" type="submit">Sign In</button>
+        <button class="login-btn" type="submit" :disabled="authLoading">
+          {{authLoading ? 'Signing in...' : 'Sign In'}}
+        </button>
         <div class="login-error">{{loginError}}</div>
       </form>
+
+      <!-- Activate tab -->
+      <form v-if="authTab==='activate'" @submit.prevent="doActivate">
+        <div class="field">
+          <label>License Key</label>
+          <input type="text" v-model="licenseKey" placeholder="TWEAK-XXXX-XXXX-XXXX-XXXX" style="font-family:monospace;letter-spacing:1px">
+        </div>
+        <div class="field">
+          <label>Choose Username</label>
+          <input type="text" v-model="activateUser" placeholder="Pick a username">
+        </div>
+        <div class="field">
+          <label>Choose Password</label>
+          <input type="password" v-model="activatePass" placeholder="Pick a password">
+        </div>
+        <div class="field" style="margin-bottom:8px">
+          <label>Your Hardware ID</label>
+          <input type="text" :value="hwidValue" readonly style="opacity:.6;cursor:default;font-family:monospace;font-size:12px">
+        </div>
+        <button class="login-btn" type="submit" :disabled="authLoading">
+          {{authLoading ? 'Activating...' : 'Activate License'}}
+        </button>
+        <div class="login-error" :style="{color: activateSuccess ? 'var(--green)' : 'var(--red)'}">{{activateMsg}}</div>
+      </form>
+
       <div class="login-footer">Tweak v5.0.0 &mdash; PC Optimization Suite</div>
     </div>
   </div>
@@ -639,6 +674,14 @@ const app = createApp({
     const loginUser   = ref('');
     const loginPass   = ref('');
     const loginError  = ref('');
+    const authTab     = ref('login');
+    const authLoading = ref(false);
+    const licenseKey  = ref('');
+    const activateUser = ref('');
+    const activatePass = ref('');
+    const activateMsg  = ref('');
+    const activateSuccess = ref(false);
+    const hwidValue   = ref('...');
     const bridge      = ref(null);
 
     // ── App State ──
@@ -720,20 +763,21 @@ const app = createApp({
         loginError.value = 'Please enter username and password';
         return;
       }
-      if(bridge.value){
-        bridge.value.login(loginUser.value, loginPass.value, function(result){
-          if(result === true || result === 'true'){
-            loggedIn.value = true;
-            currentUser.value = loginUser.value;
-            loginPass.value = '';
-            refreshAll();
-          } else {
-            loginError.value = 'Invalid username or password';
-          }
-        });
-      } else {
-        loginError.value = 'Backend not available';
+      if(!bridge.value){ loginError.value = 'Backend not available'; return; }
+      authLoading.value = true;
+      bridge.value.loginLicense(loginUser.value, loginPass.value);
+    }
+
+    function doActivate(){
+      activateMsg.value = '';
+      activateSuccess.value = false;
+      if(!licenseKey.value || !activateUser.value || !activatePass.value){
+        activateMsg.value = 'Please fill in all fields';
+        return;
       }
+      if(!bridge.value){ activateMsg.value = 'Backend not available'; return; }
+      authLoading.value = true;
+      bridge.value.activateLicense(licenseKey.value, activateUser.value, activatePass.value);
     }
 
     function doLogout(){
@@ -742,6 +786,10 @@ const app = createApp({
       loginUser.value = '';
       loginPass.value = '';
       loginError.value = '';
+      activateMsg.value = '';
+      licenseKey.value = '';
+      activateUser.value = '';
+      activatePass.value = '';
       page.value = 'dashboard';
     }
 
@@ -809,6 +857,41 @@ const app = createApp({
       new QWebChannel(qt.webChannelTransport, function(channel){
         bridge.value = channel.objects.bridge;
 
+        // Fetch HWID for the activate tab
+        bridge.value.getHwid(function(h){ hwidValue.value = h || '...'; });
+
+        // License login result
+        bridge.value.loginResult.connect(function(success, message){
+          authLoading.value = false;
+          if(success){
+            loggedIn.value = true;
+            currentUser.value = loginUser.value;
+            loginPass.value = '';
+            loginError.value = '';
+            refreshAll();
+          } else {
+            loginError.value = message || 'Login failed';
+          }
+        });
+
+        // License activation result
+        bridge.value.activateResult.connect(function(success, message){
+          authLoading.value = false;
+          activateSuccess.value = success;
+          activateMsg.value = message || '';
+          if(success){
+            // Auto-switch to login tab after activation
+            setTimeout(function(){
+              authTab.value = 'login';
+              loginUser.value = activateUser.value;
+              activateUser.value = '';
+              activatePass.value = '';
+              licenseKey.value = '';
+              activateMsg.value = '';
+            }, 2000);
+          }
+        });
+
         bridge.value.tweaksChanged.connect(function(){ refreshTweaks(); });
         bridge.value.monitorUpdated.connect(function(){
           bridge.value.getMonitorData(function(d){ monitor.value = d; });
@@ -835,6 +918,8 @@ const app = createApp({
 
     return {
       loggedIn, currentUser, loginUser, loginPass, loginError, doLogin, doLogout,
+      authTab, authLoading, licenseKey, activateUser, activatePass,
+      activateMsg, activateSuccess, hwidValue, doActivate,
       bridge, page, pages, search, activeCat,
       sysinfo, monitor, scores, tweaks, categories,
       isAdmin, appliedCount, recommendedCount,

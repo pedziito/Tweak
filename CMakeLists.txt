@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Concurrent WebEngineWidgets WebChannel)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Concurrent WebEngineWidgets WebChannel Network)
 
 qt_standard_project_setup()
 
@@ -27,18 +27,13 @@ qt_add_executable(TweakApp
     src/app/GameBenchmark.cpp
     src/app/ConfigManager.cpp
     src/app/WebBridge.cpp
+    src/app/LicenseManager.cpp
 )
 
 qt_add_resources(TweakApp "web"
     PREFIX "/"
     FILES
         web/index.html
-)
-
-qt_add_resources(TweakApp "data"
-    PREFIX "/"
-    FILES
-        data/users.json
 )
 
 target_include_directories(TweakApp PRIVATE src)
@@ -50,6 +45,7 @@ target_link_libraries(TweakApp PRIVATE
     Qt6::Concurrent
     Qt6::WebEngineWidgets
     Qt6::WebChannel
+    Qt6::Network
 )
 
 if (WIN32)
