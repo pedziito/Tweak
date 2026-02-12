@@ -11,11 +11,13 @@
 #include <QFile>
 #include <QDateTime>
 #include <QRandomGenerator>
+#include <QCoreApplication>
+#include <QStandardPaths>
+#include <QSettings>
 
 // ── Default config (override via setRepo) ──
 static const char *kDefaultOwner = "pedziito";
 static const char *kDefaultRepo  = "tweak-licenses";
-static const char *kDefaultToken = "PASTE_YOUR_GITHUB_TOKEN_HERE";
 static const char *kLicenseFile  = "licenses.enc";
 // 32-byte XOR key for encrypting license data at rest
 static const unsigned char kXorKey[32] = {
@@ -25,11 +27,35 @@ static const unsigned char kXorKey[32] = {
     0xDE,0xAD,0xBE,0xEF,0xCA,0xFE,0xBA,0xBE
 };
 
+/// Read the GitHub token from license.conf next to the executable,
+/// or from the TWEAK_LICENSE_TOKEN environment variable.
+static QString loadToken()
+{
+    // 1. Environment variable
+    QByteArray env = qgetenv("TWEAK_LICENSE_TOKEN");
+    if (!env.isEmpty())
+        return QString::fromUtf8(env);
+
+    // 2. license.conf next to the exe
+    QString confPath = QCoreApplication::applicationDirPath()
+                       + QStringLiteral("/license.conf");
+    QFile f(confPath);
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        while (!f.atEnd()) {
+            QString line = QString::fromUtf8(f.readLine()).trimmed();
+            if (line.startsWith(QStringLiteral("token="), Qt::CaseInsensitive))
+                return line.mid(6).trimmed();
+        }
+    }
+
+    return {};
+}
+
 LicenseManager::LicenseManager(QObject *parent)
     : QObject(parent)
     , m_owner(QLatin1String(kDefaultOwner))
     , m_repo(QLatin1String(kDefaultRepo))
-    , m_token(QLatin1String(kDefaultToken))
+    , m_token(loadToken())
     , m_cryptKey(reinterpret_cast<const char *>(kXorKey), 32)
 {
 }
