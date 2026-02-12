@@ -227,6 +227,20 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px;transition:width .3s}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ── Save Popup ── */
+.save-popup{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px;width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 25px 80px rgba(0,0,0,.5)}
+.save-popup h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.save-popup .save-subtitle{font-size:12px;color:var(--text3);margin-bottom:16px}
+.save-list{max-height:320px;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.save-list::-webkit-scrollbar{width:5px}
+.save-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.restart-banner{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:14px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);margin-top:18px}
+.restart-banner .rb-icon{width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--amber)}
+.restart-banner .rb-icon svg{width:20px;height:20px}
+.restart-banner .rb-text{flex:1}
+.restart-banner .rb-title{font-size:14px;font-weight:700;color:var(--amber)}
+.restart-banner .rb-desc{font-size:11px;color:var(--text3);margin-top:2px}
+
 /* ── Quick Actions ── */
 .quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .qa-btn{padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -658,7 +672,6 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           </div>
           <!-- Activity log line -->
           <div class="tweak-log" :class="{visible: tweakLogMsg[t.row]}">
-            <svg class="icon-svg" style="width:11px;height:11px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             {{tweakLogMsg[t.row]}}
           </div>
         </div>
@@ -951,6 +964,50 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
     </div>
   </div>
 
+  <!-- ═══════════ SAVE PROGRESS POPUP ═══════════ -->
+  <div class="overlay" v-if="savePopupActive" @click.self="savePopupDone && closeSavePopup()">
+    <div class="save-popup">
+      <h3>
+        <svg v-if="!savePopupDone" class="icon-svg" style="width:20px;height:20px;color:var(--cyan);margin-right:8px;vertical-align:middle" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        {{savePopupDone ? 'Saved!' : 'Saving Changes...'}}
+      </h3>
+      <div class="save-subtitle">{{savePopupDone ? 'All '+savePopupTotal+' changes applied successfully' : savePopupCurrent+' / '+savePopupTotal+' changes'}}</div>
+
+      <div class="progress-bar">
+        <div class="fill" :style="{width: savePopupPct+'%'}"></div>
+      </div>
+
+      <div class="save-list">
+        <div class="batch-item" v-for="(s,i) in savePopupItems" :key="i" :id="'save-item-'+i">
+          <span class="bi-icon" :class="s.state">
+            <svg v-if="s.state==='done'" class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg v-else-if="s.state==='active'" class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+            <svg v-else class="icon-svg" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg>
+          </span>
+          <span class="bi-name">{{s.name}}</span>
+          <span class="bi-status" :style="{color: s.state==='done'?'var(--green)':s.state==='active'?'var(--cyan)':'var(--text3)'}">
+            {{s.state==='done' ? (s.applied ? 'Applied' : 'Reverted') : s.state==='active' ? 'Saving...' : 'Pending'}}
+          </span>
+        </div>
+      </div>
+
+      <!-- Restart Required banner -->
+      <div class="restart-banner" v-if="savePopupDone && saveNeedsRestart">
+        <div class="rb-icon">
+          <svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </div>
+        <div class="rb-text">
+          <div class="rb-title">Restart Mangler</div>
+          <div class="rb-desc">Genstart din computer for at ændringerne træder i kraft</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;text-align:right" v-if="savePopupDone">
+        <button class="btn btn-cyan" @click="closeSavePopup">Close</button>
+      </div>
+    </div>
+  </div>
+
   </template><!-- end loggedIn -->
 
   <!-- Toast -->
@@ -1116,19 +1173,15 @@ const app = createApp({
       var row = t.row;
       var wasApplied = t.applied;
       tweakAnimState.value[row] = 'applying';
-      var now = new Date();
-      var ts = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
 
       if(bridge.value) bridge.value.toggleTweak(row);
 
       setTimeout(function(){
         if(wasApplied){
           tweakAnimState.value[row] = 'reverted';
-          tweakLogMsg.value[row] = 'Reverted at ' + ts;
           showToast('Reverted: ' + t.name);
         } else {
           tweakAnimState.value[row] = 'applied';
-          tweakLogMsg.value[row] = 'Applied at ' + ts;
           showToast('Applied: ' + t.name);
         }
         checkUnsaved();
@@ -1149,9 +1202,65 @@ const app = createApp({
       return '';
     }
 
+    // Save popup state
+    const savePopupActive = ref(false);
+    const savePopupDone   = ref(false);
+    const savePopupItems  = ref([]);
+    const savePopupCurrent = ref(0);
+    const savePopupTotal   = ref(0);
+    const savePopupPct     = computed(function(){ return savePopupTotal.value ? Math.round(savePopupCurrent.value/savePopupTotal.value*100) : 0; });
+    const saveNeedsRestart = ref(false);
+
     function saveTweakChanges(){
-      initSavedState();
-      showToast('All changes saved!');
+      // Collect unsaved tweaks
+      var items = [];
+      tweaks.value.forEach(function(t){
+        if(savedTweakState.value[t.row] !== undefined && savedTweakState.value[t.row] !== t.applied){
+          items.push({name: t.name, row: t.row, applied: t.applied, state: 'pending'});
+        }
+      });
+      if(items.length === 0){ showToast('Nothing to save'); return; }
+
+      savePopupItems.value = items;
+      savePopupTotal.value = items.length;
+      savePopupCurrent.value = 0;
+      savePopupDone.value = false;
+      saveNeedsRestart.value = false;
+      savePopupActive.value = true;
+
+      // Process items one by one with delay for visual feedback
+      function processNext(idx){
+        if(idx >= items.length){
+          // All done
+          savePopupDone.value = true;
+          savePopupCurrent.value = items.length;
+          saveNeedsRestart.value = true;
+          initSavedState();
+          refreshTweaks();
+          return;
+        }
+        // Mark current as active
+        savePopupItems.value[idx].state = 'active';
+        savePopupCurrent.value = idx;
+
+        // Auto-scroll to active item
+        setTimeout(function(){
+          var el = document.getElementById('save-item-'+idx);
+          if(el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+        }, 50);
+
+        setTimeout(function(){
+          // Mark as done
+          savePopupItems.value[idx].state = 'done';
+          savePopupCurrent.value = idx + 1;
+          processNext(idx + 1);
+        }, 150);
+      }
+      processNext(0);
+    }
+
+    function closeSavePopup(){
+      savePopupActive.value = false;
     }
 
     function discardTweakChanges(){
@@ -1520,6 +1629,7 @@ const app = createApp({
       tweakAnimState, tweakLogMsg, hasUnsavedTweaks, unsavedCount,
       handleToggleTweak, tweakStatusClass, tweakStatusText,
       saveTweakChanges, discardTweakChanges, confirmRevertAll,
+      savePopupActive, savePopupDone, savePopupItems, savePopupCurrent, savePopupTotal, savePopupPct, saveNeedsRestart, closeSavePopup,
       gameProfiles, fpsResolution, fpsQuality, fpsResults, fpsRunning, fpsNetPing, fpsStorageSpd, fpsLatencyScore, runFpsEstimate, runFpsPing, runFpsStorage, toastMsg,
       toggleTweak, doApplyRecommended, doApplyGaming, doRestoreAll,
       doClearTemp, doFlushDns, doVerifyAll, doRequestAdmin,
