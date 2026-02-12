@@ -23,21 +23,29 @@ namespace {
 struct ComInitGuard
 {
     HRESULT hr;
+    bool ownsInit = false;
     ComInitGuard()
     {
+        // Qt (especially WebEngine) already calls CoInitializeEx with APARTMENTTHREADED.
+        // Try MTA first, then STA, then assume COM is already initialized.
         hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-        if (SUCCEEDED(hr)) {
-            // CoInitializeSecurity can only be called once per process.
-            // If it fails (RPC_E_TOO_LATE), that's OK — it was already called.
-            HRESULT secHr = CoInitializeSecurity(
-                nullptr, -1, nullptr, nullptr,
-                RPC_C_AUTHN_LEVEL_DEFAULT,
-                RPC_C_IMP_LEVEL_IMPERSONATE,
-                nullptr, EOAC_NONE, nullptr);
-            (void)secHr; // Ignore — already set is fine
+        if (hr == RPC_E_CHANGED_MODE) {
+            // Already initialized as STA — that's fine, use it
+            hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
         }
+        ownsInit = SUCCEEDED(hr);
+        // Even if CoInit fails with S_FALSE (already init'd) or RPC_E_CHANGED_MODE,
+        // WMI can still work if COM is already initialized by Qt.
+
+        // CoInitializeSecurity — call it, ignore if already set
+        HRESULT secHr = CoInitializeSecurity(
+            nullptr, -1, nullptr, nullptr,
+            RPC_C_AUTHN_LEVEL_DEFAULT,
+            RPC_C_IMP_LEVEL_IMPERSONATE,
+            nullptr, EOAC_NONE, nullptr);
+        (void)secHr; // RPC_E_TOO_LATE is OK
     }
-    ~ComInitGuard() { if (SUCCEEDED(hr)) CoUninitialize(); }
+    ~ComInitGuard() { if (ownsInit) CoUninitialize(); }
 };
 
 class WmiSession
@@ -443,17 +451,67 @@ HardwareInfo HardwareDetector::detectWindows() const
     HardwareInfo info;
 #ifdef Q_OS_WIN
     ComInitGuard comInit;
-    if (FAILED(comInit.hr)) {
-        qWarning() << "[HW] CoInitializeEx failed:" << Qt::hex << comInit.hr;
-        // Fallback: get at least CPU arch
-        info.cpuName = QSysInfo::currentCpuArchitecture();
-        return info;
-    }
+    // COM may already be initialized by Qt — that's fine, WMI will still work.
+    // Only bail if we truly can't use COM at all.
 
     WmiSession wmi;
-    if (!wmi.open()) {
-        qWarning() << "[HW] WMI session failed to open";
-        info.cpuName = QSysInfo::currentCpuArchitecture();
+    bool wmiOk = wmi.open();
+
+    if (!wmiOk) {
+        qWarning() << "[HW] WMI session failed to open — using PowerShell fallback";
+        // PowerShell fallback for basic info
+        QProcess ps;
+        ps.start(QStringLiteral("powershell"), QStringList()
+            << QStringLiteral("-NoProfile") << QStringLiteral("-Command")
+            << QStringLiteral(
+                "$cpu = Get-CimInstance Win32_Processor | Select -First 1;"
+                "$gpu = Get-CimInstance Win32_VideoController | Where {$_.Name -notmatch 'Microsoft|Virtual'} | Select -First 1;"
+                "$ram = (Get-CimInstance Win32_PhysicalMemory | Measure -Property Capacity -Sum).Sum;"
+                "$mb = (Get-CimInstance Win32_BaseBoard).Product;"
+                "$disk = Get-CimInstance Win32_DiskDrive | Select Model;"
+                "$bios = Get-CimInstance Win32_BIOS | Select SMBIOSBIOSVersion,ReleaseDate;"
+                "Write-Output \"CPU=$($cpu.Name)\";"
+                "Write-Output \"CORES=$($cpu.NumberOfCores)\";"
+                "Write-Output \"THREADS=$($cpu.ThreadCount)\";"
+                "Write-Output \"CLOCK=$($cpu.MaxClockSpeed)\";"
+                "Write-Output \"GPU=$($gpu.Name)\";"
+                "Write-Output \"GPUDRIVER=$($gpu.DriverVersion)\";"
+                "Write-Output \"GPUVRAM=$($gpu.AdapterRAM)\";"
+                "Write-Output \"RAM=$ram\";"
+                "Write-Output \"MB=$mb\";"
+                "Write-Output \"BIOS=$($bios.SMBIOSBIOSVersion)\";"
+                "foreach($d in $disk){Write-Output \"DISK=$($d.Model)\"};"
+            ));
+        if (ps.waitForFinished(15000)) {
+            QString out = QString::fromUtf8(ps.readAllStandardOutput());
+            for (const QString &line : out.split(QLatin1Char('\n'))) {
+                QString l = line.trimmed();
+                if (l.startsWith(QStringLiteral("CPU=")))     info.cpuName = l.mid(4);
+                if (l.startsWith(QStringLiteral("CORES=")))   info.cpuCores = l.mid(6).toInt();
+                if (l.startsWith(QStringLiteral("THREADS="))) info.cpuThreads = l.mid(8).toInt();
+                if (l.startsWith(QStringLiteral("CLOCK=")))   info.cpuMaxClockMhz = l.mid(6).toULongLong();
+                if (l.startsWith(QStringLiteral("GPU=")))     info.gpuName = l.mid(4);
+                if (l.startsWith(QStringLiteral("GPUDRIVER=")))info.gpuDriverVersion = l.mid(10);
+                if (l.startsWith(QStringLiteral("GPUVRAM="))) info.gpuVramMb = l.mid(8).toUInt() / (1024U * 1024U);
+                if (l.startsWith(QStringLiteral("RAM=")))     info.ramMb = l.mid(4).toULongLong() / (1024ULL * 1024ULL);
+                if (l.startsWith(QStringLiteral("MB=")))      info.motherboard = l.mid(3);
+                if (l.startsWith(QStringLiteral("BIOS=")))    info.biosVersion = l.mid(5);
+                if (l.startsWith(QStringLiteral("DISK="))) {
+                    QString model = l.mid(5);
+                    if (!model.isEmpty()) info.storage.append(model);
+                    if (model.contains(QStringLiteral("SSD"), Qt::CaseInsensitive) ||
+                        model.contains(QStringLiteral("NVMe"), Qt::CaseInsensitive))
+                        info.hasSsd = true;
+                    if (model.contains(QStringLiteral("NVMe"), Qt::CaseInsensitive))
+                        info.hasNvme = true;
+                }
+            }
+        }
+        info.gpuVendor = classifyGpuVendor(info.gpuName);
+        if (info.cpuName.isEmpty()) info.cpuName = QSysInfo::currentCpuArchitecture();
+        if (info.gpuName.isEmpty()) info.gpuName = QStringLiteral("Unknown");
+        if (info.motherboard.isEmpty()) info.motherboard = QStringLiteral("Unknown");
+        qDebug() << "[HW] PowerShell fallback:" << info.cpuName << "|" << info.gpuName;
         return info;
     }
 
