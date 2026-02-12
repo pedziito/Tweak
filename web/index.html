@@ -466,22 +466,27 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <li :class="{active: activeCat==='All'}" @click="selectCategory('All')">
             <span class="sub-icon" v-html="catIcon('All')"></span>
             <span>All</span>
-            <span class="sub-count">{{tweaks.length}}</span>
+            <span class="sub-count">{{recommendedTweaks.length}}</span>
           </li>
           <template v-for="c in categories" :key="c">
-            <li v-if="c!=='All'" :class="{active: activeCat===c}" @click="selectCategory(c)">
+            <li v-if="c!=='All' && c!=='Hidden'" :class="{active: activeCat===c}" @click="selectCategory(c)">
               <span class="sub-icon" v-html="catIcon(c)"></span>
               <span>{{c}}</span>
               <span class="sub-count">{{tweakCountByCat(c)}}</span>
             </li>
           </template>
+          <li :class="{active: activeCat==='Hidden'}" @click="selectCategory('Hidden')" style="opacity:.6">
+            <span class="sub-icon" v-html="catIcon('Hidden')"></span>
+            <span>Hidden</span>
+            <span class="sub-count">{{hiddenTweaks.length}}</span>
+          </li>
         </ul>
         <!-- Pinned category (sidebar collapsed) -->
         <ul v-if="p.id==='tweaks'" class="nav-pinned" :class="{show: !sidebarHovered && page==='tweaks' && catPinned}">
           <li>
             <span class="sub-icon" v-html="catIcon(activeCat)"></span>
             <span class="nav-label">{{activeCat}}</span>
-            <span class="sub-count nav-label">{{activeCat==='All' ? tweaks.length : tweakCountByCat(activeCat)}}</span>
+            <span class="sub-count nav-label">{{activeCat==='All' ? recommendedTweaks.length : activeCat==='Hidden' ? hiddenTweaks.length : tweakCountByCat(activeCat)}}</span>
           </li>
         </ul>
       </template>
@@ -662,7 +667,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
           <h2>Optimizations</h2>
-          <p>{{filteredTweaks.length}} tweaks &middot; {{appliedCount}} applied</p>
+          <p>{{filteredTweaks.length}} tweaks &middot; {{appliedCount}} applied <span v-if="activeCat==='Hidden'" style="color:var(--amber);font-size:11px">&mdash; Ikke anbefalet til din hardware</span></p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <button class="btn btn-cyan" @click="startBatchApply" :disabled="unappliedVisible.length===0">
@@ -685,7 +690,8 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
       <div class="tweak-grid">
         <div class="card tweak-card" v-for="t in filteredTweaks" :key="t.row"
-             :class="{'just-applied': tweakAnimState[t.row]==='applied', 'just-reverted': tweakAnimState[t.row]==='reverted', 'applying': tweakAnimState[t.row]==='applying'}">
+             :class="{'just-applied': tweakAnimState[t.row]==='applied', 'just-reverted': tweakAnimState[t.row]==='reverted', 'applying': tweakAnimState[t.row]==='applying'}"
+             :style="activeCat==='Hidden' ? {opacity:'.75',borderColor:'rgba(245,158,11,.15)'} : {}">
           <div class="tc-top">
             <span class="tc-name">{{t.name}}</span>
             <label class="toggle" @click.stop>
@@ -697,6 +703,9 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           <div class="tc-bottom">
             <span class="tc-badge" :class="'risk-'+t.risk">{{t.risk}}</span>
             <span v-if="t.recommended" class="tc-badge rec">Recommended</span>
+            <span v-if="!t.recommended" style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px">
+              <svg class="icon-svg" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Hidden
+            </span>
             <span v-if="t.requiresAdmin" style="font-size:10px;color:var(--amber);display:flex;align-items:center;gap:3px">
               <svg class="icon-svg" style="width:12px;height:12px" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Admin
             </span>
@@ -711,7 +720,8 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
       <div v-if="filteredTweaks.length===0" class="empty-state">
         <svg class="icon-svg" style="width:48px;height:48px;margin:0 auto 16px;display:block" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <p>No tweaks match your search</p>
+        <p v-if="activeCat==='Hidden'">Alle tweaks er anbefalet til din hardware!</p>
+        <p v-else>No tweaks match your search</p>
       </div>
     </template>
 
@@ -1191,6 +1201,7 @@ const app = createApp({
     function catIcon(cat){
       var icons = {
         'All':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+        'Hidden':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
         'FPS':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
         'Gaming':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><line x1="15" y1="12" x2="15.01" y2="12"/><line x1="18" y1="10" x2="18.01" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>',
         'Latency':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
@@ -1555,9 +1566,19 @@ const app = createApp({
     const gameProfiles = [{name:'Gaming Optimizations', cats:['Gaming','Network']}];
 
     // ── Computed ──
+    // Recommended vs hidden split
+    const recommendedTweaks = computed(function(){ return tweaks.value.filter(function(t){ return t.recommended; }); });
+    const hiddenTweaks = computed(function(){ return tweaks.value.filter(function(t){ return !t.recommended; }); });
+
     const filteredTweaks = computed(function(){
-      var list = tweaks.value;
-      if(activeCat.value!=='All') list = list.filter(function(t){ return t.category===activeCat.value; });
+      var list;
+      if(activeCat.value === 'Hidden'){
+        list = hiddenTweaks.value;
+      } else if(activeCat.value === 'All'){
+        list = recommendedTweaks.value;
+      } else {
+        list = recommendedTweaks.value.filter(function(t){ return t.category===activeCat.value; });
+      }
       if(search.value){
         var q = search.value.toLowerCase();
         list = list.filter(function(t){ return t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.category.toLowerCase().includes(q); });
@@ -1567,7 +1588,7 @@ const app = createApp({
 
     const unappliedVisible = computed(function(){ return filteredTweaks.value.filter(function(t){ return !t.applied; }); });
 
-    function tweakCountByCat(c){ return tweaks.value.filter(function(t){ return t.category===c; }).length; }
+    function tweakCountByCat(c){ return recommendedTweaks.value.filter(function(t){ return t.category===c; }).length; }
 
     // ── Toast ──
     var toastTimer = null;
@@ -1806,7 +1827,7 @@ const app = createApp({
       sidebarHovered, catPinned, handleNavClick, selectCategory, catIcon,
       sysinfo, monitor, scores, tweaks, categories,
       isAdmin, appliedCount, recommendedCount,
-      filteredTweaks, unappliedVisible,
+      filteredTweaks, unappliedVisible, recommendedTweaks, hiddenTweaks,
       tweakCountByCat,
       tweakAnimState,
       handleToggleTweak, confirmRevertAll,
