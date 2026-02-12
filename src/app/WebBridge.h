@@ -50,6 +50,10 @@ public:
     // Batch apply with progress
     Q_INVOKABLE void applyBatch(QJsonArray rowIndices);
 
+    // App lifecycle
+    Q_INVOKABLE void restartComputer();
+    Q_INVOKABLE void closeApp();
+
     // Credential persistence (QSettings — reliable across restarts)
     Q_INVOKABLE void saveCredentials(const QString &user, const QString &pass, bool save);
     Q_INVOKABLE QJsonObject loadCredentials();
@@ -63,6 +67,7 @@ signals:
     void loginResult(bool success, const QString &message);
     void activateResult(bool success, const QString &message);
     void hwidStatusResult(const QString &status, const QString &message);
+    void showRestartDialog();
 
 private:
     AppController  *m_ctrl;

@@ -249,6 +249,19 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 .restart-banner .rb-title{font-size:14px;font-weight:700;color:var(--amber)}
 .restart-banner .rb-desc{font-size:11px;color:var(--text3);margin-top:2px}
 
+/* ── Restart Close Dialog ── */
+.restart-dialog{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:420px;text-align:center;animation:savePopIn .25s ease}
+.restart-dialog .rd-icon{width:56px;height:56px;border-radius:16px;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:var(--amber)}
+.restart-dialog .rd-icon svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.restart-dialog h3{font-size:20px;font-weight:800;margin-bottom:6px}
+.restart-dialog p{font-size:13px;color:var(--text3);margin-bottom:24px;line-height:1.6}
+.restart-dialog .rd-btns{display:flex;gap:12px}
+.restart-dialog .rd-btns button{flex:1;padding:14px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.restart-dialog .rd-btns .btn-restart{background:var(--amber);color:#000}
+.restart-dialog .rd-btns .btn-restart:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.restart-dialog .rd-btns .btn-later{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.restart-dialog .rd-btns .btn-later:hover{border-color:var(--text3);color:var(--text)}
+
 /* ── Quick Actions ── */
 .quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .qa-btn{padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -1091,6 +1104,21 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 
   </template><!-- end loggedIn -->
 
+  <!-- Restart Dialog (shown on app close) -->
+  <div class="overlay" v-if="restartDialogVisible" style="z-index:2000">
+    <div class="restart-dialog">
+      <div class="rd-icon">
+        <svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </div>
+      <h3>Genstart Påkrævet</h3>
+      <p>Nogle ændringer kræver en genstart af din computer for at træde i kraft. Vil du genstarte nu?</p>
+      <div class="rd-btns">
+        <button class="btn-later" @click="doRestartLater">Genstart Senere</button>
+        <button class="btn-restart" @click="doRestartNow">Genstart Nu</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" v-if="toastMsg" @click="toastMsg=''">{{toastMsg}}</div>
 </div>
@@ -1234,6 +1262,7 @@ const app = createApp({
 
     // Toggle with visual feedback
     function handleToggleTweak(t){
+      sessionHasChanges.value = true;
       var row = t.row;
       var wasApplied = t.applied;
       tweakAnimState.value[row] = 'applying';
@@ -1283,6 +1312,7 @@ const app = createApp({
           savePopupDone.value = true;
           savePopupCurrent.value = items.length;
           saveNeedsRestart.value = true;
+          sessionHasChanges.value = true;
           initSavedState();
           refreshTweaks();
           return;
@@ -1310,6 +1340,29 @@ const app = createApp({
     function closeSavePopup(){
       savePopupActive.value = false;
     }
+
+    // ── Restart Dialog (on app close) ──
+    const restartDialogVisible = ref(false);
+    const sessionHasChanges = ref(false);
+
+    function doRestartNow(){
+      restartDialogVisible.value = false;
+      if(bridge.value) bridge.value.restartComputer();
+    }
+    function doRestartLater(){
+      restartDialogVisible.value = false;
+      if(bridge.value) bridge.value.closeApp();
+    }
+
+    // Called from C++ closeEvent
+    window.__showRestartDialog = function(){
+      if(sessionHasChanges.value){
+        restartDialogVisible.value = true;
+      } else {
+        // No changes this session, just close
+        if(bridge.value) bridge.value.closeApp();
+      }
+    };
 
     // ── Settings state ──
     const settAutoSave      = ref(false);
@@ -1604,7 +1657,7 @@ const app = createApp({
     }
 
     // ── Actions ──
-    function toggleTweak(row){ if(bridge.value) bridge.value.toggleTweak(row); }
+    function toggleTweak(row){ sessionHasChanges.value = true; if(bridge.value) bridge.value.toggleTweak(row); }
     // toggleTweak kept for batch, handleToggleTweak used for individual UI toggle
     function doApplyRecommended(){ if(bridge.value){ bridge.value.applyRecommended(); showToast('Applying recommended tweaks...'); }}
     function doApplyGaming(){ if(bridge.value){ bridge.value.applyAllGaming(); showToast('Applying gaming tweaks...'); }}
@@ -1765,6 +1818,7 @@ const app = createApp({
       doClearTemp, doFlushDns, doVerifyAll, doRequestAdmin,
       startBatchApply, startFullBatchApply, applyGameProfile, closeBatch,
       batchActive, batchDone, batchCurrent, batchTotal, batchItems, batchPct,
+      restartDialogVisible, doRestartNow, doRestartLater,
     };
   }
 });

@@ -8,10 +8,43 @@
 #include <QPainter>
 #include <QIcon>
 #include <QPainterPath>
+#include <QCloseEvent>
 
 #include "app/AppController.h"
 #include "app/WebBridge.h"
 #include "app/LicenseManager.h"
+
+// Custom view that intercepts the close event to show restart dialog
+class TweakView : public QWebEngineView
+{
+    Q_OBJECT
+public:
+    TweakView(WebBridge *bridge, QWidget *parent = nullptr)
+        : QWebEngineView(parent), m_bridge(bridge), m_forceClose(false)
+    {
+        connect(m_bridge, &WebBridge::showRestartDialog, this, [this](){
+            // JS will call closeApp() or restartComputer() to actually close
+        });
+    }
+
+    void forceClose() { m_forceClose = true; close(); }
+
+protected:
+    void closeEvent(QCloseEvent *event) override
+    {
+        if (m_forceClose) {
+            event->accept();
+            return;
+        }
+        // Prevent close, ask JS to show restart dialog
+        event->ignore();
+        page()->runJavaScript(QStringLiteral("if(window.__showRestartDialog) window.__showRestartDialog();"));
+    }
+
+private:
+    WebBridge *m_bridge;
+    bool m_forceClose;
+};
 
 static QIcon createAvIcon()
 {
@@ -77,7 +110,7 @@ int main(int argc, char *argv[])
     QWebChannel channel;
     channel.registerObject(QStringLiteral("bridge"), &bridge);
 
-    QWebEngineView view;
+    TweakView view(&bridge);
 
     // Enable persistent local storage for the web engine
     QWebEngineProfile *profile = view.page()->profile();
@@ -93,3 +126,5 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+
+#include "main.moc"

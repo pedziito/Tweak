@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QThread>
 #include <QFile>
+#include <QProcess>
 
 WebBridge::WebBridge(AppController *controller, LicenseManager *license, QObject *parent)
     : QObject(parent), m_ctrl(controller), m_license(license)
@@ -204,4 +205,19 @@ void WebBridge::clearCredentials()
     s.remove(QStringLiteral(""));
     s.endGroup();
     s.sync();
+}
+
+void WebBridge::restartComputer()
+{
+#ifdef Q_OS_WIN
+    QProcess::startDetached(QStringLiteral("shutdown"), {"/r", "/t", "3", "/c", "ADAMV TWEAKS: Restarting to apply changes"});
+#else
+    QProcess::startDetached(QStringLiteral("systemctl"), {"reboot"});
+#endif
+    QCoreApplication::quit();
+}
+
+void WebBridge::closeApp()
+{
+    QCoreApplication::quit();
 }
