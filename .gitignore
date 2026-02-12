@@ -25,6 +25,5 @@ Thumbs.db
 *.dll
 *.pdb
 
-# Secrets – never commit
-license.conf
+# Secrets
 tools/.env

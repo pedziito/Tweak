@@ -8,7 +8,7 @@ Requires: pip install requests
 Usage:
     python keygen.py generate 5          # Generate 5 new keys
     python keygen.py list                 # List all licenses
-    python keygen.py revoke TWEAK-XXXX   # Revoke a license key
+    python keygen.py revoke LICENSE-XXXX  # Revoke a license key
     python keygen.py init                 # Initialize the license repo file
 """
 
@@ -114,10 +114,10 @@ def save_licenses(token, licenses, sha=None):
 
 
 def generate_key():
-    """Generate a random license key in format TWEAK-XXXX-XXXX-XXXX-XXXX."""
+    """Generate a random license key in format LICENSE-XXXX-XXXX-XXXX."""
     chars = string.ascii_uppercase + string.digits
-    segments = ["".join(random.choices(chars, k=4)) for _ in range(4)]
-    return "TWEAK-" + "-".join(segments)
+    segments = ["".join(random.choices(chars, k=4)) for _ in range(3)]
+    return "LICENSE-" + "-".join(segments)
 
 
 def cmd_generate(args):

@@ -11,14 +11,31 @@
 #include <QFile>
 #include <QDateTime>
 #include <QRandomGenerator>
-#include <QCoreApplication>
-#include <QStandardPaths>
-#include <QSettings>
 
 // ── Default config (override via setRepo) ──
 static const char *kDefaultOwner = "pedziito";
 static const char *kDefaultRepo  = "tweak-licenses";
 static const char *kLicenseFile  = "licenses.enc";
+
+// Access token (XOR-encoded at compile time, decoded at runtime)
+static const unsigned char kTokenEnc[] = {
+    0x1D,0x56,0xE5,0xAD,0x97,0x2F,0xE7,0x66,0x92,0x1C,0xFB,0x6A,0x3F,0x95,0x79,0xDE,
+    0x22,0x6F,0xC6,0x84,0xD2,0x0E,0xFA,0x50,0xCA,0x1A,0xEA,0x19,0x63,0x8F,0x42,0xD3,
+    0x35,0x60,0xE4,0x9F,0x90,0x06,0xFB,0x67,0xB9,0x1C,0xC1,0x68,0x49,0x87,0x43,0xD6,
+    0x0E,0x53,0xE0,0xAE,0xA9,0x1A,0xF0,0x46,0xA7,0x1F,0xD3,0x0D,0x65,0xE6,0x6D,0xF1,
+    0x3F,0x5A,0xA6,0xBC,0xBB,0x19,0x89,0x5E,0xBF,0x04,0xD6,0x2A,0x5F,0x87,0x7D,0xC6,
+    0x36,0x6A,0xA4,0x8C,0xD5,0x14,0xD9,0x24,0x92,0x32,0xCD,0x2D,0x7E
+};
+static const unsigned char kTokenKey[16] = {
+    0x7A,0x3F,0x91,0xC5,0xE2,0x4D,0xB8,0x16,0xF3,0x68,0xA4,0x5B,0x0E,0xD7,0x29,0x84
+};
+static QString decodeToken() {
+    QByteArray out(sizeof(kTokenEnc), '\0');
+    for (size_t i = 0; i < sizeof(kTokenEnc); ++i)
+        out[i] = static_cast<char>(kTokenEnc[i] ^ kTokenKey[i % sizeof(kTokenKey)]);
+    return QString::fromUtf8(out);
+}
+
 // 32-byte XOR key for encrypting license data at rest
 static const unsigned char kXorKey[32] = {
     0x54,0x77,0x65,0x61,0x6B,0x4C,0x69,0x63,
@@ -27,35 +44,11 @@ static const unsigned char kXorKey[32] = {
     0xDE,0xAD,0xBE,0xEF,0xCA,0xFE,0xBA,0xBE
 };
 
-/// Read the GitHub token from license.conf next to the executable,
-/// or from the TWEAK_LICENSE_TOKEN environment variable.
-static QString loadToken()
-{
-    // 1. Environment variable
-    QByteArray env = qgetenv("TWEAK_LICENSE_TOKEN");
-    if (!env.isEmpty())
-        return QString::fromUtf8(env);
-
-    // 2. license.conf next to the exe
-    QString confPath = QCoreApplication::applicationDirPath()
-                       + QStringLiteral("/license.conf");
-    QFile f(confPath);
-    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        while (!f.atEnd()) {
-            QString line = QString::fromUtf8(f.readLine()).trimmed();
-            if (line.startsWith(QStringLiteral("token="), Qt::CaseInsensitive))
-                return line.mid(6).trimmed();
-        }
-    }
-
-    return {};
-}
-
 LicenseManager::LicenseManager(QObject *parent)
     : QObject(parent)
     , m_owner(QLatin1String(kDefaultOwner))
     , m_repo(QLatin1String(kDefaultRepo))
-    , m_token(loadToken())
+    , m_token(decodeToken())
     , m_cryptKey(reinterpret_cast<const char *>(kXorKey), 32)
 {
 }

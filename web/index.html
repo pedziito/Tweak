@@ -234,7 +234,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <!-- Tab switcher -->
       <div style="display:flex;gap:0;margin-bottom:28px;border-radius:12px;overflow:hidden;border:1px solid var(--border)">
         <button @click="authTab='login'" :style="{flex:1,padding:'11px',border:'none',fontSize:'13px',fontWeight:600,cursor:'pointer',background:authTab==='login'?'var(--cyan)':'var(--bg3)',color:authTab==='login'?'#000':'var(--text3)',transition:'all .2s'}">Sign In</button>
-        <button @click="authTab='activate'" :style="{flex:1,padding:'11px',border:'none',fontSize:'13px',fontWeight:600,cursor:'pointer',background:authTab==='activate'?'var(--cyan)':'var(--bg3)',color:authTab==='activate'?'#000':'var(--text3)',transition:'all .2s'}">Activate License</button>
+        <button @click="authTab='activate'" :style="{flex:1,padding:'11px',border:'none',fontSize:'13px',fontWeight:600,cursor:'pointer',background:authTab==='activate'?'var(--cyan)':'var(--bg3)',color:authTab==='activate'?'#000':'var(--text3)',transition:'all .2s'}">Sign Up</button>
       </div>
 
       <!-- Login tab -->
@@ -257,7 +257,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <form v-if="authTab==='activate'" @submit.prevent="doActivate">
         <div class="field">
           <label>License Key</label>
-          <input type="text" v-model="licenseKey" placeholder="TWEAK-XXXX-XXXX-XXXX-XXXX" style="font-family:monospace;letter-spacing:1px">
+          <input type="text" v-model="licenseKey" placeholder="LICENSE-XXXX-XXXX-XXXX" style="font-family:monospace;letter-spacing:1px">
         </div>
         <div class="field">
           <label>Choose Username</label>

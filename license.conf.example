@@ -1,3 +1,0 @@
-# Place this file next to TweakApp.exe as "license.conf"
-# Or set the TWEAK_LICENSE_TOKEN environment variable instead.
-token=YOUR_GITHUB_TOKEN_HERE
