@@ -330,30 +330,27 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 .search-input::placeholder{color:var(--text3)}
 
 /* ── Table ── */
-table{width:100%;border-collapse:collapse;table-layout:fixed}
-th,td{text-align:left;padding:10px 12px;vertical-align:middle}
-th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);white-space:nowrap}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{text-align:left;padding:10px 14px;vertical-align:middle}
+th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
 th .icon{margin-right:4px;opacity:.5}
 td{font-size:13px;border-bottom:1px solid rgba(26,34,64,.5)}
 tr:hover td{background:rgba(255,255,255,.02)}
 tr.row-selected td{background:rgba(6,182,212,.04)}
-.col-chk{width:40px}
-.col-key{width:24%}
-.col-status{width:10%}
-.col-user{width:12%}
-.col-hwid{width:18%}
-.col-date{width:10%}
-.col-actions{width:100px;text-align:right}
-.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.th-chk{width:36px;padding-right:0}
+.th-actions{text-align:right}
+.key-cell{font-family:'Cascadia Code','Fira Code',monospace;font-weight:600;color:var(--cyan);font-size:13px;letter-spacing:.5px;display:inline-flex;align-items:center;gap:8px}
 .key-cell .icon{color:var(--cyan);opacity:.5;flex-shrink:0}
-.hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-cell{font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hwid-cell{font-family:monospace;font-size:11px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.user-cell{font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:6px}
 .user-cell .icon{color:var(--text3);flex-shrink:0}
-.date-cell{font-size:12px;color:var(--text3);white-space:nowrap}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.date-cell{font-size:12px;color:var(--text3)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .status-active{background:rgba(16,185,129,.12);color:var(--green)}
 .status-unused{background:rgba(6,182,212,.1);color:var(--cyan)}
-.actions-cell{display:flex;gap:4px;flex-wrap:nowrap;justify-content:flex-end}
+.td-actions{text-align:right}
+.actions-cell{display:inline-flex;gap:4px}
 .btn-icon{padding:7px;border-radius:8px;line-height:0}
 .btn-icon .icon{width:16px;height:16px}
 .empty{text-align:center;padding:48px;color:var(--text3);font-size:14px}
@@ -612,24 +609,15 @@ function renderTable() {
   const allKeys = filtered.map(l => l.key);
   const allChecked = allKeys.length > 0 && allKeys.every(k => selected.has(k));
 
-  let html = selHtml + `<table class="${multiMode ? 'multi-mode' : ''}"><colgroup>
-    <col class="chk-col col-chk">
-    <col class="col-key">
-    <col class="col-status">
-    <col class="col-user">
-    <col class="col-hwid">
-    <col class="col-date">
-    <col class="col-date">
-    <col class="col-actions">
-  </colgroup><thead><tr>
-    <th class="chk-col"><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
+  let html = selHtml + `<div class="table-scroll"><table class="${multiMode ? 'multi-mode' : ''}"><thead><tr>
+    <th class="chk-col th-chk"><input type="checkbox" class="chk" ${allChecked ? 'checked' : ''} onchange="toggleAll(this.checked)"></th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Key</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Status</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Username</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> HWID</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Created</th>
     <th><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Activated</th>
-    <th style="text-align:right">Actions</th>
+    <th class="th-actions">Actions</th>
   </tr></thead><tbody>`;
 
   for (const l of filtered) {
@@ -650,14 +638,14 @@ function renderTable() {
       <td class="hwid-cell" title="${esc(hwid)}">${esc(hwid)}</td>
       <td class="date-cell">${esc(created)}</td>
       <td class="date-cell">${esc(activated)}</td>
-      <td><div class="actions-cell">
+      <td class="td-actions"><div class="actions-cell">
         ${l.hwid ? `<button class="btn btn-amber btn-icon" onclick="resetHwid('${esc(l.key)}')" title="Reset HWID"><svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
         ${l.username ? `<button class="btn btn-outline btn-icon" onclick="resetUser('${esc(l.key)}')" title="Reset User"><svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg></button>` : ''}
         <button class="btn btn-red btn-icon" onclick="revokeKey('${esc(l.key)}')" title="Revoke"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div></td>
     </tr>`;
   }
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   document.getElementById('tableWrap').innerHTML = html;
 }
 
