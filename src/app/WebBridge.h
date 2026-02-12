@@ -34,6 +34,7 @@ public:
     Q_INVOKABLE void activateLicense(const QString &key, const QString &username,
                                      const QString &password);
     Q_INVOKABLE QString getHwid();
+    Q_INVOKABLE void checkHwidStatus(const QString &username);
 
     // ── Actions (called from JS) ──
     Q_INVOKABLE void toggleTweak(int row);
@@ -55,6 +56,7 @@ signals:
     void batchComplete();
     void loginResult(bool success, const QString &message);
     void activateResult(bool success, const QString &message);
+    void hwidStatusResult(const QString &status, const QString &message);
 
 private:
     AppController  *m_ctrl;

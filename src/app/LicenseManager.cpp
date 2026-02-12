@@ -256,7 +256,7 @@ void LicenseManager::login(const QString &username, const QString &password)
     QByteArray passHash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256).toHex();
 
     fetchLicenses([this, username, passHash, myHwid]
-                  (bool ok, QJsonArray licenses, QString /*sha*/) {
+                  (bool ok, QJsonArray licenses, QString sha) {
         if (!ok) {
             emit loginResult(false, QStringLiteral("Could not connect to license server."));
             return;
@@ -269,7 +269,21 @@ void LicenseManager::login(const QString &username, const QString &password)
                     emit loginResult(false, QStringLiteral("Wrong password."));
                     return;
                 }
-                if (lic.value(QStringLiteral("hwid")).toString() != myHwid) {
+                QString storedHwid = lic.value(QStringLiteral("hwid")).toString();
+                if (storedHwid.isEmpty()) {
+                    // HWID was reset — auto-bind to this machine
+                    lic[QStringLiteral("hwid")] = myHwid;
+                    lic[QStringLiteral("activated_at")] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+                    licenses[i] = lic;
+                    saveLicenses(licenses, sha, [this](bool saved) {
+                        if (saved)
+                            emit loginResult(true, QStringLiteral("Welcome back! HWID re-bound to this machine."));
+                        else
+                            emit loginResult(false, QStringLiteral("Failed to update HWID binding."));
+                    });
+                    return;
+                }
+                if (storedHwid != myHwid) {
                     emit loginResult(false, QStringLiteral("This account is bound to a different machine."));
                     return;
                 }
@@ -279,5 +293,44 @@ void LicenseManager::login(const QString &username, const QString &password)
         }
 
         emit loginResult(false, QStringLiteral("User not found. Activate a license first."));
+    });
+}
+
+void LicenseManager::checkHwidStatus(const QString &username)
+{
+    if (username.isEmpty()) {
+        emit hwidStatusResult(QStringLiteral("none"), QString());
+        return;
+    }
+
+    QString myHwid = hwid();
+
+    fetchLicenses([this, username, myHwid]
+                  (bool ok, QJsonArray licenses, QString /*sha*/) {
+        if (!ok) {
+            emit hwidStatusResult(QStringLiteral("none"), QString());
+            return;
+        }
+
+        for (int i = 0; i < licenses.size(); ++i) {
+            QJsonObject lic = licenses[i].toObject();
+            if (lic.value(QStringLiteral("username")).toString().compare(username, Qt::CaseInsensitive) == 0) {
+                QString storedHwid = lic.value(QStringLiteral("hwid")).toString();
+                if (storedHwid.isEmpty()) {
+                    // HWID was reset — will re-bind on next login
+                    emit hwidStatusResult(QStringLiteral("ok"), QStringLiteral("HWID will be bound on login"));
+                    return;
+                }
+                if (storedHwid == myHwid) {
+                    emit hwidStatusResult(QStringLiteral("ok"), QStringLiteral("HWID matches"));
+                    return;
+                }
+                emit hwidStatusResult(QStringLiteral("mismatch"), QStringLiteral("HWID mismatch — contact admin for reset"));
+                return;
+            }
+        }
+
+        // User not found — no status to show
+        emit hwidStatusResult(QStringLiteral("none"), QString());
     });
 }

@@ -25,8 +25,13 @@ public:
     void activate(const QString &licenseKey, const QString &username, const QString &password);
 
     /// Login: checks credentials + HWID against the remote license database.
+    /// If HWID was reset, auto-binds the current machine on successful login.
     /// Returns result asynchronously via loginResult signal.
     void login(const QString &username, const QString &password);
+
+    /// Check HWID status for a username (used for UI indicator).
+    /// Returns result asynchronously via hwidStatusResult signal.
+    void checkHwidStatus(const QString &username);
 
     /// Set the GitHub repo and token used for license storage.
     /// Defaults are compiled in but can be overridden.
@@ -35,6 +40,7 @@ public:
 signals:
     void loginResult(bool success, const QString &message);
     void activateResult(bool success, const QString &message);
+    void hwidStatusResult(const QString &status, const QString &message);
 
 private:
     void fetchLicenses(std::function<void(bool ok, QJsonArray licenses, QString sha)> callback);

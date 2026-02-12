@@ -241,7 +241,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
       <form v-if="authTab==='login'" @submit.prevent="doLogin">
         <div class="field">
           <label>Username</label>
-          <input type="text" v-model="loginUser" placeholder="Enter your username" autofocus>
+          <input type="text" v-model="loginUser" placeholder="Enter your username" autofocus @input="onLoginUserInput">
         </div>
         <div class="field">
           <label>Password</label>
@@ -251,6 +251,10 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
           {{authLoading ? 'Signing in...' : 'Sign In'}}
         </button>
         <div class="login-error">{{loginError}}</div>
+
+        <!-- HWID Status Indicator -->
+        <div v-if="hwidStatus==='ok'" style="margin-top:10px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:12px;font-style:italic;color:var(--text3)">{{hwidStatusMsg}}</div>
+        <div v-if="hwidStatus==='mismatch'" style="margin-top:10px;padding:8px 14px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);font-size:12px;font-weight:600;color:var(--red)">{{hwidStatusMsg}}</div>
       </form>
 
       <!-- Activate tab -->
@@ -682,6 +686,8 @@ const app = createApp({
     const activateMsg  = ref('');
     const activateSuccess = ref(false);
     const hwidValue   = ref('...');
+    const hwidStatus  = ref('none');
+    const hwidStatusMsg = ref('');
     const bridge      = ref(null);
 
     // ── App State ──
@@ -766,6 +772,19 @@ const app = createApp({
       if(!bridge.value){ loginError.value = 'Backend not available'; return; }
       authLoading.value = true;
       bridge.value.loginLicense(loginUser.value, loginPass.value);
+    }
+
+    // ── Debounced HWID status check ──
+    var hwidCheckTimer = null;
+    function onLoginUserInput(){
+      hwidStatus.value = 'none';
+      hwidStatusMsg.value = '';
+      clearTimeout(hwidCheckTimer);
+      var u = loginUser.value.trim();
+      if(!u || !bridge.value) return;
+      hwidCheckTimer = setTimeout(function(){
+        bridge.value.checkHwidStatus(u);
+      }, 600);
     }
 
     function doActivate(){
@@ -892,6 +911,12 @@ const app = createApp({
           }
         });
 
+        // HWID status indicator result
+        bridge.value.hwidStatusResult.connect(function(status, message){
+          hwidStatus.value = status;
+          hwidStatusMsg.value = message || '';
+        });
+
         bridge.value.tweaksChanged.connect(function(){ refreshTweaks(); });
         bridge.value.monitorUpdated.connect(function(){
           bridge.value.getMonitorData(function(d){ monitor.value = d; });
@@ -919,7 +944,8 @@ const app = createApp({
     return {
       loggedIn, currentUser, loginUser, loginPass, loginError, doLogin, doLogout,
       authTab, authLoading, licenseKey, activateUser, activatePass,
-      activateMsg, activateSuccess, hwidValue, doActivate,
+      activateMsg, activateSuccess, hwidValue, hwidStatus, hwidStatusMsg,
+      doActivate, onLoginUserInput,
       bridge, page, pages, search, activeCat,
       sysinfo, monitor, scores, tweaks, categories,
       isAdmin, appliedCount, recommendedCount,

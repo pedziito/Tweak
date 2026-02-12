@@ -16,6 +16,7 @@ WebBridge::WebBridge(AppController *controller, LicenseManager *license, QObject
     // Forward license signals
     connect(m_license, &LicenseManager::loginResult,    this, &WebBridge::loginResult);
     connect(m_license, &LicenseManager::activateResult, this, &WebBridge::activateResult);
+    connect(m_license, &LicenseManager::hwidStatusResult, this, &WebBridge::hwidStatusResult);
 }
 
 QJsonObject WebBridge::getSystemInfo()
@@ -114,6 +115,11 @@ void WebBridge::activateLicense(const QString &key, const QString &username,
 QString WebBridge::getHwid()
 {
     return m_license->hwid();
+}
+
+void WebBridge::checkHwidStatus(const QString &username)
+{
+    m_license->checkHwidStatus(username);
 }
 
 int  WebBridge::getAppliedCount()     { return m_ctrl->appliedCount(); }

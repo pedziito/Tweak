@@ -41,9 +41,7 @@ XOR_KEY = bytes([
 ])
 
 def get_token():
-    token = os.environ.get("GITHUB_TOKEN")
-    if token:
-        return token
+    # .env file takes priority over environment (Codespaces sets its own GITHUB_TOKEN)
     env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
     if os.path.exists(env_file):
         with open(env_file) as f:
@@ -51,6 +49,9 @@ def get_token():
                 line = line.strip()
                 if line.startswith("GITHUB_TOKEN="):
                     return line.split("=", 1)[1].strip().strip('"').strip("'")
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        return token
     return None
 
 def encrypt(data: bytes) -> bytes:
@@ -320,6 +321,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
   <div class="card">
     <div class="card-title">All Licenses</div>
+    <div style="margin-bottom:14px">
+      <input type="text" id="searchInput" placeholder="Search by key or username..." oninput="renderTable()" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;outline:none">
+    </div>
     <div id="tableWrap">
       <div class="empty"><span class="loading"></span> Loading...</div>
     </div>
@@ -359,14 +363,16 @@ function updateStats() {
 
 function renderTable() {
   updateStats();
-  if (licenses.length === 0) {
-    document.getElementById('tableWrap').innerHTML = '<div class="empty">No licenses yet. Generate some!</div>';
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const filtered = query ? licenses.filter(l => l.key.toLowerCase().includes(query) || (l.username || '').toLowerCase().includes(query)) : licenses;
+  if (filtered.length === 0) {
+    document.getElementById('tableWrap').innerHTML = query ? '<div class="empty">No matches found</div>' : '<div class="empty">No licenses yet. Generate some!</div>';
     return;
   }
   let html = `<table><thead><tr>
     <th>License Key</th><th>Status</th><th>Username</th><th>HWID</th><th>Created</th><th>Activated</th><th>Actions</th>
   </tr></thead><tbody>`;
-  for (const l of licenses) {
+  for (const l of filtered) {
     const active = !!l.username;
     const hwid = l.hwid || '—';
     const user = l.username || '—';
