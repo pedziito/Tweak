@@ -68,6 +68,7 @@ signals:
     void activateResult(bool success, const QString &message);
     void hwidStatusResult(const QString &status, const QString &message);
     void showRestartDialog();
+    void closeAppRequested();
 
 private:
     AppController  *m_ctrl;

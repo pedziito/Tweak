@@ -5,7 +5,7 @@ import QtQuick.Controls 2.15
 /// Hone-style optimization card — FIXED HEIGHT for uniform 3-column grid
 Rectangle {
     id: card
-    height: 200
+    implicitHeight: 200
     radius: 12
     color: cardHover.containsMouse ? "#111827" : "#0c1120"
     border.color: "#141a2a"; border.width: 1

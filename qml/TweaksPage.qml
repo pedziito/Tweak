@@ -253,8 +253,6 @@ Item {
                             if (q === "") return true
                             return model.name.toLowerCase().indexOf(q) !== -1 || model.description.toLowerCase().indexOf(q) !== -1
                         }
-                        height: visible ? implicitHeight : 0
-                        opacity: visible ? 1 : 0
                     }
                 }
             }

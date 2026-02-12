@@ -219,5 +219,5 @@ void WebBridge::restartComputer()
 
 void WebBridge::closeApp()
 {
-    QCoreApplication::quit();
+    emit closeAppRequested();
 }

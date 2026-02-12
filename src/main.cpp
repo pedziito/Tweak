@@ -112,6 +112,9 @@ int main(int argc, char *argv[])
 
     TweakView view(&bridge);
 
+    // Connect closeApp to force-close (bypass closeEvent intercept)
+    QObject::connect(&bridge, &WebBridge::closeAppRequested, &view, &TweakView::forceClose);
+
     // Enable persistent local storage for the web engine
     QWebEngineProfile *profile = view.page()->profile();
     profile->setPersistentStoragePath(
